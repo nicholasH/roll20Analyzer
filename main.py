@@ -46,7 +46,7 @@ for line in f:
         playerId = s[1]
         playerId = playerId.strip()
         currentPlayer = playerId
-        stats = {"photos":set(),"names":set(),"totCrtSus":0,"totCrt":0,"nat20":0,"nat1":0}
+        stats = {"photos":set(),"names":set(),"totCrtSus":0,"totCrtFail":0,"nat20":0,"nat1":0}
         f.next()
         f.next()
         line=f.next()
@@ -73,7 +73,22 @@ for line in f:
         player = playerStats[currentPlayer]
         photos = player["photos"];
         if currentPhotoId in photos:
-            player["names"].add(line)
+            player["names"].add(line.strip())
+    if "diceroll" in line:
+        if "critsuccess" in line:
+            player = playerStats[currentPlayer]
+            player["totCrtSus"]+= 1
+            if "d20" in line:
+                player["nat20"] += 1
+        elif "critfail" in line:
+            player = playerStats[currentPlayer]
+            player["totCrtFail"] += 1
+            if "d20" in line:
+                player["nat1"] += 1
+
+for player, values in playerStats.iteritems():
+    print(values["names"])
+    print("Crit success: {}, Nat 20: {}, Crit fail: {}, Nat 1 {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
 
 
 
