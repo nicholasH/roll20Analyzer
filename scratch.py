@@ -9,20 +9,23 @@ class HTMLParser(HTMLParser):
             wf.write(' '.join(str(s) for s in attr) + '\n');
             
     def handle_data(self, data):
-        f
         #print("Data     :", data)
         wf.write(data.strip() +"\n");
         
+        
 
 f = open("E:\\GitProjects\\roll20Analyzer\\data\\test.html",'r')
-wf = open("E:\\GitProjects\\roll20Analyzer\\data\\scrub.txt",'w')
+wf = open("E:\\GitProjects\\roll20Analyzer\\data\\testScrub.txt",'w')
 
 
 
-
+'''
 parser = HTMLParser()
-
 parser.feed(f.readline())
+'''
+
+for line in f.read().split("<div"):
+    wf.write(line +"\n")
 
 
 
