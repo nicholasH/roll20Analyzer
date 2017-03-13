@@ -66,9 +66,14 @@ for line in f:
         playerId = playerId.strip()
         currentPlayer = playerId
     if "class avatar" in line:
-        f.next()
-        s= line
+        s= f.next()
         currentPhotoId = s.strip()
+    if "class by" in line:
+        line = f.next()
+        player = playerStats[currentPlayer]
+        photos = player["photos"];
+        if currentPhotoId in photos:
+            player["names"].add(line)
 
 
 
