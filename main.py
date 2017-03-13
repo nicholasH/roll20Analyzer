@@ -2,7 +2,7 @@ import os
 from HTMLParser import HTMLParser
 
 import sys
-
+from collections import Counter
 
 class HTMLParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
@@ -46,7 +46,7 @@ for line in f:
         playerId = s[1]
         playerId = playerId.strip()
         currentPlayer = playerId
-        stats = {"photos":set(),"names":set(),"totCrtSus":0,"totCrtFail":0,"nat20":0,"nat1":0}
+        stats = {"photos":set(),"names":set(),"totCrtSus":0,"totCrtFail":0,"nat20":0,"nat1":0,"diceRolls":[]}
         f.next()
         f.next()
         line=f.next()
@@ -75,29 +75,27 @@ for line in f:
         if currentPhotoId in photos:
             player["names"].add(line.strip())
     if "diceroll" in line:
+        if "dropped" in line:
+            continue
+        player = playerStats[currentPlayer]
         if "critsuccess" in line:
-            player = playerStats[currentPlayer]
             player["totCrtSus"]+= 1
             if "d20" in line:
                 player["nat20"] += 1
         elif "critfail" in line:
-            player = playerStats[currentPlayer]
             player["totCrtFail"] += 1
             if "d20" in line:
                 player["nat1"] += 1
+        roll = line.split(" ")[2].strip()
+        player["diceRolls"].append(roll)
 
 for player, values in playerStats.iteritems():
-    print(values["names"])
+    print(values["names"],len(values["names"]))
+    print(len(values["diceRolls"]))
     print("Crit success: {}, Nat 20: {}, Crit fail: {}, Nat 1 {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
+    print(Counter(values["diceRolls"]))
+    print('\n')
 
-
-
-
-
-
-
-
-print(playerStats)
 f.close()
 
 
