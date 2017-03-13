@@ -87,6 +87,8 @@ for line in f:
             if "d20" in line:
                 player["nat1"] += 1
         roll = line.split(" ")[2].strip()
+        if "withouticons" in roll:
+            roll = line.split(" ")[3].strip();
         player["diceRolls"].append(roll)
 
 for player, values in playerStats.iteritems():
