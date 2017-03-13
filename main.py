@@ -16,8 +16,15 @@ class HTMLParser(HTMLParser):
         #print("Data     :", data)
         wf.write(data.strip() +"\n");
 
+path = ""
 
-f = open(os.path.join(sys.path[0],"data\\Chat Log for Caramohn's Level.html"),'r')
+for file in os.listdir(os.path.join(sys.path[0], "data")):
+    if file.endswith(".html") and file.startswith("Chat Log for"):
+        path= os.path.join(sys.path[0], "data", file)
+
+
+
+f = open(path,'r')
 wf = open(os.path.join(sys.path[0],"data\\scrub.txt"),'w')
 
 parser = HTMLParser()
