@@ -116446,7 +116446,8 @@ class tstamp
 December 06, 2016 4:41PM
 class by
 Loth (Mike):
-68->62
+68-
+62
 
 class message rollresult player--KQ7ka8n4_wfGoKfwMwE 
 data-messageid -KYLicSnD4qK50hFHJwI
@@ -118618,11 +118619,13 @@ class tstamp
 December 06, 2016 4:44PM
 class by
 Loth (Mike):
-62->57
+62-
+57
 
 class message general
 data-messageid -KYLjBgNo6cvXmM1qKlt
-30->25
+30-
+25
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLk4t14QAI85S8x9mg
@@ -118914,7 +118917,8 @@ class tstamp
 December 06, 2016 4:45PM
 class by
 Loth (Mike):
-57->52
+57-
+52
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLkJNO9ahy7GoS70l4
@@ -118986,7 +118990,8 @@ class rolled
 
 class message general
 data-messageid -KYLjhROL2AFKdojm6rj
-25->20
+25-
+20
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLkL_dLmihyUAwnxwz
@@ -119786,7 +119791,8 @@ class tstamp
 December 06, 2016 4:47PM
 class by
 Loth (Mike):
-52->44
+52-
+44
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLk_kljQEI-bck3Bj5
@@ -119926,7 +119932,8 @@ class rolled
 
 class message general
 data-messageid -KYLjzBaipAwB7jRtMn1
-20->15
+20-
+15
 
 class message rollresult player--KQ7ka8n4_wfGoKfwMwE 
 data-messageid -KYLk04IhdoD34WEW8IG
@@ -120658,7 +120665,8 @@ class tstamp
 December 06, 2016 4:48PM
 class by
 Loth (Mike):
-44->39
+44-
+39
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLkqb-k5aHlt12E9CQ
@@ -121018,7 +121026,8 @@ class tstamp
 December 06, 2016 4:48PM
 class by
 Loth (Mike):
-39->34
+39-
+34
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLkzpUblzxHmxHk6_K
@@ -121666,7 +121675,8 @@ class rolled
 
 class message general
 data-messageid -KYLkTZivTphWrIFiq3r
-15->12
+15-
+12
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLl7T0zpXS7VF9VxXG
@@ -121958,7 +121968,8 @@ class rolled
 
 class message general
 data-messageid -KYLkYB43EkgsZZv_tp9
-12->9
+12-
+9
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLlFJNpdCvWHlGvT-C
@@ -122292,7 +122303,8 @@ class tstamp
 December 06, 2016 4:51PM
 class by
 Loth (Mike):
-9->15
+9-
+15
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLleJ-npbJzMOqoqWV
@@ -122364,7 +122376,8 @@ class rolled
 
 class message general
 data-messageid -KYLl207f5d7ZWG7LwV1
-15->10
+15-
+10
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLlgFkWxLeO456F2Nc
@@ -122520,7 +122533,8 @@ class tstamp
 December 06, 2016 4:52PM
 class by
 Loth (Mike):
-34->28
+34-
+28
 
 class message rollresult player--KQ7ka8n4_wfGoKfwMwE 
 data-messageid -KYLl6XEOxRpUf2qOHax
@@ -123032,7 +123046,8 @@ class tstamp
 December 06, 2016 4:53PM
 class by
 Loth (Mike):
-28->22
+28-
+22
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLlw5c4pJHliJX92Ii
@@ -123214,7 +123229,8 @@ class tstamp
 December 06, 2016 4:53PM
 class by
 Loth (Mike):
-22->36
+22-
+36
 
 class message rollresult player--KQ7ka8n4_wfGoKfwMwE 
 data-messageid -KYLlNLzmMVrGo4kei8r
@@ -123506,7 +123522,8 @@ class rolled
 
 class message general
 data-messageid -KYLlSkTmInbJYhOztoi
-10->8
+10-
+8
 
 class message rollresult player--KQ7ka8n4_wfGoKfwMwE 
 data-messageid -KYLlTMKOwCcBdLEpRQ9
@@ -123662,7 +123679,8 @@ class tstamp
 December 06, 2016 4:54PM
 class by
 Loth (Mike):
-36->28
+36-
+28
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLmAftukXZh7KS-Rg2
@@ -124022,7 +124040,8 @@ class rolled
 
 class message general
 data-messageid -KYLlcghGSg4-qZXtyVH
-8->3
+8-
+3
 
 class message rollresult player--KQ7jnY8ofTOCMT34hAM 
 data-messageid -KYLmGu--tYTIEUPKUPw
