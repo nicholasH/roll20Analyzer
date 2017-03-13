@@ -17,7 +17,7 @@ class HTMLParser(HTMLParser):
 f = open("E:\\GitProjects\\roll20Analyzer\\data\\test.html",'r')
 wf = open("E:\\GitProjects\\roll20Analyzer\\data\\testScrub.txt",'w')
 
-
+print("test");
 
 '''
 parser = HTMLParser()
