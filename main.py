@@ -8,7 +8,7 @@ from collections import Counter
 class HTMLParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         #print("Start tag:", tag)
-        
+
         for attr in attrs:
             #print("     attr:", attr)
             wf.write(' '.join(str(s) for s in attr) + '\n');
@@ -106,16 +106,19 @@ for line in f:
             if "d20" in line:
                 player["nat1"] += 1
         roll = line.split(" ")[2].strip()
-        if "withouticons" in roll:
+        if "withouticons" in roll:# some roll dont have icons those roll say that in the place that should have the D#
             roll = line.split(" ")[3].strip();
         player["diceRolls"].append(roll)
 
+
 for player, values in playerStats.iteritems():
+
     print(values["names"],len(values["names"]))
     print(len(values["diceRolls"]))
-    print("Crit success: {}, Nat 20: {}, Crit fail: {}, Nat 1 {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
+    print("Crit success: {}, Nat 20: {}, Crit fail: {}, Nat 1: {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
     print(Counter(values["diceRolls"]))
     print('\n')
+
 
 f.close()
 
