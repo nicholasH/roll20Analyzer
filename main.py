@@ -114,8 +114,8 @@ for line in f:
 for player, values in playerStats.iteritems():
 
     print(values["names"],len(values["names"]))
-    print(len(values["diceRolls"]))
-    print("Crit success: {}, Nat 20: {}, Crit fail: {}, Nat 1: {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
+    print("Total Number of Rolls",len(values["diceRolls"]))
+    print("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
     print(Counter(values["diceRolls"]))
     print('\n')
 
