@@ -107,7 +107,8 @@ for line in f:
                 player["nat1"] += 1
         roll = line.split(" ")[2].strip()
         if "withouticons" in roll:# some roll dont have icons those roll say that in the place that should have the D#
-            roll = line.split(" ")[3].strip();
+            player["diceRolls"].append(roll)
+            roll = line.split(" ")[3].strip()
         player["diceRolls"].append(roll)
 
 
