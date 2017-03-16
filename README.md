@@ -9,3 +9,4 @@ Q:who rolled the highest number
 
 
 ToDo if more that one data exist user get to choose the file the want
+Todo add parse out data via date
