@@ -1,5 +1,5 @@
 import os
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
 import sys
 from collections import Counter
@@ -34,7 +34,7 @@ parser = HTMLParser()
 #maybe make a loading bar for this
 for line in f:
     if "textchatcontainer" in line:# This is the container that has all the rolls and chat data
-        parser.feed(f.next())
+        parser.feed(f.readline())
         break
 
 f.close()
@@ -64,11 +64,11 @@ for line in f:
         playerId = playerId.strip()
         currentPlayer = playerId
         stats = {"photos":set(),"names":set(),"totCrtSus":0,"totCrtFail":0,"nat20":0,"nat1":0,"diceRolls":[]}
-        f.next()
-        f.next()
-        line=f.next()
+        f.readline()
+        f.readline()
+        line=f.readline()
         if "class avatar" in line:
-            line =f.next()
+            line =f.readline()
             photos = stats["photos"]
             photo = line.strip()
             photos.add(photo)
@@ -85,10 +85,10 @@ for line in f:
         playerId = playerId.strip()
         currentPlayer = playerId
     if "class avatar" in line:#this gets the avatar of the message that is being analyzed
-        s= f.next()
+        s= f.readline()
         currentPhotoId = s.strip()
     if "class by" in line:
-        line = f.next()
+        line = f.readline()
         player = playerStats[currentPlayer]
         photos = player["photos"];
         if currentPhotoId in photos:
@@ -112,7 +112,7 @@ for line in f:
         player["diceRolls"].append(roll)
 
 
-for player, values in playerStats.iteritems():
+for player, values in playerStats.items():
 
     print(values["names"],len(values["names"]))
     print("Total Number of Rolls",len(values["diceRolls"]))
@@ -123,5 +123,16 @@ for player, values in playerStats.iteritems():
 
 f.close()
 
+def talk():
+    return returnStats()
 
-
+def returnStats():
+    s = ""
+    for player, values in playerStats.items():
+        s = s +  str(values["names"]) +" "+ str(len(values["names"]))
+        s= s + "Total Number of Rolls " + str(len(values["diceRolls"]))
+        s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
+                                                                            values["totCrtFail"], values["nat1"]))
+        s = s + str(Counter(values["diceRolls"]))
+        s = s + ('\n')
+    return s
