@@ -4,7 +4,7 @@ import main
 import random
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='D&D_NPC_BOT')
+bot = commands.Bot(command_prefix='D&D')
 
 
 @bot.event
@@ -19,13 +19,6 @@ async def on_ready(*a):
 async def hello():
     await bot.say("fuck you")
 
-@bot.group(pass_context=True)
-async def cool(ctx):
-    """Says if a user is cool.
-    In reality this just checks if a subcommand is being invoked.
-    """
-    if ctx.invoked_subcommand is None:
-        await bot.say('No, {0.subcommand_passed} is not cool'.format(ctx))
 
 
 @bot.command()

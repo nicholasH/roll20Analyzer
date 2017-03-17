@@ -17,31 +17,34 @@ class HTMLParser(HTMLParser):
         #print("Data     :", data)
         wf.write(data.strip() +"\n");
 
-path = ""
 
-#looks for the data in the data folder
-for file in os.listdir(os.path.join(sys.path[0], "data")):
-    if file.endswith(".html") and file.startswith("Chat Log for"):
-        path= os.path.join(sys.path[0], "data", file)
+def getPath():
+    path = ""
+    # looks for the data in the data folder
+    for file in os.listdir(os.path.join(sys.path[0], "data")):
+        if file.endswith(".html") and file.startswith("Chat Log for"):
+            path = os.path.join(sys.path[0], "data", file)
+
+    return path
 
 
-
-f = open(path,'r')
+f = open(getPath(),'r')
+scrubPath = os.path.join(sys.path[0],"data\\scrub.txt")
 #the scrubing file that has all the usefull data in it
-wf = open(os.path.join(sys.path[0],"data\\scrub.txt"),'w')
+wf = open(scrubPath,'w')
 
 parser = HTMLParser()
-#maybe make a loading bar for this
+#todo maybe make a loading bar for this
 for line in f:
     if "textchatcontainer" in line:# This is the container that has all the rolls and chat data
         parser.feed(f.readline())
-        break
+
 
 f.close()
 wf.close()
 print("done with scrub")
 
-f = open(os.path.join(sys.path[0],"data\\scrub.txt"),'r')
+f = open(scrubPath,'r')
 
 playerStats = dict()#PlayerId:dict() states
 '''
@@ -126,6 +129,8 @@ f.close()
 def talk():
     return returnStats()
 
+
+#todo make this look good
 def returnStats():
     s = ""
     for player, values in playerStats.items():
@@ -136,3 +141,4 @@ def returnStats():
         s = s + str(Counter(values["diceRolls"]))
         s = s + ('\n')
     return s
+
