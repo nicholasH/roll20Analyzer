@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import main
+import analyze
 import random
 
 client = discord.Client()
@@ -23,7 +23,7 @@ async def hello():
 
 @bot.command()
 async def dndstuff():
-    await bot.say(main.talk())
+    await bot.say(analyze.talk())
 
 @bot.command()
 async def kill():
