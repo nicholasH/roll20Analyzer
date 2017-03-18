@@ -35,8 +35,14 @@ wf = open(scrubPath,'w')
 
 parser = HTMLParser()
 #todo maybe make a loading bar for this
+
+read = False
 for line in f:
     if "textchatcontainer" in line:# This is the container that has all the rolls and chat data
+        read = True
+    if "tmpl_chatmessage_general" in line:
+        read = False
+    if read:
         parser.feed(f.readline())
 
 

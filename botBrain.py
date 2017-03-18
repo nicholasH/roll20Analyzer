@@ -4,7 +4,7 @@ import main
 import random
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='D&D')
+bot = commands.Bot(command_prefix='#')
 
 
 @bot.event
@@ -17,7 +17,7 @@ async def on_ready(*a):
 
 @bot.command()
 async def hello():
-    await bot.say("fuck you")
+    await bot.say("shut the fuck up")
 
 
 
@@ -25,5 +25,12 @@ async def hello():
 async def dndstuff():
     await bot.say(main.talk())
 
+@bot.command()
+async def kill():
+    await bot.say("I am deb")
+    await bot.logout()
 
-bot.run('MjIxNDEyNjc3MzAwMzg3ODQw.CqvEvA._JQkxIDtrCDpMxHUoLj4cqV1I54')
+
+bot.run('')
+
+
