@@ -1,42 +1,48 @@
-import kivy
-kivy.require('1.0.8')
+from bs4 import BeautifulSoup
+import re
 
-from kivy.core.window import Window
-from kivy.uix.widget import Widget
+test = []
+f = open("E:\\GitProjects\\roll20Analyzer\\data\\Chat Log for Caramohn's Level.html")
 
+soup = BeautifulSoup(f.read(), 'html.parser')  # make soup that is parse-able by bs
 
-class MyKeyboardListener(Widget):
+generalmatch = re.compile('message \w+')
 
-    def __init__(self, **kwargs):
-        super(MyKeyboardListener, self).__init__(**kwargs)
-        self._keyboard = Window.request_keyboard(
-            self._keyboard_closed, self, 'text')
-        if self._keyboard.widget:
-            # If it exists, this widget is a VKeyboard object which you can use
-            # to change the keyboard layout.
-            pass
-        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+chatContent = soup.findAll("div", {"class": generalmatch})
 
-    def _keyboard_closed(self):
-        print('My keyboard have been closed!')
-        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
-
-    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        print('The key', keycode, 'have been pressed')
-        print(' - text is %r' % text)
-        print(' - modifiers are %r' % modifiers)
-
-        # Keycode is composed of an integer + a string
-        # If we hit escape, release the keyboard
-        if keycode[1] == 'escape':
-            keyboard.release()
-
-        # Return True to accept the key. Otherwise, it will be used by
-        # the system.
-        return True
+for message in chatContent:
+    if "rollresult" in message.attrs["class"]:
+        print("worked")
 
 
-if __name__ == '__main__':
-    from kivy.base import runTouchApp
-    runTouchApp(MyKeyboardListener())
+print("")
+
+
+def diceCounter(diceFomula):
+    s = diceFomula.attrs.get("class")
+    critsuc = 0
+    critfail = 0
+    dices = []
+
+    if any("formattedformula" in t for t in s):
+        for child in diceFomula.descendants:
+            if not isinstance(child, NavigableString):
+                childClass = child.attrs["class"]
+                if any("dicegrouping" in at for at in childClass):
+                    c = child
+
+                    print()
+
+    return [critsuc, critfail, dices]
+
+
+dice = diceFomula.next_element.next_element.contents
+if len(dice) > 0:
+    dices.append(dice[1])
+    for di in dice:
+        if not isinstance(di, NavigableString):
+            d = di.attrs["class"]
+            if any("critsuccess" in t for t in d):
+                critsuc += 1
+            if any("critfail" in t for t in d):
+                critfail += 1

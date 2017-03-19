@@ -3,19 +3,12 @@ from html.parser import HTMLParser
 
 import sys
 from collections import Counter
+import chatParser
+from bs4.element import NavigableString
 
-#parses out the html of the chat log
-class HTMLParser(HTMLParser):
-    def handle_starttag(self, tag, attrs):
-        #print("Start tag:", tag)
+playerStats = dict()  # PlayerId:dict() states
 
-        for attr in attrs:
-            #print("     attr:", attr)
-            wf.write(' '.join(str(s) for s in attr) + '\n');
-            
-    def handle_data(self, data):
-        #print("Data     :", data)
-        wf.write(data.strip() +"\n");
+path = ""
 
 
 def getPath():
@@ -27,142 +20,114 @@ def getPath():
 
     return path
 
-path = ""
 
 def main(givenPath):
     global path
+    global messages
+
     if not givenPath:
         path = getPath()
     else:
         path = givenPath
+    getStats(chatParser.getParse(path))
+
+    print(returnStats())
 
 
-main("")
+def diceCounter(diceFomula):
+    s = diceFomula.attrs.get("class")
+    critsuc = 0
+    critfail = 0
+    dices = []
+    nat20 = 0
+    nat1 = 0
+
+    if any("formattedformula" in t for t in s):
+        for child in diceFomula.descendants:
+            if not isinstance(child, NavigableString):
+                childClass = child.attrs["class"]
+                if any("dicegrouping" in at for at in childClass):
+                    for childCon in child.contents:
+                        if not isinstance(childCon, NavigableString):
+                            childConAttrsClass = childCon.attrs["class"]
+                            if not any("dropped" in t for t in childConAttrsClass):
+                                dice = childConAttrsClass[1]
+                                dices.append(dice)
+                                if any("critsuccess" in t for t in childConAttrsClass):
+                                    critsuc += 1
+                                    if "d20" in dice:
+                                        nat20 += 1
+                                if any("critfail" in t for t in childConAttrsClass):
+                                    critfail += 1
+                                    if "d20" in dice:
+                                        nat1 += 1
+
+
+    return [critsuc, critfail, dices,nat20,nat1]
+
+
+def getStats(messages):
+    for message in messages:
+        if "rollresult" in message.attrs["class"]:
+            stats = {"photos": set(), "names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,
+                     "diceRolls": [], "highestRoll": 0}
+
+            id = message.attrs["data-playerid"]
+            if id in playerStats:
+                stats = playerStats[id]
+            else:
+                playerStats[id] = stats
+            for content in message.contents:
+
+                if not isinstance(content, NavigableString):
+                    s = content.attrs.get("class")
+                    if not isinstance(s, type(None)):
+                        if any("avtar" in t for t in s):
+                            photo = content.next_element.attrs["src"]
+                            stats["photos"].add(photo)
+                        if any("by" in t for t in s):
+                            by = content.text
+                            stats["names"].add(by)
+                        if any("rolled" in t for t in s):
+                            currntRoll = stats.get("highestRoll")
+                            roll = int(content.text.strip())
+                            if roll > currntRoll:
+                                stats["highestRoll"] = roll
+                        if any("formula" in t for t in s):
+                            print(content.text)
+                            breaktest = content.text.strip()
+                            dice = diceCounter(content)
+                            stats["totCrtSus"] += dice[0]
+                            stats["totCrtFail"] += dice[1]
+                            stats["diceRolls"].extend(dice[2])
+                            stats["nat20"] += dice[3]
+                            stats["nat1"] += dice[4]
+
+            playerStats[id] = stats
 
 
 def getGivenPath():
     return path
 
 
-
-
-f = open(path,'r')
-scrubPath = os.path.join(sys.path[0],"data\\scrub.txt")
-#the scrubing file that has all the usefull data in it
-wf = open(scrubPath,'w')
-
-parser = HTMLParser()
-#todo maybe make a loading bar for this
-
-read = False
-for line in f:
-    if "textchatcontainer" in line:# This is the container that has all the rolls and chat data
-        read = True
-    if "tmpl_chatmessage_general" in line:
-        read = False
-    if read:
-        parser.feed(f.readline())
-
-
-f.close()
-wf.close()
-print("done with scrub")
-
-f = open(scrubPath,'r')
-
-playerStats = dict()#PlayerId:dict() states
-'''
-roll 20 does not put the player Id when a user makes a general message
-This means that if a player make a general message it can be by anyone
-This also means associating human readable name like "krong the mighty" to the id  is annoying
-Thankfully all posts have a player picture associated to them at appears when they make a post.
-Im using that to help associate ID with names
-'''
-currentPlayer = ""
-currentPhotoId = ""
-
-#get the player ID and Photos
-#Player needs to roll first before the type into chat or their will be hella problems
-for line in f:
-    if "data-playerid"  in line:
-        line.strip('\n')
-        s = line.split(" ")
-        playerId = s[1]
-        playerId = playerId.strip()
-        currentPlayer = playerId
-        stats = {"photos":set(),"names":set(),"totCrtSus":0,"totCrtFail":0,"nat20":0,"nat1":0,"diceRolls":[]}
-        f.readline()
-        f.readline()
-        line=f.readline()
-        if "class avatar" in line:
-            line =f.readline()
-            photos = stats["photos"]
-            photo = line.strip()
-            photos.add(photo)
-            stats["photos"] = photos
-            playerStats[currentPlayer] = stats
-
-#makes F go back to first line.
-f.seek(0)
-
-for line in f:
-    if "data-playerid" in line:#this gets the player of the message that is being analyzed
-        s = line.split(" ")
-        playerId = s[1]
-        playerId = playerId.strip()
-        currentPlayer = playerId
-    if "class avatar" in line:#this gets the avatar of the message that is being analyzed
-        s = f.readline()
-        currentPhotoId = s.strip()
-    if "class by" in line:
-        line = f.readline()
-        player = playerStats[currentPlayer]
-        photos = player["photos"];
-        if currentPhotoId in photos:
-            player["names"].add(line.strip())
-    if "diceroll" in line:#get all the dice rolls
-        if "dropped" in line:
-            continue
-        player = playerStats[currentPlayer]
-        if "critsuccess" in line:
-            player["totCrtSus"]+= 1
-            if "d20" in line:
-                player["nat20"] += 1
-        elif "critfail" in line:
-            player["totCrtFail"] += 1
-            if "d20" in line:
-                player["nat1"] += 1
-        roll = line.split(" ")[2].strip()
-        if "withouticons" in roll:# some roll dont have icons those roll say that in the place that should have the D#
-            player["diceRolls"].append(roll)
-            roll = line.split(" ")[3].strip()
-        player["diceRolls"].append(roll)
-
-
-for player, values in playerStats.items():
-
-    print(values["names"],len(values["names"]))
-    print("Total Number of Rolls",len(values["diceRolls"]))
-    print("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"],values["nat20"],values["totCrtFail"],values["nat1"]))
-    print(Counter(values["diceRolls"]))
-    print('\n')
-
-
-f.close()
-
 def talk():
     return returnStats()
 
 
-#todo make this look good
+# todo make this look good
 def returnStats():
     s = ""
     for player, values in playerStats.items():
-        s = s +  str(values["names"]) +" "+ str(len(values["names"]))
-        s= s + "Total Number of Rolls " + str(len(values["diceRolls"]))
+        # s = s + player
+        s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
+        s = s + "Total Number of Rolls " + str(len(values["diceRolls"])) + "\n"
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
-                                                                            values["totCrtFail"], values["nat1"]))
-        s = s + str(Counter(values["diceRolls"]))
-        s = s + ('\n')
+                                                                                  values["totCrtFail"],
+                                                                                  values["nat1"])) + "\n"
+        s = s + str(Counter(values["diceRolls"])) + "\n"
+        s = s + "highest roll " + str(values["highestRoll"])
+        s = s + ('\n\n')
     return s
 
+
+main("")
