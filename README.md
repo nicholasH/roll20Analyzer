@@ -10,3 +10,4 @@ Q:who rolled the highest number \n
 
 ToDo if more that one data exist user get to choose the file the want \n
 Todo add parse out data via date \n
+

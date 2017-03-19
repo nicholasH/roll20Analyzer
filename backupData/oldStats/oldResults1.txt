@@ -1,0 +1,34 @@
+{'Jarred M. (GM):', 'Lo-Keg (GM):'} 2
+Total Number of Rolls 5692
+Crit success: 601, Nat20: 86, Crit fail: 589, Nat1: 84
+Counter({'d20': 1971, 'd6': 1639, 'd10': 880, 'd8': 478, 'd12': 279, 'd4': 226, 'withouticons': 200, '': 9, 'd100': 5, 'd2': 2, 'd42': 2, 'd5': 1})
+
+
+{'Loth (Mike):', "Vux'olna:", 'Lotherial:', 'Michael L.:'} 4
+Total Number of Rolls 3339
+Crit success: 168, Nat20: 29, Crit fail: 182, Nat1: 29
+Counter({'withouticons': 999, 'd31623': 999, 'd20': 662, 'd4': 259, 'd8': 195, 'd6': 91, 'd10': 63, 'd2': 58, 'd1000': 5, 'd21': 4, 'd9999999': 2, 'd100': 1, '': 1})
+
+
+{'BUBBLE:', 'BUBBLEs:', 'Nicholas H.:'} 3
+Total Number of Rolls 602
+Crit success: 55, Nat20: 19, Crit fail: 59, Nat1: 16
+Counter({'d20': 335, 'd10': 90, 'd6': 76, 'd8': 59, 'd4': 30, '': 5, 'd9999999': 3, 'd12': 2, 'd2': 1, 'd1': 1})
+
+
+{'Morthos:', 'Rhyvos:', 'Kyle:', 'Rhy:'} 4
+Total Number of Rolls 2194
+Crit success: 208, Nat20: 30, Crit fail: 226, Nat1: 46
+Counter({'d20': 871, 'd6': 414, 'd8': 287, 'd10': 255, 'withouticons': 200, 'd4': 80, 'd2': 60, 'd12': 20, '': 4, 'd9999999': 2, 'd5': 1})
+
+
+{'meech n.:', 'Meerno Durthee-son:'} 2
+Total Number of Rolls 695
+Crit success: 94, Nat20: 27, Crit fail: 83, Nat1: 18
+Counter({'d20': 337, 'd6': 300, 'd10': 29, 'd4': 17, 'd8': 10, 'd1000000': 1, '': 1})
+
+
+{'Genevieve M. :', 'Genevieve J.:', 'Rowan Tealeaf-Tosscobble:'} 3
+Total Number of Rolls 101
+Crit success: 3, Nat20: 0, Crit fail: 13, Nat1: 2
+Counter({'d20': 58, 'd6': 27, 'd10': 8, 'd8': 3, '': 3, 'd4': 2})
