@@ -21,7 +21,7 @@ def getPath():
     return path
 
 
-def main(givenPath):
+def main(givenPath,dateSting1,dateString2):
     global path
     global messages
 
@@ -29,7 +29,13 @@ def main(givenPath):
         path = getPath()
     else:
         path = givenPath
-    getStats(chatParser.getParse(path))
+
+    if not dateSting1 and not dateSting2:
+        getStats(chatParser.getParse(path))
+    else:
+        getStats(chatParser.getParseTimeRange(path,
+                                              dateSting1,
+                                              dateString2))
 
     print(returnStats())
 
@@ -130,4 +136,4 @@ def returnStats():
     return s
 
 
-main("")
+main("","MAR 14 2017","MAR 16 2017")
