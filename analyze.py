@@ -10,6 +10,9 @@ playerStats = dict()  # PlayerId:dict() states
 
 path = ""
 
+real = ""
+realDice = ["d4","d6","d10","d12","d20"]
+
 
 def getPath():
     path = ""
@@ -21,21 +24,21 @@ def getPath():
     return path
 
 
-def main(givenPath,dateSting1,dateString2):
+def main(givenPath ,findReal,rollback,):
     global path
     global messages
+    global real
+    real = findReal
 
     if not givenPath:
         path = getPath()
     else:
         path = givenPath
 
-    if not dateSting1 and not dateSting2:
+    if not rollback:
         getStats(chatParser.getParse(path))
     else:
-        getStats(chatParser.getParseTimeRange(path,
-                                              dateSting1,
-                                              dateString2))
+        getStats(chatParser.getParseRollbackHours(path,int(rollback)))
 
     print(returnStats())
 
@@ -57,8 +60,12 @@ def diceCounter(diceFomula):
                         if not isinstance(childCon, NavigableString):
                             childConAttrsClass = childCon.attrs["class"]
                             if not any("dropped" in t for t in childConAttrsClass):
-                                dice = childConAttrsClass[1]
-                                dices.append(dice)
+                                if any("withouticons" in t for t in childConAttrsClass):
+                                    dice = childConAttrsClass[2]
+                                    dices.extend([childConAttrsClass[1],dice])
+                                else:
+                                    dice = childConAttrsClass[1]
+                                    dices.append(dice)
                                 if any("critsuccess" in t for t in childConAttrsClass):
                                     critsuc += 1
                                     if "d20" in dice:
@@ -94,29 +101,46 @@ def getStats(messages):
                         if any("by" in t for t in s):
                             by = content.text
                             stats["names"].add(by)
-                        if any("rolled" in t for t in s):
-                            currntRoll = stats.get("highestRoll")
-                            roll = int(content.text.strip())
-                            if roll > currntRoll:
-                                stats["highestRoll"] = roll
-                        if any("formula" in t for t in s):
-                            print(content.text)
-                            breaktest = content.text.strip()
-                            dice = diceCounter(content)
-                            stats["totCrtSus"] += dice[0]
-                            stats["totCrtFail"] += dice[1]
-                            stats["diceRolls"].extend(dice[2])
-                            stats["nat20"] += dice[3]
-                            stats["nat1"] += dice[4]
 
-            playerStats[id] = stats
+                        if any("formula" in t for t in s):
+                            count = False
+                            dice = diceCounter(content)
+
+                            if real:
+                                for realDi in realDice:
+                                    if any(realDi == f for f in dice[2]):
+                                        count = True
+                            if count or not real:
+                                stats["totCrtSus"] += dice[0]
+                                stats["totCrtFail"] += dice[1]
+                                stats["diceRolls"].extend(dice[2])
+                                stats["nat20"] += dice[3]
+                                stats["nat1"] += dice[4]
+
+                        if any("rolled" in t for t in s):
+                            if count or not real:
+                                currntRoll = stats.get("highestRoll")
+                                roll = int(content.text.strip())
+                                if roll > currntRoll:
+                                    stats["highestRoll"] = roll
+
+
+
+
 
 
 def getGivenPath():
     return path
 
 
-def talk():
+def talk(*args):
+    if len(args)>=6:
+        datestring1 = args[0] + " " + args[1] + " " + args[2]
+        datestring2 = args[3] + " " + args[4] + " " + args[5]
+        main("", datestring1, datestring2)
+    else:
+        main("","","")
+
     return returnStats()
 
 
@@ -136,4 +160,4 @@ def returnStats():
     return s
 
 
-main("","MAR 14 2017","MAR 16 2017")
+main("",False,"5")
