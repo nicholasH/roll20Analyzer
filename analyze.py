@@ -160,4 +160,4 @@ def returnStats():
     return s
 
 
-main("",False,"5")
+main("",False,"")
