@@ -134,10 +134,21 @@ def getGivenPath():
 
 
 def talk(*args):
-    if len(args)>=6:
-        datestring1 = args[0] + " " + args[1] + " " + args[2]
-        datestring2 = args[3] + " " + args[4] + " " + args[5]
-        main("", datestring1, datestring2)
+    if len(args)== 1:
+        test = args[0]
+        if args[0].isdigit():
+            main("","",args[0])
+        if args[0] == "real":
+            main("",True,"")
+
+    elif len(args)== 2:
+        if args[0].isdigit() and args[1] is "real":
+            hoursBack = args[0]
+            main("",True, hoursBack)
+        else:
+            hoursBack = args[0]
+            main(main("","", hoursBack))
+
     else:
         main("","","")
 
@@ -158,6 +169,5 @@ def returnStats():
         s = s + "highest roll " + str(values["highestRoll"])
         s = s + ('\n\n')
     return s
-
 
 main("",False,"")

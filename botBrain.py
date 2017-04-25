@@ -40,14 +40,9 @@ async def hello():
 
     await bot.say('#hello')
 
-@bot.command()
-async def now():
-    await bot.say("ok sorry")
-
-
 
 @bot.command()
-async def dndstuff(*args):
+async def dndStats(*args):
     await bot.say("getting data this may take moment")
     await bot.say(analyze.talk(*args))
 
@@ -55,6 +50,13 @@ async def dndstuff(*args):
 async def kill():
     await bot.say("I am deb")
     await bot.logout()
+
+@bot.command()
+async def helpme():
+    await bot.say("To get total stats say \"$dndStats\" "
+                  "\nTo get the most current Stats say \"$dndStats #\" # being the number hours you want to look back")
+
+
 
 
 bot.run(confg)

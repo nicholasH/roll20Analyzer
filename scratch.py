@@ -1,46 +1,26 @@
-from bs4 import BeautifulSoup
-import re
-from bs4.element import NavigableString
-from datetime import datetime, timedelta
+import sqlite3
+
+Roll_table = 'Roll'
+
+UserID_field = 'UserID'
+
+integer_field_type = 'INTEGER'
+string_field_type = 'STRING'
 
 
-def getParse(path):
-    f = open(path)
-    soup = BeautifulSoup(f.read(), 'html.parser')  # make soup that is parse-able by bs
-    f.close()
-    generalmatch = re.compile('message \w+')
+# Connecting to the database file
+conn = sqlite3.connect('Chatlog.db')
+c = conn.cursor()
 
-    chatContent = soup.findAll("div", {"class": generalmatch})
-    # print(chatContent)
+# Creating a new SQLite table with 1 column
+c.execute('CREATE TABLE {tn} ({nf} {ft})'\
+        .format(tn=Roll_table, nf=UserID_field, ft=integer_field_type))
 
-    return chatContent
+# Creating a second table with 1 column and set it as PRIMARY KEY
+# note that PRIMARY KEY column must consist of unique values!
+c.execute('CREATE TABLE {tn} ({nf} {ft} PRIMARY KEY)'\
+        .format(tn=table_name2, nf=new_field, ft=field_type))
 
-
-def rollbackHours(path,hoursBack):
-    chatContent = getParse(path)
-    hoursBack = hoursBack * 3600
-    first = True
-    firstTime = ""
-
-    for index, chat in enumerate(reversed(chatContent)):
-        for ch in chat.contents:
-            if not isinstance(ch, NavigableString):
-                s = ch.attrs.get("class")
-                if not isinstance(s, type(None)):
-                    if any("tstamp" in f for f in s):
-                        timeSplit = ch.string.split()
-                        time = timeSplit.pop()
-                        chTime = datetime.strptime(time, '%I:%M%p')
-
-                        if first:
-                            firstTime = chTime
-                            first = False
-                        elif chTime < firstTime - timedelta(seconds = hoursBack):
-                            return
-    return chatContent
-
-
-
-
-
-
+# Committing changes and closing the connection to the database file
+conn.commit()
+conn.close()
