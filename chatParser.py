@@ -1,11 +1,19 @@
 import re
+import requests
 from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 
 
+def getScrapParse():
+    page = requests.get("https://app.roll20.net/campaigns/chatarchive/1610304")
+    print(page)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    generalmatch = re.compile('message \w+')
 
+    chatContent = soup.findAll("div", {"class": generalmatch})
+    return chatContent
 
 
 def getParse(path):
