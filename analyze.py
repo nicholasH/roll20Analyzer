@@ -36,7 +36,7 @@ def main(givenPath ,findReal,rollback,):
         path = givenPath
 
     if not rollback:
-        getStats(chatParser.getParse(path))
+        getStats(chatParser.getScrapParse())
     else:
         getStats(chatParser.getParseRollbackHours(path,int(rollback)))
 

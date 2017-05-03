@@ -1,9 +1,29 @@
+import os
+import time
+
+import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException
 
-EMAIL = 'add email'
-PASSWORD = 'add password'
+
+
+
+path = os.path.join(sys.path[0], "config")
+
+f = open(path)
+EMAIL = ''
+PASSWORD = ''
+for line in f:
+        if "Email:" in line:
+            EMAIL = line.split("Email:")[1].strip()
+        if "Password:" in line:
+            PASSWORD = line.split("Password:")[1].strip()
+print(EMAIL + PASSWORD)
+
+f.close()
+
+
 
 
 
@@ -11,11 +31,10 @@ URL = 'https://app.roll20.net/sessions/new'
 jarUrl = 'https://app.roll20.net/campaigns/chatarchive/1610304'
 URL2 = 'https://app.roll20.net/campaigns/chatarchive/1644807'
 
-gitUrl  = 'https://github.com/login'
-gitUrl2 = 'https://github.com/settings/emails'
-
-
-browser = webdriver.Chrome("C:\\Users\\Nick\\Documents\GitHub\\roll20Analyzer\\chromedriver.exe")
+chromeDriver = os.path.join(sys.path[0],"chromedriver.exe")
+browser = webdriver.Chrome(chromeDriver)
+browser.set_window_size(20, 20)
+browser.set_window_position(50, 50)
 browser.get(URL)
 
 usernameElements = browser.find_elements_by_name("email")
@@ -36,9 +55,18 @@ for e in passwordElements:
 
 test = browser.find_element_by_class_name("calltoaction").click()
 browser.get(jarUrl)
+time.sleep(10)
 
 html = browser.page_source
+browser.close()
+
+
+
+
 soup = BeautifulSoup(html)
+
+
+
 print(soup)
 
 
