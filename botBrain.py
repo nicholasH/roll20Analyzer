@@ -7,10 +7,14 @@ import analyze
 import random
 
 
-path = os.path.join(sys.path[0], "E:\\GitProjects\\roll20Analyzer\\botConfig")
+path = os.path.join(sys.path[0], "config")
 
 f = open(path)
-confg = f.read()
+token = ''
+for line in f:
+    if "DisBoxTockin:" in line:
+        token = line.split("DisBoxTockin:")[1].strip()
+
 f.close()
 
 client = discord.Client()
@@ -59,6 +63,6 @@ async def helpme():
 
 
 
-bot.run(confg)
+bot.run(token)
 
 
