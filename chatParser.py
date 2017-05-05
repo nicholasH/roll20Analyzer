@@ -39,8 +39,14 @@ def getScrapParse():
     browser.set_window_size(20, 20)
     browser.set_window_position(50, 50)
     browser.get(URL)
-    Wait = WebDriverWait(browser, 10)
-    Wait.until(EC.presence_of_element_located((By.XPATH,"/html/body/div[3]/div[3]/div[1]/div/form/p[2]/button")))
+
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
+            browser.find_element_by_name('calltoaction')))
+    except:
+        print()
+
+
     usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 
@@ -58,7 +64,11 @@ def getScrapParse():
 
     browser.find_element_by_class_name("calltoaction").click()
     browser.get(jarUrl)
-    time.sleep(10)
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
+            browser.find_element_by_xpath('//*[@id="textchat"]/div')))
+    except:
+        print()
 
     html = browser.page_source
     browser.close()
