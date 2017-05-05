@@ -1,14 +1,17 @@
 import os
 import re
-import requests
 from datetime import datetime, timedelta
 import time
 
 import sys
+from telnetlib import EC
+
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 def getScrapParse():
@@ -36,7 +39,8 @@ def getScrapParse():
     browser.set_window_size(20, 20)
     browser.set_window_position(50, 50)
     browser.get(URL)
-
+    Wait = WebDriverWait(browser, 10)
+    Wait.until(EC.presence_of_element_located((By.XPATH,"/html/body/div[3]/div[3]/div[1]/div/form/p[2]/button")))
     usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 
