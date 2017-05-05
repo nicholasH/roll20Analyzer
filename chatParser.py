@@ -110,10 +110,11 @@ Gets a path to a file and 2 date strings to return a subset of the parsed data
 
 This code is was broken since march 18 2017 roll20 now only shows the time in the roll not the full date
 '''
-def getParseTimeRange(path, date1String, date2String):
-    chatContent = getParse(path)
-    date1 = datetime.strptime(date1String, '%b %d %Y')
-    date2 = datetime.strptime(date2String, '%b %d %Y')
+def getParseTimeRange( date1String, date2String):
+    #chatContent = getParse(path)
+    chatContent = getScrapParse()
+    date1 = datetime.strptime(date1String, '%m %d %Y')
+    date2 = datetime.strptime(date2String, '%m %d %Y')
 
     startMessageIndex = 0
     startFound = False
