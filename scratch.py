@@ -2,46 +2,37 @@ import os
 import time
 
 import sys
+
+from aiohttp.hdrs import PRAGMA
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException
 import sqlite3
+from datetime import datetime, date,timedelta
+import pickle
+import  DBhandler
 
-Message_table = 'Message'
+today = date.today()
 
-MessageID_field = "MessageID"
-MessageType_field = "MessageType"
-
-UserID_field = 'UserID'
-
-Avatar_field = "Avatar"
-
-Time_field = "Time"
-TimeAddedToDB_field ="TimeAddedToDB"
+now = datetime.now()
 
 
+print(now)
 
+messageDic = {DBhandler.MessageID_field:"messageID92834509",
+              DBhandler.MessageType_field:"Roll",
+              DBhandler.UserID_field: "User234808230",
+              DBhandler.Avatar_field: "Avatar34",
+              DBhandler.Time_field:now,
+              DBhandler.TimeAddedToDB_field:today,
+              DBhandler.RolledFormula_field: "3D5",
+              DBhandler.RolledResultsList_field:[1,2,3,5],
+              DBhandler.Rolled_Field:13,
+              DBhandler.Text_Field: "textrolL"}
 
+DBhandler.destroyDB()
+DBhandler.createDB()
 
+DBhandler.addMessage(messageDic)
 
-
-integer_field_type = 'INTEGER'
-string_field_type = 'STRING'
-
-
-# Connecting to the database file
-conn = sqlite3.connect('Chatlog.db')
-c = conn.cursor()
-
-# Creating a new SQLite table with 1 column
-c.execute('CREATE TABLE {tn} ({nf} {ft})'\
-        .format(tn=Roll_table, nf=UserID_field, ft=string_field_type))
-
-# Creating a second table with 1 column and set it as PRIMARY KEY
-# note that PRIMARY KEY column must consist of unique values!
-c.execute('CREATE TABLE {tn} ({nf} {ft} PRIMARY KEY)'\
-        .format(tn=table_name2, nf=new_field, ft=field_type))
-
-# Committing changes and closing the connection to the database file
-conn.commit()
-conn.close()
+DBhandler.printDB()
