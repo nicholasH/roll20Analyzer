@@ -8,6 +8,7 @@ MessageID_field = "MessageID"
 MessageType_field = "MessageType"
 
 UserID_field = 'UserID'
+By_field = 'BY'
 
 Avatar_field = "Avatar"
 
@@ -31,11 +32,12 @@ def createDB():
     c = conn.cursor()
     # Creating a new SQLite table with 1 column
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts}, {MT} {fts},  {UI} {fts}, {AV} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fti}, {Text} {fts})'
+        'CREATE TABLE {tn} ({MID} {fts}, {MT} {fts},  {UI} {fts},{By} {fts}, {AV} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fti}, {Text} {fts})'
             .format(tn=Message_table,
                     MID=MessageID_field,
                     MT=MessageType_field,
                     UI=UserID_field,
+                    By=By_field,
                     AV=Avatar_field,
                     TF=Time_field,
                     TAD=TimeAddedToDB_field,
@@ -60,10 +62,11 @@ def addMessage(messageDic: dict):
     c = conn.cursor()
 
     c.execute(
-        "INSERT INTO Message VALUES (?,?,?,?,?,?,?,?,?,?)", (
+        "INSERT INTO Message VALUES (?,?,?,?,?,?,?,?,?,?,?)", (
             messageDic.get(MessageID_field),
             messageDic.get(MessageType_field),
             messageDic.get(UserID_field),
+            messageDic.get(By_field),
             messageDic.get(Avatar_field),
             messageDic.get(Time_field),
             messageDic.get(TimeAddedToDB_field),

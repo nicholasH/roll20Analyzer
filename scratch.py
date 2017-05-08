@@ -22,6 +22,7 @@ print(now)
 messageDic = {DBhandler.MessageID_field:"messageID92834509",
               DBhandler.MessageType_field:"Roll",
               DBhandler.UserID_field: "User234808230",
+              DBhandler.By_field: "bubbles",
               DBhandler.Avatar_field: "Avatar34",
               DBhandler.Time_field:now,
               DBhandler.TimeAddedToDB_field:today,
