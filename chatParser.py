@@ -15,8 +15,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 def getScrapParse():
-
-
     path = os.path.join(sys.path[0], "config")
 
     f = open(path)
@@ -36,8 +34,8 @@ def getScrapParse():
 
     chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
     browser = webdriver.Chrome(chromeDriver)
-    browser.set_window_size(20, 20)
-    browser.set_window_position(50, 50)
+    #browser.set_window_size(20, 20)
+    #browser.set_window_position(50, 50)
     browser.get(URL)
 
     try:
@@ -158,3 +156,13 @@ def getParseTimeRange( date1String, date2String):
                             return chatContent[startMessageIndex : endMessageIndex]
 
     return chatContent[startMessageIndex : endMessageIndex]
+
+
+def addToDb():
+    chatContent = getScrapParse()
+    for c in chatContent:
+        datum = dict()
+
+        print(c)
+
+

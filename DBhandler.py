@@ -27,6 +27,19 @@ Date_field_type = "date"
 Tstamp_field = 'timestamp'
 
 
+columnName = [MessageID_field,
+              MessageType_field,
+              UserID_field,
+              By_field,
+              Avatar_field,
+              Time_field,
+              TimeAddedToDB_field,
+              RolledFormula_field,
+              RolledResultsList_field,
+              Rolled_Field,
+              Text_Field]
+
+
 def createDB():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
@@ -78,9 +91,23 @@ def addMessage(messageDic: dict):
     conn.commit()
     conn.close()
 
+"""Gets all the message in the DB"""
+def getMessages():
+    conn = sqlite3.connect('Chatlog.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM Message")
+    data = c.fetchall()
+    conn.close()
 
-def getMessage(messageObj):
-    print("need to make")
+    listTurn = list()
+
+    for datum in data:
+
+        dic = dict(zip(columnName, datum))
+        dic[RolledResultsList_field] = pickle.loads(dic[RolledResultsList_field])
+        listTurn.append(dic)
+
+    return listTurn
 
 
 def printDB():

@@ -34,6 +34,6 @@ messageDic = {DBhandler.MessageID_field:"messageID92834509",
 DBhandler.destroyDB()
 DBhandler.createDB()
 
-DBhandler.addMessage(messageDic)
 
-DBhandler.printDB()
+
+DBhandler.getMessages()
