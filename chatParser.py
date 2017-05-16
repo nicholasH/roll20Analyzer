@@ -162,7 +162,44 @@ def addToDb():
     chatContent = getScrapParse()
     for c in chatContent:
         datum = dict()
+        s = c.attrs.get("class")
 
-        print(c)
+        if "rollresult" in datum.attrs["class"]:
+            addToDb(c)
+        elif "general" in datum.attrs["class"]:
+            print()
+        elif "emote" in datum.attrs["class"]:
+            print()
+        else:
+            print(s)
 
+
+
+
+
+def addRollresult(datum):
+
+    playerID = datum.attrs.get("data-playerid")
+    messageID = datum.attrs.get("data-messageid")
+    for content in datum.contents:
+
+        if not isinstance(content, NavigableString):
+            s = content.attrs.get("class")
+            if not isinstance(s, type(None)):
+                if any("avtar" in t for t in s):
+                    photo = content.next_element.attrs["src"]
+
+                if any("by" in t for t in s):
+                    by = content.text
+
+
+                if any("formula" in t for t in s):
+                    dice = diceCounter(content)
+
+                if any("rolled" in t for t in s):
+
+                    roll = int(content.text.strip())
+
+
+    print(datum)
 
