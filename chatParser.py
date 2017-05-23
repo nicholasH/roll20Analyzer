@@ -164,11 +164,11 @@ def addToDb():
         datum = dict()
         s = c.attrs.get("class")
 
-        if "rollresult" in datum.attrs["class"]:
+        if "rollresult" in s:
             addToDb(c)
-        elif "general" in datum.attrs["class"]:
+        elif "general" in s:
             print()
-        elif "emote" in datum.attrs["class"]:
+        elif "emote" in s:
             print()
         else:
             print(s)
