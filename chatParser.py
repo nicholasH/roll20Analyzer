@@ -165,7 +165,7 @@ def addToDb():
         s = c.attrs.get("class")
 
         if "rollresult" in s:
-            addToDb(c)
+            addRollresult(c)
         elif "general" in s:
             print()
         elif "emote" in s:
@@ -194,7 +194,7 @@ def addRollresult(datum):
 
 
                 if any("formula" in t for t in s):
-                    dice = diceCounter(content)
+                    dice = content
 
                 if any("rolled" in t for t in s):
 
