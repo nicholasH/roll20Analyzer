@@ -181,7 +181,14 @@ def addRollresult(datum):
 
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
+    photo = ""
+    by = ""
+    dicerolls=""
+    dice = ""
+
+    #print(datum)
     for content in datum.contents:
+
 
         if not isinstance(content, NavigableString):
             s = content.attrs.get("class")
@@ -194,12 +201,21 @@ def addRollresult(datum):
 
 
                 if any("formula" in t for t in s):
-                    dice = content
+
+                    if any("formattedformula" in t for t in s):
+                        dicerolls = content.text
+                    else:
+                        dice = content.text
+
+
 
                 if any("rolled" in t for t in s):
+                    roll = content.text.strip()
+                if any("tstamp" in t for t in s):
+                    tstamp = content.text
+                    dateAddToDb = datetime.now()
+                print(dicerolls + '  ' +dice)
 
-                    roll = int(content.text.strip())
 
 
-    print(datum)
 

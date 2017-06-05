@@ -40,12 +40,20 @@ columnName = [MessageID_field,
               Text_Field]
 
 
+
+"""
+
+
+roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
+"""
+
+#todo test if changeing roll to fts to fti made any errors
 def createDB():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
     # Creating a new SQLite table with 1 column
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts}, {MT} {fts},  {UI} {fts},{By} {fts}, {AV} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fti}, {Text} {fts})'
+        'CREATE TABLE {tn} ({MID} {fts}, {MT} {fts},  {UI} {fts},{By} {fts}, {AV} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts}, {Text} {fts})'
             .format(tn=Message_table,
                     MID=MessageID_field,
                     MT=MessageType_field,
