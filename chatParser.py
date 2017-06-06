@@ -186,9 +186,8 @@ def addRollresult(datum):
     dicerolls=""
     dice = ""
 
-    #print(datum)
+    print(datum)
     for content in datum.contents:
-
 
         if not isinstance(content, NavigableString):
             s = content.attrs.get("class")
@@ -203,11 +202,10 @@ def addRollresult(datum):
                 if any("formula" in t for t in s):
 
                     if any("formattedformula" in t for t in s):
-                        dicerolls = content.text
+                        dicerolls = getDiceRolls(content.contents)
+
                     else:
                         dice = content.text
-
-
 
                 if any("rolled" in t for t in s):
                     roll = content.text.strip()
@@ -219,3 +217,13 @@ def addRollresult(datum):
 
 
 
+
+
+def getDiceRolls(contents):
+    for content in contents:
+        if not isinstance(content, NavigableString):
+            s = content.attrs.get("class")
+            if not isinstance(s, type(None)):
+                if any("dicegrouping" in t for t in s):
+                    content
+                    print("log")
