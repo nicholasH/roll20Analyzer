@@ -202,7 +202,7 @@ def addRollresult(datum):
                 if any("formula" in t for t in s):
 
                     if any("formattedformula" in t for t in s):
-                        dicerolls = getDiceRolls(content.contents)
+                        dicerolls = getDiceRolls(content.findChildren())
 
                     else:
                         dice = content.text
@@ -212,7 +212,7 @@ def addRollresult(datum):
                 if any("tstamp" in t for t in s):
                     tstamp = content.text
                     dateAddToDb = datetime.now()
-                print(dicerolls + '  ' +dice)
+
 
 
 
@@ -220,10 +220,23 @@ def addRollresult(datum):
 
 
 def getDiceRolls(contents):
-    for content in contents:
+
+    for c in contents:
+        s = c.attrs.get("class")
+        if not isinstance(s, type(None)):
+            if any("didroll" in t for t in s):
+                print(c.text)
+
+
+
+
+
+"""
+ for content in contents:
         if not isinstance(content, NavigableString):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
                 if any("dicegrouping" in t for t in s):
-                    content
+                    diceRolls = content.contents
                     print("log")
+"""
