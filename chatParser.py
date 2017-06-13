@@ -185,8 +185,11 @@ def addRollresult(datum):
     by = ""
     dicerolls=""
     dice = ""
+    roll = ""
+    tstamp = ""
+    dateAddToDb = ""
 
-    print(datum)
+    print("datum: "+datum.text.strip())
     for content in datum.contents:
 
         if not isinstance(content, NavigableString):
@@ -212,6 +215,8 @@ def addRollresult(datum):
                 if any("tstamp" in t for t in s):
                     tstamp = content.text
                     dateAddToDb = datetime.now()
+    print("Test \n")
+    print(playerID,messageID,photo,by,dicerolls,dice,roll,tstamp,dateAddToDb)
 
 
 
@@ -220,13 +225,13 @@ def addRollresult(datum):
 
 
 def getDiceRolls(contents):
-
+    rlist = list()
     for c in contents:
         s = c.attrs.get("class")
         if not isinstance(s, type(None)):
             if any("didroll" in t for t in s):
-                print(c.text)
-
+                rlist. append(c)
+    return rlist
 
 
 
