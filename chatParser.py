@@ -167,29 +167,28 @@ def addToDb():
         if "rollresult" in s:
             addRollresult(c)
         elif "general" in s:
-            print()
+            pass
         elif "emote" in s:
-            print()
+            pass
         else:
-            print(s)
+            pass
 
 
 
-
+class static:
+    by = ""
+    tstamp = ""
 
 def addRollresult(datum):
 
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
     photo = ""
-    by = ""
     dicerolls=""
     dice = ""
     roll = ""
-    tstamp = ""
-    dateAddToDb = ""
+    dateAddToDb = datetime.now()
 
-    print("datum: "+datum.text.strip())
     for content in datum.contents:
 
         if not isinstance(content, NavigableString):
@@ -199,7 +198,7 @@ def addRollresult(datum):
                     photo = content.next_element.attrs["src"]
 
                 if any("by" in t for t in s):
-                    by = content.text
+                    static.by = content.text
 
 
                 if any("formula" in t for t in s):
@@ -213,10 +212,10 @@ def addRollresult(datum):
                 if any("rolled" in t for t in s):
                     roll = content.text.strip()
                 if any("tstamp" in t for t in s):
-                    tstamp = content.text
-                    dateAddToDb = datetime.now()
-    print("Test \n")
-    print(playerID,messageID,photo,by,dicerolls,dice,roll,tstamp,dateAddToDb)
+                    static.tstamp = content.text
+
+    datum
+    print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,dateAddToDb)
 
 
 
@@ -230,7 +229,7 @@ def getDiceRolls(contents):
         s = c.attrs.get("class")
         if not isinstance(s, type(None)):
             if any("didroll" in t for t in s):
-                rlist. append(c)
+                rlist.append(c.text)
     return rlist
 
 
