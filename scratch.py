@@ -11,33 +11,17 @@ import sqlite3
 from datetime import datetime, date,timedelta
 import pickle
 import  DBhandler
+Message_table = 'Message'
 
-today = date.today()
-
-now = datetime.now()
-
-
-print(now)
-
-messageDic = {DBhandler.MessageID_field:"messageID92834509",
-              DBhandler.MessageType_field:"Roll",
-              DBhandler.UserID_field: "User234808230",
-              DBhandler.By_field: "bubbles",
-              DBhandler.Avatar_field: "Avatar34",
-              DBhandler.Time_field:now,
-              DBhandler.TimeAddedToDB_field:today,
-              DBhandler.RolledFormula_field: "3D5",
-              DBhandler.RolledResultsList_field:[1,2,3,5],
-              DBhandler.Rolled_Field:13,
-              DBhandler.Text_Field: "textrolL"}
-
-DBhandler.destroyDB()
 DBhandler.createDB()
+con = sqlite3.connect('Chatlog.db')
+cursor = con.cursor()
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+print(cursor.fetchall())
 
-
-
-DBhandler.getMessages()
-
-
-
-#-Kirdj3MZgeVxKmBBgT_
+conn = sqlite3.connect('Chatlog.db')
+c = conn.cursor()
+print('DROP TABLE IF EXISTS ' + Message_table)
+c.execute('DROP TABLE IF EXISTS ' + Message_table)
+conn.commit()
+conn.close()

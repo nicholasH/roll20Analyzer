@@ -75,7 +75,7 @@ def createDB():
 def destroyDB():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
-    c.execute('drop table if exists ' + Message_table)
+    c.execute('DROP TABLE IF EXISTS ' + Message_table)
     conn.commit()
     conn.close()
 

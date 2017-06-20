@@ -17,6 +17,12 @@ import DBhandler
 
 
 def getScrapParse():
+    #todo remove code
+    DBhandler.destroyDB()
+    DBhandler.createDB()
+    #todo remove above code
+
+
     path = os.path.join(sys.path[0], "config")
 
     f = open(path)
@@ -168,12 +174,14 @@ def addToDb():
 
         if "rollresult" in s:
             addRollresult(c)
+            pass
         elif "general" in s:
             addGleneral(c)
         elif "emote" in s:
+            addEmote()
             pass
         else:
-            pass
+            print("unknown message type")
 
 
 
@@ -230,10 +238,15 @@ def addRollresult(datum):
 
     DBhandler.addMessage(message)
 
-def addGleneral(datum):
-    print(datum.text)
-    print(datum.attrs.get("data-messageid"))
 
+
+#find a way to get the roll data
+#right now the only way to get that data is to load in the game
+def addGleneral(datum):
+    #print(datum)
+    pass
+def addEmote(datum):
+    pass
 
 
 
