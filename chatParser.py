@@ -13,6 +13,8 @@ from selenium.common.exceptions import ElementNotVisibleException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
+import DBhandler
+
 
 def getScrapParse():
     path = os.path.join(sys.path[0], "config")
@@ -161,13 +163,13 @@ def getParseTimeRange( date1String, date2String):
 def addToDb():
     chatContent = getScrapParse()
     for c in chatContent:
-        datum = dict()
+
         s = c.attrs.get("class")
 
         if "rollresult" in s:
             addRollresult(c)
         elif "general" in s:
-            pass
+            addGleneral(c)
         elif "emote" in s:
             pass
         else:
@@ -180,7 +182,7 @@ class static:
     tstamp = ""
 
 def addRollresult(datum):
-
+    message = dict.fromkeys(DBhandler.columnName, "")
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
     photo = ""
@@ -213,10 +215,24 @@ def addRollresult(datum):
                     roll = content.text.strip()
                 if any("tstamp" in t for t in s):
                     static.tstamp = content.text
+    message[DBhandler.MessageType_field] = 'rollresult'
+    message[DBhandler.MessageID_field] = messageID
+    message[DBhandler.Avatar_field] = photo
+    message[DBhandler.UserID_field] = static.by
+    message[DBhandler.RolledResultsList_field] = dicerolls
+    message[DBhandler.RolledFormula_field] = dice
+    message[DBhandler.Rolled_Field] = roll
+    message[DBhandler.Tstamp_field] = static.tstamp
+    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+    message[DBhandler.Text_Field] = datum.text
+    #print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,dateAddToDb)
 
-    datum
-    print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,dateAddToDb)
 
+    DBhandler.addMessage(message)
+
+def addGleneral(datum):
+    print(datum.text)
+    print(datum.attrs.get("data-messageid"))
 
 
 
@@ -231,7 +247,6 @@ def getDiceRolls(contents):
             if any("didroll" in t for t in s):
                 rlist.append(c.text)
     return rlist
-
 
 
 
