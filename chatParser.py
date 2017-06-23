@@ -178,7 +178,7 @@ def addToDb():
         elif "general" in s:
             addGleneral(c)
         elif "emote" in s:
-            addEmote()
+            addEmote(c)
             pass
         else:
             print("unknown message type")
