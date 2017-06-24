@@ -226,14 +226,15 @@ def addRollresult(datum):
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID
     message[DBhandler.Avatar_field] = photo
-    message[DBhandler.UserID_field] = static.by
+    message[DBhandler.UserID_field] = playerID
+    message[DBhandler.By_field] = static.by
     message[DBhandler.RolledResultsList_field] = dicerolls
     message[DBhandler.RolledFormula_field] = dice
     message[DBhandler.Rolled_Field] = roll
     message[DBhandler.Tstamp_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
     message[DBhandler.Text_Field] = datum.text
-    #print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,dateAddToDb)
+    print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,dateAddToDb)
 
 
     DBhandler.addMessage(message)

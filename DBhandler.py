@@ -106,6 +106,7 @@ def getMessages():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
+    conn.commit()
     data = c.fetchall()
     conn.close()
 
@@ -124,5 +125,9 @@ def printDB():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
-    print(c.fetchall())
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
     conn.close()

@@ -11,17 +11,40 @@ import sqlite3
 from datetime import datetime, date,timedelta
 import pickle
 import  DBhandler
-Message_table = 'Message'
+conn = sqlite3.connect('example.db')
 
-DBhandler.createDB()
-con = sqlite3.connect('Chatlog.db')
-cursor = con.cursor()
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-print(cursor.fetchall())
+def make():
+    c = conn.cursor()
 
-conn = sqlite3.connect('Chatlog.db')
-c = conn.cursor()
-print('DROP TABLE IF EXISTS ' + Message_table)
-c.execute('DROP TABLE IF EXISTS ' + Message_table)
-conn.commit()
-conn.close()
+    # Create table
+    c.execute('''CREATE TABLE stocks
+                 (date text, trans text, symbol text, qty real, price real)''')
+
+    # Insert a row of data
+    c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
+
+    # Save (commit) the changes
+    conn.commit()
+
+
+def drop():
+    c = conn.cursor()
+    c.execute('''DROP TABLE stocks''')
+def add():
+    c = conn.cursor()
+    x =0
+    while x < 100:
+        # Insert a row of data
+
+        c.execute("INSERT INTO stocks VALUES ('2006-"+str(x)+"-05','BUY','RHAT',100,35.14)")
+        x+=1
+    conn.commit()
+
+
+def printdb():
+    c = conn.cursor()
+    c.execute("SELECT * FROM stocks")
+    conn.commit()
+    print(c.fetchall())
+
+DBhandler.printDB()
