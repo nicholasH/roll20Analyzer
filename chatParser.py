@@ -38,6 +38,7 @@ def getScrapParse():
 
     URL = 'https://app.roll20.net/sessions/new'
     jarUrl = 'https://app.roll20.net/campaigns/chatarchive/1610304'#todo take this out of hard code
+    testUrl = "https://app.roll20.net/campaigns/chatarchive/1644807"
 
 
     chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
@@ -69,7 +70,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(jarUrl)
+    browser.get(testUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
@@ -231,10 +232,10 @@ def addRollresult(datum):
     message[DBhandler.RolledResultsList_field] = dicerolls
     message[DBhandler.RolledFormula_field] = dice
     message[DBhandler.Rolled_Field] = roll
-    message[DBhandler.Tstamp_field] = static.tstamp
+    message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
     message[DBhandler.Text_Field] = datum.text
-    print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,dateAddToDb)
+    print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,"|",dateAddToDb)
 
 
     DBhandler.addMessage(message)

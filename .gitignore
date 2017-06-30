@@ -7,3 +7,5 @@ botConfig
 config
 Chatlog.db
 example.db
+*.db
+*.db

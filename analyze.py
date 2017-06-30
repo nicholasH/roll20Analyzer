@@ -5,6 +5,7 @@ import sys
 from collections import Counter
 import chatParser
 from bs4.element import NavigableString
+import DBhandler
 
 playerStats = dict()  # PlayerId:dict() states
 
@@ -36,7 +37,9 @@ def main(givenPath ,findReal,rollback,):
         path = givenPath
 
     if not rollback:
+        DBhandler.destroyDB()
         chatParser.addToDb()
+        analyzeDB()
     else:
         getStats(chatParser.getParseRollbackHours(path,int(rollback)))
 
@@ -169,5 +172,13 @@ def returnStats():
         s = s + "highest roll " + str(values["highestRoll"])
         s = s + ('\n\n')
     return s
+
+
+
+def analyzeDB():
+    messages = DBhandler.getMessages()
+    print(messages)
+    print(len(messages))
+
 
 main("",False,"")
