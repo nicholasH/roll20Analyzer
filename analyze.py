@@ -175,10 +175,33 @@ def returnStats():
 
 
 
+
 def analyzeDB():
     messages = DBhandler.getMessages()
     print(messages)
     print(len(messages))
 
+    for message in messages:
+        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": [], "highestRoll": 0}
+
+        id = message["UserID"]
+        if id in playerStats:
+            stats = playerStats[id]
+        else:
+            playerStats[id] = stats
+
+        stats["names"].add(message["BY"])
+        rolled = message["Rolled"]
+        rollFomula = message["RolledFormula"]
+        rollList =  message["RolledResultsList"]
+
+        lastHigestRoll = stats.get("highestRoll")
+        if(rolled > lastHigestRoll):
+            stats["highestRoll"] = rolled
+
+    print(playerStats)
+
+
 
 main("",False,"")
+

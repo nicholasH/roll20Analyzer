@@ -205,8 +205,6 @@ def addRollresult(datum):
         if not isinstance(content, NavigableString):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
-                if any("avtar" in t for t in s):
-                    photo = content.next_element.attrs["src"]
 
                 if any("by" in t for t in s):
                     static.by = content.text
@@ -218,15 +216,16 @@ def addRollresult(datum):
                         dicerolls = getDiceRolls(content.findChildren())
 
                     else:
-                        dice = content.text
+                        dice = content.text.strip()
 
                 if any("rolled" in t for t in s):
                     roll = content.text.strip()
                 if any("tstamp" in t for t in s):
                     static.tstamp = content.text
+
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID
-    message[DBhandler.Avatar_field] = photo
+
     message[DBhandler.UserID_field] = playerID
     message[DBhandler.By_field] = static.by
     message[DBhandler.RolledResultsList_field] = dicerolls
@@ -234,8 +233,8 @@ def addRollresult(datum):
     message[DBhandler.Rolled_Field] = roll
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
-    message[DBhandler.Text_Field] = datum.text
-    print("test",playerID,messageID,photo,static.by,dicerolls,dice.strip(),roll,static.tstamp,"|",dateAddToDb)
+
+    print("test",playerID,messageID,static.by,dicerolls,dice.strip(),roll,static.tstamp,"|",dateAddToDb)
 
 
     DBhandler.addMessage(message)
