@@ -6,6 +6,7 @@ from collections import Counter
 import chatParser
 from bs4.element import NavigableString
 import DBhandler
+import re
 
 playerStats = dict()  # PlayerId:dict() states
 
@@ -164,15 +165,14 @@ def returnStats():
     for player, values in playerStats.items():
         # s = s + player
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
-        s = s + "Total Number of Rolls " + str(len(values["diceRolls"])) + "\n"
+        s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + str(Counter(values["diceRolls"])) + "\n"
+        s = s + str(values["diceRolls"]) + "\n"
         s = s + "highest roll " + str(values["highestRoll"])
         s = s + ('\n\n')
     return s
-
 
 
 
@@ -182,7 +182,7 @@ def analyzeDB():
     print(len(messages))
 
     for message in messages:
-        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": [], "highestRoll": 0}
+        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "highestRoll": 0}
 
         id = message["UserID"]
         if id in playerStats:
@@ -195,9 +195,22 @@ def analyzeDB():
         rollFomula = message["RolledFormula"]
         rollList =  message["RolledResultsList"]
 
+        count = stats["diceRolls"]
+
+        for roll in rollList:
+            m = re.search('d\d+', roll[0])
+            if m:
+                count[m.group(0)] += 1
+            else:
+                print("error")
+        stats["diceRolls"] = count
+
+
         lastHigestRoll = stats.get("highestRoll")
         if(rolled > lastHigestRoll):
             stats["highestRoll"] = rolled
+
+
 
     print(playerStats)
 

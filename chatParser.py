@@ -258,8 +258,11 @@ def getDiceRolls(contents):
     for c in contents:
         s = c.attrs.get("class")
         if not isinstance(s, type(None)):
-            if any("didroll" in t for t in s):
-                rlist.append(c.text)
+            if any("diceroll" in t for t in s ):
+                dice = ' '.join(s)
+                roll = c.text
+                rlist.append([dice,roll])
+
     return rlist
 
 
