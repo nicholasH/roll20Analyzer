@@ -178,8 +178,6 @@ def returnStats():
 
 def analyzeDB():
     messages = DBhandler.getMessages()
-    print(messages)
-    print(len(messages))
 
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "highestRoll": 0}
@@ -202,7 +200,23 @@ def analyzeDB():
             if m:
                 count[m.group(0)] += 1
             else:
-                print("error")
+                print("error at for roll in rollList")
+
+
+            if "critfail" in roll[0]:
+                if "d20" in roll[0]:
+                    stats["nat1"] += 1
+                    stats["totCrtFail"] += 1
+
+                else:
+                    stats["totCrtFail"] += 1
+            elif "critsuccess" in roll[0]:
+                if "d20" in roll[0]:
+                    stats["nat20"] += 1
+                    stats["totCrtSus"] += 1
+                else:
+                    stats["totCrtSus"] += 1
+
         stats["diceRolls"] = count
 
 
@@ -210,9 +224,6 @@ def analyzeDB():
         if(rolled > lastHigestRoll):
             stats["highestRoll"] = rolled
 
-
-
-    print(playerStats)
 
 
 
