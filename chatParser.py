@@ -70,7 +70,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(testUrl)
+    browser.get(jarUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
@@ -165,7 +165,9 @@ def getParseTimeRange( date1String, date2String):
                             return chatContent[startMessageIndex : endMessageIndex]
 
     return chatContent[startMessageIndex : endMessageIndex]
-
+class static:
+    by = ""
+    tstamp = ""
 
 def addToDb():
     chatContent = getScrapParse()
@@ -186,9 +188,7 @@ def addToDb():
 
 
 
-class static:
-    by = ""
-    tstamp = ""
+
 
 def addRollresult(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
@@ -244,10 +244,32 @@ def addRollresult(datum):
 #find a way to get the roll data
 #right now the only way to get that data is to load in the game
 def addGleneral(datum):
-    #print(datum)
-    pass
+    for content in datum.contents:
+
+        if not isinstance(content, NavigableString):
+            s = content.attrs.get("class")
+            if not isinstance(s, type(None)):
+
+                if any("by" in t for t in s):
+                    static.by = content.text
+
+                if any("tstamp" in t for t in s):
+                    static.tstamp = content.text
+
+
 def addEmote(datum):
-    pass
+    for content in datum.contents:
+
+        if not isinstance(content, NavigableString):
+            s = content.attrs.get("class")
+            if not isinstance(s, type(None)):
+
+                if any("by" in t for t in s):
+                    static.by = content.text
+
+                if any("tstamp" in t for t in s):
+                    static.tstamp = content.text
+
 
 
 

@@ -170,7 +170,8 @@ def returnStats():
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
         s = s + str(values["diceRolls"]) + "\n"
-        s = s + "highest roll " + str(values["highestRoll"])
+        s = s + "highest roll " + str(values["highestRoll"]) + "\n"
+        s = s + "Top 10 Formual" + str(values["topFormual"].most_common(10)) + "\n"
         s = s + ('\n\n')
     return s
 
@@ -180,7 +181,7 @@ def analyzeDB():
     messages = DBhandler.getMessages()
 
     for message in messages:
-        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "highestRoll": 0}
+        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}
 
         id = message["UserID"]
         if id in playerStats:
@@ -189,18 +190,20 @@ def analyzeDB():
             playerStats[id] = stats
 
         stats["names"].add(message["BY"])
+
         rolled = message["Rolled"]
         rollFomula = message["RolledFormula"]
         rollList =  message["RolledResultsList"]
 
         count = stats["diceRolls"]
+        stats["topFormual"][rollFomula] += 1
 
         for roll in rollList:
             m = re.search('d\d+', roll[0])
             if m:
                 count[m.group(0)] += 1
             else:
-                print("error at for roll in rollList")
+                print("error at for roll in rollList ",roll)
 
 
             if "critfail" in roll[0]:
@@ -221,11 +224,13 @@ def analyzeDB():
 
 
         lastHigestRoll = stats.get("highestRoll")
-        if(rolled > lastHigestRoll):
-            stats["highestRoll"] = rolled
+        if not isinstance(rolled,str):
+            if(rolled > lastHigestRoll):
+                stats["highestRoll"] = rolled
 
 
 
-
-main("",False,"")
+analyzeDB()
+print(returnStats())
+#main("",False,"")
 
