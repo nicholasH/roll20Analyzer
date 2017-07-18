@@ -7,7 +7,7 @@ import sys
 from telnetlib import EC
 
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString
+from bs4.element import NavigableString, Tag
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException
 from selenium.webdriver.common.by import By
@@ -173,7 +173,7 @@ def addToDb():
     chatContent = getScrapParse()
     for c in chatContent:
 
-        s = c.attrs.get("class")
+        s = c["class"]
 
         if "rollresult" in s:
             addRollresult(c)
@@ -201,27 +201,21 @@ def addRollresult(datum):
     dateAddToDb = datetime.now()
 
     for content in datum.contents:
-
-        if not isinstance(content, NavigableString):
+        if isinstance(content,Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
 
-                if any("by" in t for t in s):
+                if "by" in s:
                     static.by = content.text
-
-
-                if any("formula" in t for t in s):
-
-                    if any("formattedformula" in t for t in s):
+                elif "tstamp" in s:
+                    static.tstamp = content.text
+                elif "formula" in s:
+                    if "formattedformula" in s:
                         dicerolls = getDiceRolls(content.findChildren())
-
                     else:
                         dice = content.text.strip()
-
-                if any("rolled" in t for t in s):
+                elif "rolled" in s:
                     roll = content.text.strip()
-                if any("tstamp" in t for t in s):
-                    static.tstamp = content.text
 
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID

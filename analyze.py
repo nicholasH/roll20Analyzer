@@ -230,7 +230,6 @@ def analyzeDB():
 
 
 
-analyzeDB()
-print(returnStats())
-#main("",False,"")
+
+main("",False,"")
 
