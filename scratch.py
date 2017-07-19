@@ -1,48 +1,50 @@
+import os
+import time
+
+import sys
+
+from aiohttp.hdrs import PRAGMA
 from bs4 import BeautifulSoup
-import re
+from selenium import webdriver
+from selenium.common.exceptions import ElementNotVisibleException
+import sqlite3
+from datetime import datetime, date,timedelta
+import pickle
+import  DBhandler
+conn = sqlite3.connect('example.db')
 
-test = []
-f = open("E:\\GitProjects\\roll20Analyzer\\data\\Chat Log for Caramohn's Level.html")
+def make():
+    c = conn.cursor()
 
-soup = BeautifulSoup(f.read(), 'html.parser')  # make soup that is parse-able by bs
+    # Create table
+    c.execute('''CREATE TABLE stocks
+                 (date text, trans text, symbol text, qty real, price real)''')
 
-generalmatch = re.compile('message \w+')
+    # Insert a row of data
+    c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
 
-chatContent = soup.findAll("div", {"class": generalmatch})
-
-for message in chatContent:
-    if "rollresult" in message.attrs["class"]:
-        print("worked")
-
-
-print("")
-
-
-def diceCounter(diceFomula):
-    s = diceFomula.attrs.get("class")
-    critsuc = 0
-    critfail = 0
-    dices = []
-
-    if any("formattedformula" in t for t in s):
-        for child in diceFomula.descendants:
-            if not isinstance(child, NavigableString):
-                childClass = child.attrs["class"]
-                if any("dicegrouping" in at for at in childClass):
-                    c = child
-
-                    print()
-
-    return [critsuc, critfail, dices]
+    # Save (commit) the changes
+    conn.commit()
 
 
-dice = diceFomula.next_element.next_element.contents
-if len(dice) > 0:
-    dices.append(dice[1])
-    for di in dice:
-        if not isinstance(di, NavigableString):
-            d = di.attrs["class"]
-            if any("critsuccess" in t for t in d):
-                critsuc += 1
-            if any("critfail" in t for t in d):
-                critfail += 1
+def drop():
+    c = conn.cursor()
+    c.execute('''DROP TABLE stocks''')
+def add():
+    c = conn.cursor()
+    x =0
+    while x < 100:
+        # Insert a row of data
+
+        c.execute("INSERT INTO stocks VALUES ('2006-"+str(x)+"-05','BUY','RHAT',100,35.14)")
+        x+=1
+    conn.commit()
+
+
+def printdb():
+    c = conn.cursor()
+    c.execute("SELECT * FROM stocks")
+    conn.commit()
+    print(c.fetchall())
+
+DBhandler.printDB()

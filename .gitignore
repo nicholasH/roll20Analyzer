@@ -4,3 +4,10 @@
 >>>>>>> origin/work
 .idea/workspace.xml
 botConfig
+config
+Chatlog.db
+example.db
+*.db
+*.db
+*.db
+Chatlog.db
