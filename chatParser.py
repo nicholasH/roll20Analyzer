@@ -239,29 +239,26 @@ def addRollresult(datum):
 #right now the only way to get that data is to load in the game
 def addGleneral(datum):
     for content in datum.contents:
-
-        if not isinstance(content, NavigableString):
+        if isinstance(content,Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
 
-                if any("by" in t for t in s):
+                if "by" in s:
                     static.by = content.text
-
-                if any("tstamp" in t for t in s):
+                elif "tstamp" in s:
                     static.tstamp = content.text
 
 
 def addEmote(datum):
     for content in datum.contents:
 
-        if not isinstance(content, NavigableString):
+        if isinstance(content,Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
 
-                if any("by" in t for t in s):
+                if "by" in s:
                     static.by = content.text
-
-                if any("tstamp" in t for t in s):
+                elif "tstamp" in s:
                     static.tstamp = content.text
 
 
