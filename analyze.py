@@ -171,7 +171,7 @@ def returnStats():
                                                                                   values["nat1"])) + "\n"
         s = s + str(values["diceRolls"]) + "\n"
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
-        s = s + "Top 10 Formual" + str(values["topFormual"].most_common(10)) + "\n"
+        s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + ('\n\n')
     return s
 

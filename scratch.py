@@ -96,10 +96,12 @@ def getScrapParse():
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
 
     generalmatch = re.compile('message \w+')
+    g = re.compile('.')
     chatContent = soup.findAll("div", {"class": generalmatch})
+    c = soup.findAll("div", {"data-messageid": "-KojdNK_7QMFvWL8b1dz"})
 
 
 
-    return chatContent
+    return c
 
 get()
