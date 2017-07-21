@@ -1,7 +1,9 @@
 import os
+import re
 import time
 
 import sys
+from telnetlib import EC
 
 from aiohttp.hdrs import PRAGMA
 from bs4 import BeautifulSoup
@@ -10,41 +12,94 @@ from selenium.common.exceptions import ElementNotVisibleException
 import sqlite3
 from datetime import datetime, date,timedelta
 import pickle
+
+from selenium.webdriver.support.wait import WebDriverWait
+
 import  DBhandler
-conn = sqlite3.connect('example.db')
-
-def make():
-    c = conn.cursor()
-
-    # Create table
-    c.execute('''CREATE TABLE stocks
-                 (date text, trans text, symbol text, qty real, price real)''')
-
-    # Insert a row of data
-    c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
-
-    # Save (commit) the changes
-    conn.commit()
 
 
-def drop():
-    c = conn.cursor()
-    c.execute('''DROP TABLE stocks''')
-def add():
-    c = conn.cursor()
-    x =0
-    while x < 100:
-        # Insert a row of data
+#test -KQvQkIky9CA9LUmZUC8 -KpCjRGD9Zv1TU72jOl5 Nicholas H: (GM):
+# July 16, 2017 4:23PM | 2017-07-20 19:23:41.502803
 
-        c.execute("INSERT INTO stocks VALUES ('2006-"+str(x)+"-05','BUY','RHAT',100,35.14)")
-        x+=1
-    conn.commit()
+def get():
+    s = DBhandler.getlastMessage()
+    print(getScrapParse())
+    print(s)
 
 
-def printdb():
-    c = conn.cursor()
-    c.execute("SELECT * FROM stocks")
-    conn.commit()
-    print(c.fetchall())
 
-DBhandler.printDB()
+
+def getScrapParse():
+    #todo remove code
+    DBhandler.destroyDB()
+    DBhandler.createDB()
+    #todo remove above code
+
+
+    path = os.path.join(sys.path[0], "config")
+
+    f = open(path)
+    EMAIL = ''
+    PASSWORD = ''
+    for line in f:
+        if "Email:" in line:
+            EMAIL = line.split("Email:")[1].strip()
+        if "Password:" in line:
+            PASSWORD = line.split("Password:")[1].strip()
+
+    f.close()
+
+    URL = 'https://app.roll20.net/sessions/new'
+    jarUrl = 'https://app.roll20.net/campaigns/chatarchive/1610304'#todo take this out of hard code
+    testUrl = "https://app.roll20.net/campaigns/chatarchive/1644807"
+
+
+    chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
+    browser = webdriver.Chrome(chromeDriver)
+    #browser.set_window_size(20, 20)
+    #browser.set_window_position(50, 50)
+    browser.get(URL)
+
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
+            browser.find_element_by_name('calltoaction')))
+    except:
+        print()
+
+
+    usernameElements = browser.find_elements_by_name("email")
+    passwordElements = browser.find_elements_by_name("password")
+
+    for e in usernameElements:
+        try:
+            e.send_keys(EMAIL)
+        except ElementNotVisibleException:
+            print()
+
+    for e in passwordElements:
+        try:
+            e.send_keys(PASSWORD)
+        except ElementNotVisibleException:
+            print()
+
+    browser.find_element_by_class_name("calltoaction").click()
+    browser.get(testUrl)
+    try:
+        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
+            browser.find_element_by_xpath('//*[@id="textchat"]/div')))
+    except:
+        print()
+
+    html = browser.page_source
+    browser.close()
+
+    soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
+
+    generalmatch = re.compile('message \w+')
+    chatContent = soup.findAll("div", {"class": generalmatch})
+
+
+
+    return chatContent
+
+get()

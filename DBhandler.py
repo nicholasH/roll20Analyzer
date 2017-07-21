@@ -129,3 +129,14 @@ def printDB():
         print(row)
 
     conn.close()
+
+def getlastMessage():
+    conn = sqlite3.connect('Chatlog.db')
+    c = conn.cursor()
+    c.execute('SELECT max({ID}) FROM {tn}'.format(
+        tn = Message_table,
+        ID = MessageID_field
+    ))
+    max_id = c.fetchone()[0]
+
+    return max_id
