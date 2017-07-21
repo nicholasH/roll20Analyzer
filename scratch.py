@@ -100,7 +100,7 @@ def getScrapParse():
     chatContent = soup.findAll("div", {"class": generalmatch})
     c = soup.findAll("div", {"data-messageid": "-KojdNK_7QMFvWL8b1dz"})
 
-
+    dv = c[0].next_element.next_element
 
     return c
 
