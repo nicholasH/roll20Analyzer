@@ -30,10 +30,6 @@ def get():
 
 
 def getScrapParse():
-    #todo remove code
-    DBhandler.destroyDB()
-    DBhandler.createDB()
-    #todo remove above code
 
 
     path = os.path.join(sys.path[0], "config")
@@ -95,13 +91,24 @@ def getScrapParse():
 
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
 
+    lastMessage = DBhandler.getlastMessage()
+
     generalmatch = re.compile('message \w+')
-    g = re.compile('.')
     chatContent = soup.findAll("div", {"class": generalmatch})
-    c = soup.findAll("div", {"data-messageid": "-KojdNK_7QMFvWL8b1dz"})
+    c = soup.find("div", {"data-messageid": lastMessage})
 
-    dv = c[0].next_element.next_element
+    chatContent =chatContent[chatContent.index(c):]
 
-    return c
 
-get()
+
+
+    for con in chatContent:
+        print(con)
+
+
+    return
+
+
+lis = []
+
+print(lis[1:None])

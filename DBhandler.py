@@ -133,10 +133,18 @@ def printDB():
 def getlastMessage():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
-    c.execute('SELECT max({ID}) FROM {tn}'.format(
-        tn = Message_table,
-        ID = MessageID_field
-    ))
-    max_id = c.fetchone()[0]
+    c.execute("select count(*) from sqlite_master where type='table' and name='Message'")
+    exist = c.fetchone()[0]
+    if exist:
+        c.execute('SELECT max({ID}) FROM {tn}'.format(
+            tn=Message_table,
+            ID=MessageID_field
+        ))
 
-    return max_id
+        max_ID = c.fetchone()[0]
+        conn.close()
+        return max_ID
+    else:
+        conn.close()
+        return None
+

@@ -18,8 +18,8 @@ import DBhandler
 
 def getScrapParse():
     #todo remove code
-    DBhandler.destroyDB()
-    DBhandler.createDB()
+    #DBhandler.destroyDB()
+    #DBhandler.createDB()
     #todo remove above code
 
 
@@ -81,10 +81,19 @@ def getScrapParse():
     browser.close()
 
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
-
     generalmatch = re.compile('message \w+')
-    chatContent = soup.findAll("div", {"class": generalmatch})
-    return chatContent
+
+    lastMessage = DBhandler.getlastMessage()
+    if isinstance(lastMessage,type(None)):
+        chatContent = soup.findAll("div", {"class": generalmatch})
+        return chatContent
+    else:
+        c = soup.find("div", {"data-messageid": lastMessage})
+        chatContent = soup.findAll("div", {"class": generalmatch})
+        return chatContent[chatContent.index(c)+1:]
+
+
+
 
 
 def getParse(path):

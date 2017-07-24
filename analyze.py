@@ -38,7 +38,7 @@ def main(givenPath ,findReal,rollback,):
         path = givenPath
 
     if not rollback:
-        DBhandler.destroyDB()
+
         chatParser.addToDb()
         analyzeDB()
     else:
