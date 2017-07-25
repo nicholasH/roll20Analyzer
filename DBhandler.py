@@ -51,7 +51,7 @@ roll is a string because some rolls might have more than just ints, ex 1d20<0 wi
 def createDB():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
-    # Creating a new SQLite table with 1 column
+
     c.execute(
         'CREATE TABLE {tn} ({MID} {fts}, {MT} {fts},  {UI} {fts},{By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
             .format(tn=Message_table,
@@ -147,4 +147,25 @@ def getlastMessage():
     else:
         conn.close()
         return None
+
+def getMessagesDate(dateString):
+    year = datetime.today().year
+
+    d = dateString + "/" + str(year)
+
+
+    dateA = datetime.strptime(d,"%m/%d/%Y")
+    dateB = dateA + timedelta(hours=24)
+
+
+
+    conn = sqlite3.connect('chatlog.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM {tn} WHERE {tf} BETWEEN {DA} AND {DB}".format(
+        tn = Message_table,
+        tf = Time_field,
+        DA = dateA.strftime("%Y-%m-%d"),
+        DB = dateB.strftime("%Y-%m-%d")
+    ))
+    return c.fetchall()
 

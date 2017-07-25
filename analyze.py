@@ -40,9 +40,12 @@ def main(givenPath ,findReal,rollback,):
     if not rollback:
 
         chatParser.addToDb()
-        analyzeDB()
+        analyzeDB(DBhandler.getMessages())
     else:
-        getStats(chatParser.getParseRollbackHours(path,int(rollback)))
+        singleDay = "7/19/17"
+        singleDayNoYear = "7/19"
+
+        analyzeDB(DBhandler.getMessagesDateRange(singleDay))
 
     print(returnStats())
 
@@ -177,8 +180,8 @@ def returnStats():
 
 
 
-def analyzeDB():
-    messages = DBhandler.getMessages()
+def analyzeDB(messages):
+
 
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}
