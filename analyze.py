@@ -3,6 +3,8 @@ from html.parser import HTMLParser
 
 import sys
 from collections import Counter
+
+from datetime import datetime
 import chatParser
 from bs4.element import NavigableString
 import DBhandler
@@ -42,10 +44,10 @@ def main(givenPath ,findReal,rollback,):
         chatParser.addToDb()
         analyzeDB(DBhandler.getMessages())
     else:
-        singleDay = "7/19/17"
-        singleDayNoYear = "7/19"
+        day = datetime(2017,7,26)
 
-        analyzeDB(DBhandler.getMessagesDateRange(singleDay))
+
+        analyzeDB(DBhandler.getMessageDateTime(day))
 
     print(returnStats())
 
@@ -234,5 +236,5 @@ def analyzeDB(messages):
 
 
 
-main("",False,"")
+main("",False,"25")
 

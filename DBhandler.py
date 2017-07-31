@@ -26,7 +26,6 @@ string_field_type = 'STRING'
 Date_field_type = "date"
 Tstamp_field = 'timestamp'
 
-
 columnName = [MessageID_field,
               MessageType_field,
               UserID_field,
@@ -37,17 +36,14 @@ columnName = [MessageID_field,
               RolledResultsList_field,
               Rolled_Field]
 
-
-
-
-
 """
 
 
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
 
-#todo test if changeing roll to fts to fti made any errors
+
+# todo test if changeing roll to fts to fti made any errors
 def createDB():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
@@ -66,7 +62,7 @@ def createDB():
                     RL=RolledResultsList_field,
                     Roll=Rolled_Field
 
-                    , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts= Tstamp_field))
+                    , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
     conn.close()
 
 
@@ -98,9 +94,11 @@ def addMessage(messageDic: dict):
     conn.commit()
     conn.close()
 
-"""Gets all the message in the DB"""
-def getMessages():
 
+"""Gets all the message in the DB"""
+
+
+def getMessages():
     conn = sqlite3.connect('Chatlog.db')
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
@@ -108,15 +106,19 @@ def getMessages():
     data = c.fetchall()
     conn.close()
 
+    return makeList(data)
+
+
+def makeList(data):
     listTurn = list()
 
     for datum in data:
-
         dic = dict(zip(columnName, datum))
         dic[RolledResultsList_field] = pickle.loads(dic[RolledResultsList_field])
         listTurn.append(dic)
 
     return listTurn
+
 
 
 def printDB():
@@ -129,6 +131,7 @@ def printDB():
         print(row)
 
     conn.close()
+
 
 def getlastMessage():
     conn = sqlite3.connect('Chatlog.db')
@@ -148,24 +151,25 @@ def getlastMessage():
         conn.close()
         return None
 
-def getMessagesDate(dateString):
-    year = datetime.today().year
+# get a single dateTime object and returns message on that date
+def getMessageDateTime(dateTime):
+    dateA = dateTime
+    dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
+    return getMessageDateTimeRange(dateA,dateB)
 
-    d = dateString + "/" + str(year)
-
-
-    dateA = datetime.strptime(d,"%m/%d/%Y")
-    dateB = dateA + timedelta(hours=24)
-
-
-
+#get two date time objects and gets the range of them
+def getMessageDateTimeRange(dateTimeA, dateTimeB):
     conn = sqlite3.connect('chatlog.db')
     c = conn.cursor()
-    c.execute("SELECT * FROM {tn} WHERE {tf} BETWEEN {DA} AND {DB}".format(
-        tn = Message_table,
-        tf = Time_field,
-        DA = dateA.strftime("%Y-%m-%d"),
-        DB = dateB.strftime("%Y-%m-%d")
-    ))
-    return c.fetchall()
+    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\"".format(
+        tn=Message_table,
+        tf=Time_field,
+        DA=dateTimeA,
+        DB=dateTimeB)
 
+    c.execute(exe)
+    data = c.fetchall()
+    c.close()
+
+
+    return makeList(data)

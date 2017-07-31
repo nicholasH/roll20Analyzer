@@ -20,12 +20,12 @@ import  DBhandler
 
 
 def getDate():
-    messages = DBhandler.getMessagesDate("7/16")
-    print(messages)
+    messages = DBhandler.getMessageDateTime(datetime(2017,7,10))
+
     for message in messages:
         print(message)
 
 
 getDate()
-
+#DBhandler.printDB()
 

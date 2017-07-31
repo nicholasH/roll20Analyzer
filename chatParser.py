@@ -18,8 +18,8 @@ import DBhandler
 
 def getScrapParse():
     #todo remove code
-    #DBhandler.destroyDB()
-    #DBhandler.createDB()
+    DBhandler.destroyDB()
+    DBhandler.createDB()
     #todo remove above code
 
 
@@ -70,7 +70,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(testUrl)
+    browser.get(jarUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
@@ -178,6 +178,9 @@ class static:
     by = ""
     tstamp = ""
 
+
+
+
 def addToDb():
     chatContent = getScrapParse()
     for c in chatContent:
@@ -217,7 +220,7 @@ def addRollresult(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = content.text
+                    static.tstamp =  datetime.strptime(content.text, "%B %d, %Y %I:%M%p")
                 elif "formula" in s:
                     if "formattedformula" in s:
                         dicerolls = getDiceRolls(content.findChildren())
@@ -255,7 +258,7 @@ def addGleneral(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = content.text
+                    static.tstamp = datetime.strptime(content.text, "%B %d, %Y %I:%M%p")
 
 
 def addEmote(datum):
@@ -268,7 +271,7 @@ def addEmote(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = content.text
+                    static.tstamp = datetime.strptime(content.text, "%B %d, %Y %I:%M%p")
 
 
 
