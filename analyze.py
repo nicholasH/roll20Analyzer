@@ -28,26 +28,9 @@ def getPath():
     return path
 
 
-def main(givenPath ,findReal,rollback,):
-    global path
-    global messages
-    global real
-    real = findReal
-
-    if not givenPath:
-        path = getPath()
-    else:
-        path = givenPath
-
-    if not rollback:
-
-        chatParser.addToDb()
-        analyzeDB(DBhandler.getMessages())
-    else:
-        day = datetime(2017,7,26)
-
-
-        analyzeDB(DBhandler.getMessageDateTime(day))
+def analyze():
+    chatParser.addToDb()
+    analyzeDB(DBhandler.getMessages())
 
     print(returnStats())
 
@@ -236,5 +219,4 @@ def analyzeDB(messages):
 
 
 
-main("",False,"25")
 

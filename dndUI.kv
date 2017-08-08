@@ -1,0 +1,31 @@
+<dndUI>:
+    but1 : but1
+    but2 : but2
+
+    AnchorLayout:
+        top: root.top - 50
+
+        BoxLayout:
+            size_hint_x:None
+            
+
+            Button:
+                text_size: self.size
+                size_hint_y: None
+                text_size: self.width, None
+                height: self.texture_size[1]
+                text: "Run"
+                id: but1
+
+
+            Button:
+                text_size: self.size
+                size_hint_y: None
+                text_size: self.width, None
+                height: self.texture_size[0]
+                width: self.texture_size[0]
+                text: "Run_local_DB"
+                id: but2
+
+
+
