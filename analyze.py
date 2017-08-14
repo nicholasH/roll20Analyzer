@@ -125,26 +125,7 @@ def getGivenPath():
     return path
 
 
-def talk(*args):
-    if len(args)== 1:
-        test = args[0]
-        if args[0].isdigit():
-            main("","",args[0])
-        if args[0] == "real":
-            main("",True,"")
 
-    elif len(args)== 2:
-        if args[0].isdigit() and args[1] is "real":
-            hoursBack = args[0]
-            main("",True, hoursBack)
-        else:
-            hoursBack = args[0]
-            main(main("","", hoursBack))
-
-    else:
-        main("","","")
-
-    return returnStats()
 
 
 # todo make this look good

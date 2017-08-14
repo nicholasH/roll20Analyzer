@@ -1,11 +1,18 @@
 <dndUI>:
+    orientation:"vertical"
+
     BoxLayout:
-        an
+        size_hint_y:None
         Button:
-            text:"text"
+            text:"run"
+            height: 20
+            on_press: root.run()
         Button:
-            text:"text"
-        Button:
-            text:"text"
-        Button:
-            text:"text"
+            text:"run from DB"
+            height: 20
+
+    TextInput:
+        background_color: 0,0,0,1
+        cursor_color: .43,.79,.213,1
+        foreground_color:.43,.79,.213,1
+        readonly: True
