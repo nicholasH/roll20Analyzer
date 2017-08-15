@@ -10,7 +10,8 @@ from bs4.element import NavigableString
 import DBhandler
 import re
 
-playerStats = dict()  # PlayerId:dict() states
+global playerStats   # PlayerId:dict() states
+playerStats = dict()
 
 path = ""
 
@@ -29,6 +30,7 @@ def getPath():
 
 
 def analyze():
+
     chatParser.addToDb()
     analyzeDB(DBhandler.getMessages())
 
@@ -147,7 +149,6 @@ def returnStats():
 
 
 def analyzeDB(messages):
-
 
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}

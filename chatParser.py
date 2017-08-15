@@ -18,8 +18,8 @@ import DBhandler
 
 def getScrapParse():
     #todo remove code
-    DBhandler.destroyDB()
-    DBhandler.createDB()
+    #DBhandler.destroyDB()
+    #DBhandler.createDB()
     #todo remove above code
 
 
@@ -174,6 +174,9 @@ def getParseTimeRange( date1String, date2String):
                             return chatContent[startMessageIndex : endMessageIndex]
 
     return chatContent[startMessageIndex : endMessageIndex]
+
+
+
 class static:
     by = ""
     tstamp = ""
