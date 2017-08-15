@@ -149,6 +149,8 @@ def returnStats():
 
 
 def analyzeDB(messages):
+    global playerStats
+    playerStats = dict()
 
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}
