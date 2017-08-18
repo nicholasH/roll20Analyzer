@@ -34,6 +34,7 @@ def analyze():
     chatParser.addToDb()
     analyzeDB(DBhandler.getMessages())
 
+    analyzeDB(DBhandler.getMessageDateTime(datetime.today()))
     print(returnStats())
 
 

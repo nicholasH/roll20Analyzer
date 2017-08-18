@@ -18,8 +18,8 @@ import DBhandler
 
 def getScrapParse():
     #todo remove code
-    #DBhandler.destroyDB()
-    #DBhandler.createDB()
+    DBhandler.destroyDB()
+    DBhandler.createDB()
     #todo remove above code
 
 
@@ -70,7 +70,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(testUrl)
+    browser.get(jarUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
