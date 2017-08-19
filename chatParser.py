@@ -223,7 +223,8 @@ def addRollresult(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp =  datetime.strptime(content.text, "%B %d, %Y %I:%M%p")
+                    addTime(content.text)
+
                 elif "formula" in s:
                     if "formattedformula" in s:
                         dicerolls = getDiceRolls(content.findChildren())
@@ -261,12 +262,11 @@ def addGleneral(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = datetime.strptime(content.text, "%B %d, %Y %I:%M%p")
+                    addTime(content.text)
 
 
 def addEmote(datum):
     for content in datum.contents:
-
         if isinstance(content,Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
@@ -274,10 +274,15 @@ def addEmote(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = datetime.strptime(content.text, "%B %d, %Y %I:%M%p")
+                    addTime(content.text)
 
 
-
+def addTime(timeString):
+    try:
+        static.tstamp = datetime.strptime(timeString, "%B %d, %Y %I:%M%p")
+    except ValueError:
+        print("Error Time " + timeString)
+        static.tstamp = None
 
 
 
