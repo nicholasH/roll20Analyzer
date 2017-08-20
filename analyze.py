@@ -33,19 +33,14 @@ def analyze():
 
     chatParser.addToDb()
     analyzeDB(DBhandler.getMessages())
-
-
     print(returnStats())
+
+
 def analyzeToday():
     chatParser.addToDb()
     startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
-    day =  datetime(2017,7,16)
-    day2 = datetime(2017,7,20)
-    print(day)
-
-
-    analyzeDB(DBhandler.getMessageDateTime(day))
-
+    analyzeDB(DBhandler.getMessageDateTime(startToday))
+    print(returnStats())
 
 def diceCounter(diceFomula):
     s = diceFomula.attrs.get("class")
