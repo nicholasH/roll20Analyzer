@@ -70,7 +70,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(jarUrl)
+    browser.get(testUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
@@ -244,7 +244,7 @@ def addRollresult(datum):
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
-    print("test",playerID,messageID,static.by,dicerolls,dice.strip(),roll,static.tstamp,"|",dateAddToDb)
+    print("test",playerID,messageID,static.by,static.tstamp,"|",dateAddToDb,dicerolls,dice.strip(),roll,)
 
 
     DBhandler.addMessage(message)

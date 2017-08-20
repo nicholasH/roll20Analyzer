@@ -5,11 +5,13 @@
         size_hint_y:None
         Button:
             text:"run"
-            height: 20
             on_press: root.run()
         Button:
-            text:"run from DB"
-            height: 20
+            text:"run Today"
+            on_press: root.runToday()
+
+        Button:
+            text:"run By date"
 
     TextInput:
         background_color: 0,0,0,1

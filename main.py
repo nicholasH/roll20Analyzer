@@ -12,6 +12,8 @@ class dndUI(BoxLayout):
 
     def run(self):
         analyze.analyze()
+    def runToday(self):
+        analyze.analyzeToday()
 
 
 class dndUIApp(App):
