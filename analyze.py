@@ -42,6 +42,7 @@ def analyzeToday():
     analyzeDB(DBhandler.getMessageDateTime(startToday))
     print(returnStats())
 
+
 def diceCounter(diceFomula):
     s = diceFomula.attrs.get("class")
     critsuc = 0

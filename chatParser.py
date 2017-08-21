@@ -276,13 +276,22 @@ def addEmote(datum):
                 elif "tstamp" in s:
                     addTime(content.text)
 
-
+#adds time tstamp to the static class
+#first trys a (Month day, year time) if that fails it takes todays date and just takes the time that it gets from the given time
 def addTime(timeString):
+
     try:
         static.tstamp = datetime.strptime(timeString, "%B %d, %Y %I:%M%p")
+
     except ValueError:
-        print("Error Time " + timeString)
-        static.tstamp = None
+        try:
+            hourDt = datetime.strptime(timeString,"%I:%M%p" )
+            today = datetime.today()
+            today.replace(hour=hourDt.hour,minute=hourDt.minute)
+            static.tstamp =today
+        except ValueError:
+            print("Error Time " + timeString)
+            static.tstamp = None
 
 
 
