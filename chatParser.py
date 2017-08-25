@@ -70,7 +70,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(testUrl)
+    browser.get(jarUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
@@ -289,6 +289,7 @@ def addTime(timeString):
             today = datetime.today()
             today.replace(hour=hourDt.hour,minute=hourDt.minute)
             static.tstamp =today
+            print("not full time string"+ timeString)
         except ValueError:
             print("Error Time " + timeString)
             static.tstamp = None
