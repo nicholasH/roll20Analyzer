@@ -15,6 +15,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import DBhandler
 
+#todo make this able to chanced by the user
+global stamped
+stamped = True
+
 
 def getScrapParse():
     #todo remove code
@@ -70,7 +74,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(jarUrl)
+    browser.get(testUrl)
     try:
         WebDriverWait(browser, 5).until(EC.presence_of_element_located(
             browser.find_element_by_xpath('//*[@id="textchat"]/div')))
@@ -180,12 +184,14 @@ def getParseTimeRange( date1String, date2String):
 class static:
     by = ""
     tstamp = ""
+    timeStamp = ""
 
 
 
 
 def addToDb():
     chatContent = getScrapParse()
+    static.timeStamp = ""
     for c in chatContent:
 
         s = c["class"]
@@ -266,6 +272,11 @@ def addGleneral(datum):
 
 
 def addEmote(datum):
+    ts = datum.text.lower()
+    if "#ts" in ts:
+        match = re.search(r'\d{2}/\d{2}/\d{4}', datum.text)
+        date = datetime.strptime(match.group(), '%m/%d/%Y')
+        static.timeStamp =date
     for content in datum.contents:
         if isinstance(content,Tag):
             s = content.attrs.get("class")
@@ -285,11 +296,29 @@ def addTime(timeString):
 
     except ValueError:
         try:
-            hourDt = datetime.strptime(timeString,"%I:%M%p" )
-            today = datetime.today()
-            today.replace(hour=hourDt.hour,minute=hourDt.minute)
-            static.tstamp =today
-            print("not full time string"+ timeString)
+            hourDt = datetime.strptime(timeString, "%I:%M%p")
+
+            if stamped:
+                if static.timeStamp == "":
+                    static.tstamp =None
+                else:
+                    date = static.timeStamp
+                    date.replace(hour=hourDt.hour, minute=hourDt.minute)
+                    static.tstamp = date
+            else:
+                today = datetime.today()
+                today.replace(hour=hourDt.hour, minute=hourDt.minute)
+                static.tstamp = today
+                print("not full time string" + timeString)
+
+
+
+
+
+
+
+
+
         except ValueError:
             print("Error Time " + timeString)
             static.tstamp = None
