@@ -3,12 +3,15 @@ from html.parser import HTMLParser
 
 import sys
 from collections import Counter
+
+from datetime import datetime
 import chatParser
 from bs4.element import NavigableString
 import DBhandler
 import re
 
-playerStats = dict()  # PlayerId:dict() states
+global playerStats   # PlayerId:dict() states
+playerStats = dict()
 
 path = ""
 
@@ -26,25 +29,31 @@ def getPath():
     return path
 
 
-def main(givenPath ,findReal,rollback,):
-    global path
-    global messages
-    global real
-    real = findReal
-
-    if not givenPath:
-        path = getPath()
-    else:
-        path = givenPath
-
-    if not rollback:
-        DBhandler.destroyDB()
-        chatParser.addToDb()
-        analyzeDB()
-    else:
-        getStats(chatParser.getParseRollbackHours(path,int(rollback)))
-
+def analyze():
+    chatParser.addToDb()
+    analyzeDB(DBhandler.getMessages())
     print(returnStats())
+    return returnStats()
+
+
+def analyzeToday():
+    chatParser.addToDb()
+    startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
+    analyzeDB(DBhandler.getMessageDateTime(startToday))
+    print(returnStats())
+    return returnStats()
+
+#Gets 1 Datetime and returns the messages of that date
+def analyzeDate(date):
+    analyzeDB(DBhandler.getMessageDateTime(date))
+    print(returnStats())
+    return returnStats()
+
+#Gets 2 datestimes and returns the messaages between the dates
+def analyzeDateRange(date0,date1):
+    analyzeDB(DBhandler.getMessageDateTimeRange(date0,date1))
+    print(returnStats())
+    return returnStats()
 
 
 def diceCounter(diceFomula):
@@ -137,26 +146,7 @@ def getGivenPath():
     return path
 
 
-def talk(*args):
-    if len(args)== 1:
-        test = args[0]
-        if args[0].isdigit():
-            main("","",args[0])
-        if args[0] == "real":
-            main("",True,"")
 
-    elif len(args)== 2:
-        if args[0].isdigit() and args[1] is "real":
-            hoursBack = args[0]
-            main("",True, hoursBack)
-        else:
-            hoursBack = args[0]
-            main(main("","", hoursBack))
-
-    else:
-        main("","","")
-
-    return returnStats()
 
 
 # todo make this look good
@@ -171,14 +161,15 @@ def returnStats():
                                                                                   values["nat1"])) + "\n"
         s = s + str(values["diceRolls"]) + "\n"
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
-        s = s + "Top 10 Formual" + str(values["topFormual"].most_common(10)) + "\n"
+        s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + ('\n\n')
     return s
 
 
 
-def analyzeDB():
-    messages = DBhandler.getMessages()
+def analyzeDB(messages):
+    global playerStats
+    playerStats = dict()
 
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}
@@ -231,5 +222,4 @@ def analyzeDB():
 
 
 
-main("",False,"")
 

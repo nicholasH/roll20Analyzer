@@ -9,11 +9,17 @@ from telnetlib import EC
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from selenium import webdriver
-from selenium.common.exceptions import ElementNotVisibleException
+from selenium.common.exceptions import ElementNotVisibleException, TimeoutException
+import selenium.webdriver.support.ui as ui
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 import DBhandler
+
+#todo make this able to chanced by the user
+global stamped
+stamped = False
 
 
 def getScrapParse():
@@ -47,13 +53,12 @@ def getScrapParse():
     #browser.set_window_position(50, 50)
     browser.get(URL)
 
-    try:
-        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
-            browser.find_element_by_name('calltoaction')))
-    except:
-        print()
+    wait = ui.WebDriverWait(browser, 120)  # timeout after 120 seconds
 
 
+    #todo remove this login
+    #Loging
+    ######################################################################################
     usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 
@@ -70,21 +75,36 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(jarUrl)
-    try:
-        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
-            browser.find_element_by_xpath('//*[@id="textchat"]/div')))
-    except:
-        print()
+    #######################################################################################
 
-    html = browser.page_source
-    browser.close()
+    try:
+        results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
+
+        if len(results) > 0:
+            browser.get(testUrl)
+            html = browser.page_source
+            browser.close()
+        else:
+            print("error website changes")
+    except TimeoutException:
+        browser.close()
+        print("error timeout")
+
 
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
-
     generalmatch = re.compile('message \w+')
-    chatContent = soup.findAll("div", {"class": generalmatch})
-    return chatContent
+
+    lastMessage = DBhandler.getlastMessage()
+    if isinstance(lastMessage,type(None)):
+        chatContent = soup.findAll("div", {"class": generalmatch})
+        return chatContent
+    else:
+        c = soup.find("div", {"data-messageid": lastMessage})
+        chatContent = soup.findAll("div", {"class": generalmatch})
+        return chatContent[chatContent.index(c)+1:]
+
+
+
 
 
 def getParse(path):
@@ -165,12 +185,20 @@ def getParseTimeRange( date1String, date2String):
                             return chatContent[startMessageIndex : endMessageIndex]
 
     return chatContent[startMessageIndex : endMessageIndex]
+
+
+
 class static:
     by = ""
     tstamp = ""
+    timeStamp = ""
+
+
+
 
 def addToDb():
     chatContent = getScrapParse()
+    static.timeStamp = ""
     for c in chatContent:
 
         s = c["class"]
@@ -208,7 +236,8 @@ def addRollresult(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = content.text
+                    addTime(content.text)
+
                 elif "formula" in s:
                     if "formattedformula" in s:
                         dicerolls = getDiceRolls(content.findChildren())
@@ -228,7 +257,7 @@ def addRollresult(datum):
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
-    print("test",playerID,messageID,static.by,dicerolls,dice.strip(),roll,static.tstamp,"|",dateAddToDb)
+    print("test",playerID,messageID,static.by,static.tstamp,"|",dateAddToDb,dicerolls,dice.strip(),roll,)
 
 
     DBhandler.addMessage(message)
@@ -246,12 +275,16 @@ def addGleneral(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = content.text
+                    addTime(content.text)
 
 
 def addEmote(datum):
+    ts = datum.text.lower()
+    if "#ts" in ts:
+        match = re.search(r'\d{2}/\d{2}/\d{4}', datum.text)
+        date = datetime.strptime(match.group(), '%m/%d/%Y')
+        static.timeStamp =date
     for content in datum.contents:
-
         if isinstance(content,Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
@@ -259,10 +292,43 @@ def addEmote(datum):
                 if "by" in s:
                     static.by = content.text
                 elif "tstamp" in s:
-                    static.tstamp = content.text
+                    addTime(content.text)
+
+#adds time tstamp to the static class
+#first trys a (Month day, year time) if that fails it takes todays date and just takes the time that it gets from the given time
+def addTime(timeString):
+
+    try:
+        static.tstamp = datetime.strptime(timeString, "%B %d, %Y %I:%M%p")
+
+    except ValueError:
+        try:
+            hourDt = datetime.strptime(timeString, "%I:%M%p")
+
+            if stamped:
+                if static.timeStamp == "":
+                    static.tstamp =None
+                else:
+                    date = static.timeStamp
+                    date.replace(hour=hourDt.hour, minute=hourDt.minute)
+                    static.tstamp = date
+            else:
+                today = datetime.today()
+                today.replace(hour=hourDt.hour, minute=hourDt.minute)
+                static.tstamp = today
+                print("not full time string" + timeString)
 
 
 
+
+
+
+
+
+
+        except ValueError:
+            print("Error Time " + timeString)
+            static.tstamp = None
 
 
 

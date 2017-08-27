@@ -1,0 +1,67 @@
+<dndUI>:
+    orientation:"vertical"
+
+    BoxLayout:
+        size_hint_y:None
+        Button:
+            text:"run"
+            on_press: root.run(outputText)
+        Button:
+            text:"run Today"
+            on_press: root.runToday(outputText)
+        BoxLayout:
+            orientation: "vertical"
+            BoxLayout:
+                size_hint_y:.6
+                Label:
+                    text:"day1"
+                genDateInput:
+                    hint_text: "day1"
+                    chars: 2
+                    id: day
+                genDateInput:
+                    hint_text: "month1"
+                    chars: 2
+                    id: month
+
+                genDateInput:
+                    id: year
+                    hint_text: "year1"
+
+            BoxLayout:
+                size_hint_y:.6
+                Label:
+                    text:"day2"
+                CheckBox:
+                    id:dateRange
+
+                genDateInput:
+                    id: day1
+                    chars: 2
+                    hint_text: "day2"
+                    disabled: not dateRange.active
+                genDateInput:
+                    chars: 2
+                    hint_text: "month2"
+                    id: month1
+                    disabled: not dateRange.active
+
+                genDateInput:
+                    hint_text:"year2"
+                    id: year1
+                    disabled: not dateRange.active
+
+
+
+
+            Button:
+                text:"run By date"
+                on_press:root.runByDate(outputText,day.text ,month.text, year.text,day1.text,month1.text,year1.text,dateRange.active)
+
+    TextInput:
+        background_color: 0,0,0,1
+        cursor_color: .43,.79,.213,1
+        foreground_color:.43,.79,.213,1
+        readonly: True
+        id:outputText
+

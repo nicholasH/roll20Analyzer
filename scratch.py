@@ -1,50 +1,25 @@
+import contextlib
 import os
-import time
 
+import selenium.webdriver as webdriver
+import selenium.webdriver.support.ui as ui
 import sys
 
-from aiohttp.hdrs import PRAGMA
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.common.exceptions import ElementNotVisibleException
-import sqlite3
-from datetime import datetime, date,timedelta
-import pickle
-import  DBhandler
-conn = sqlite3.connect('example.db')
+from selenium.common.exceptions import TimeoutException
 
-def make():
-    c = conn.cursor()
+URL = 'https://app.roll20.net/sessions/new'
+chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
+browser = webdriver.Chrome(chromeDriver)
+browser.get(URL)
+wait = ui.WebDriverWait(browser, 120) # timeout after 10 seconds
 
-    # Create table
-    c.execute('''CREATE TABLE stocks
-                 (date text, trans text, symbol text, qty real, price real)''')
+try:
+    results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
-    # Insert a row of data
-    c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
-
-    # Save (commit) the changes
-    conn.commit()
-
-
-def drop():
-    c = conn.cursor()
-    c.execute('''DROP TABLE stocks''')
-def add():
-    c = conn.cursor()
-    x =0
-    while x < 100:
-        # Insert a row of data
-
-        c.execute("INSERT INTO stocks VALUES ('2006-"+str(x)+"-05','BUY','RHAT',100,35.14)")
-        x+=1
-    conn.commit()
-
-
-def printdb():
-    c = conn.cursor()
-    c.execute("SELECT * FROM stocks")
-    conn.commit()
-    print(c.fetchall())
-
-DBhandler.printDB()
+    if len(results) > 0:
+        print("continue")
+    else:
+        print("error website changes")
+except TimeoutException:
+    browser.close()
+    print("error timeout")
