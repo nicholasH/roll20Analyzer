@@ -30,10 +30,10 @@ def getPath():
 
 
 def analyze():
-
     chatParser.addToDb()
     analyzeDB(DBhandler.getMessages())
     print(returnStats())
+    return returnStats()
 
 
 def analyzeToday():
@@ -41,6 +41,19 @@ def analyzeToday():
     startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
     analyzeDB(DBhandler.getMessageDateTime(startToday))
     print(returnStats())
+    return returnStats()
+
+#Gets 1 Datetime and returns the messages of that date
+def analyzeDate(date):
+    analyzeDB(DBhandler.getMessageDateTime(date))
+    print(returnStats())
+    return returnStats()
+
+#Gets 2 datestimes and returns the messaages between the dates
+def analyzeDateRange(date0,date1):
+    analyzeDB(DBhandler.getMessageDateTimeRange(date0,date1))
+    print(returnStats())
+    return returnStats()
 
 
 def diceCounter(diceFomula):

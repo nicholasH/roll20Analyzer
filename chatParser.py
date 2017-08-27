@@ -19,7 +19,7 @@ import DBhandler
 
 #todo make this able to chanced by the user
 global stamped
-stamped = True
+stamped = False
 
 
 def getScrapParse():
