@@ -9,7 +9,9 @@ from telnetlib import EC
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from selenium import webdriver
-from selenium.common.exceptions import ElementNotVisibleException
+from selenium.common.exceptions import ElementNotVisibleException, TimeoutException
+import selenium.webdriver.support.ui as ui
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
@@ -51,13 +53,12 @@ def getScrapParse():
     #browser.set_window_position(50, 50)
     browser.get(URL)
 
-    try:
-        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
-            browser.find_element_by_name('calltoaction')))
-    except:
-        print()
+    wait = ui.WebDriverWait(browser, 120)  # timeout after 120 seconds
 
 
+    #todo remove this login
+    #Loging
+    ######################################################################################
     usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 
@@ -74,15 +75,21 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    browser.get(testUrl)
-    try:
-        WebDriverWait(browser, 5).until(EC.presence_of_element_located(
-            browser.find_element_by_xpath('//*[@id="textchat"]/div')))
-    except:
-        print()
+    #######################################################################################
 
-    html = browser.page_source
-    browser.close()
+    try:
+        results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
+
+        if len(results) > 0:
+            browser.get(testUrl)
+            html = browser.page_source
+            browser.close()
+        else:
+            print("error website changes")
+    except TimeoutException:
+        browser.close()
+        print("error timeout")
+
 
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
     generalmatch = re.compile('message \w+')

@@ -1,66 +1,25 @@
-import sqlite3
-from kivy.app import App
-from kivy.lang import Builder
-from kivy.factory import Factory
-from kivy.animation import Animation
-from kivy.clock import Clock, mainthread
-from kivy.uix.gridlayout import GridLayout
-import threading
-import time
-import DBhandler
+import contextlib
+import os
 
-from datetime import datetime
+import selenium.webdriver as webdriver
+import selenium.webdriver.support.ui as ui
+import sys
 
-day0 = datetime(2017,7,10)
-day1 = datetime(2017,7,18)
+from selenium.common.exceptions import TimeoutException
 
+URL = 'https://app.roll20.net/sessions/new'
+chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
+browser = webdriver.Chrome(chromeDriver)
+browser.get(URL)
+wait = ui.WebDriverWait(browser, 120) # timeout after 10 seconds
 
+try:
+    results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
-def addToExample():
-    conn = sqlite3.connect('example.db')
-    c = conn.cursor()
-    x = 1
-    while(x < 28):
-        day = datetime(2017,7,x).strptime("")
-        name = "NAME"+ str(x)
-        exe = 'INSERT INTO NameDate VALUES (?,?);',(
-            name,
-            day
-        )
-        c.execute(exe)
-    conn.commit()
-    conn.close()
-
-
-def createDB():
-    conn = sqlite3.connect('example.db')
-    c = conn.cursor()
-    exe = 'CREATE TABLE NameDate (Name STRING, Date date);'
-    c.execute(exe)
-    conn.commit()
-    conn.close()
-
-def destroyDB():
-    conn = sqlite3.connect('example.db')
-    c = conn.cursor()
-    exe = 'DROP TABLE IF EXISTS NameDate;'
-    c.execute(exe)
-    conn.commit()
-    conn.close()
-
-
-def printDB():
-    conn = sqlite3.connect('example.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM NameDate;")
-    conn.commit()
-    rows = c.fetchall()
-    for row in rows:
-        print(row)
-
-    conn.close()
-DBhandler.printDB()
-data = DBhandler.getMessageDateTime(day0)
-print("=============================================================================")
-for x in data:
-    print(x)
+    if len(results) > 0:
+        print("continue")
+    else:
+        print("error website changes")
+except TimeoutException:
+    browser.close()
+    print("error timeout")
