@@ -1,6 +1,12 @@
 <dndUI>:
     orientation:"vertical"
+    ActionBar:
 
+        ActionView:
+            id:"test2"
+            ActionPrevious:
+                disabled: True
+                id:"test3"
     BoxLayout:
         size_hint_y:None
         Button:
@@ -50,10 +56,6 @@
                     hint_text:"year2"
                     id: year1
                     disabled: not dateRange.active
-
-
-
-
             Button:
                 text:"run By date"
                 on_press:root.runByDate(outputText,day.text ,month.text, year.text,day1.text,month1.text,year1.text,dateRange.active)
