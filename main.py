@@ -37,18 +37,8 @@ class genDateInput(TextInput):
         return super(genDateInput, self)
 
 
-class RightClickTextInput(TextInput):
 
-    def on_touch_down(self, touch):
 
-        super(RightClickTextInput,self).on_touch_down(touch)
-
-        if touch.button == 'right':
-            print("right mouse clicked")
-            pos = super(RightClickTextInput,self).to_local(*self._long_touch_pos, relative=True)
-
-            self._show_cut_copy_paste(
-                pos, EventLoop.window, mode='copy')
 
 class dndUI(BoxLayout):
     text = "Hello world"

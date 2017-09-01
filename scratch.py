@@ -1,25 +1,37 @@
-import contextlib
-import os
+from tkinter import *
+from tkinter import ttk
 
-import selenium.webdriver as webdriver
-import selenium.webdriver.support.ui as ui
-import sys
+def calculate(*args):
+    try:
+        value = float(feet.get())
+        meters.set((0.3048 * value * 10000.0 + 0.5)/10000.0)
+    except ValueError:
+        pass
 
-from selenium.common.exceptions import TimeoutException
+root = Tk()
+root.title("Feet to Meters")
 
-URL = 'https://app.roll20.net/sessions/new'
-chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
-browser = webdriver.Chrome(chromeDriver)
-browser.get(URL)
-wait = ui.WebDriverWait(browser, 120) # timeout after 10 seconds
+mainframe = ttk.Frame(root, padding="3 3 12 12")
+mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+mainframe.columnconfigure(0, weight=1)
+mainframe.rowconfigure(0, weight=1)
 
-try:
-    results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
+feet = StringVar()
+meters = StringVar()
 
-    if len(results) > 0:
-        print("continue")
-    else:
-        print("error website changes")
-except TimeoutException:
-    browser.close()
-    print("error timeout")
+feet_entry = ttk.Entry(mainframe, width=15, textvariable=feet)
+feet_entry.grid(column=2, row=1, sticky=(W, E))
+
+ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
+ttk.Button(mainframe, text="Calculate", command=calculate).grid(column=3, row=3, sticky=W)
+
+ttk.Label(mainframe, text="feet").grid(column=3, row=1, sticky=W)
+ttk.Label(mainframe, text="is equivalent to").grid(column=1, row=2, sticky=E)
+ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
+
+for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
+
+feet_entry.focus()
+root.bind('<Return>', calculate)
+
+root.mainloop()
