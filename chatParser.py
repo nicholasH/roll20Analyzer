@@ -24,8 +24,8 @@ stamped = False
 
 def getScrapParse():
     #todo remove code
-    DBhandler.destroyDB()
-    DBhandler.createDB()
+    #DBhandler.destroyDB()
+    #DBhandler.createDB()
     #todo remove above code
 
 
@@ -81,7 +81,7 @@ def getScrapParse():
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
         if len(results) > 0:
-            browser.get(testUrl)
+            browser.get(jarUrl)
             html = browser.page_source
             browser.close()
         else:

@@ -3,7 +3,10 @@ from random import randint
 import re
 
 from datetime import datetime
+
+from kivy import Config
 from kivy.app import App
+from kivy.base import EventLoop
 from kivy.properties import StringProperty
 from kivy.properties import NumericProperty
 from kivy.uix import popup
@@ -14,6 +17,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 import analyze
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
 
 class genDateInput(TextInput):
@@ -32,6 +36,19 @@ class genDateInput(TextInput):
             self.opacity = 1
         return super(genDateInput, self)
 
+
+class RightClickTextInput(TextInput):
+
+    def on_touch_down(self, touch):
+
+        super(RightClickTextInput,self).on_touch_down(touch)
+
+        if touch.button == 'right':
+            print("right mouse clicked")
+            pos = super(RightClickTextInput,self).to_local(*self._long_touch_pos, relative=True)
+
+            self._show_cut_copy_paste(
+                pos, EventLoop.window, mode='copy')
 
 class dndUI(BoxLayout):
     text = "Hello world"
