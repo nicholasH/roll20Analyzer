@@ -1,52 +1,51 @@
-from tkinter import *
-from tkinter import ttk
+import tkinter as tk
 
-def calculate():
-    try:
-        value = float(feet.get())
-        meters.set((0.3048 * value * 10000.0 + 0.5)/10000.0)
-    except ValueError:
-        pass
-
-def limitSizeDay(*args):
-    value = dayValue.get()
-    if len(value) > 2: dayValue.set(value[:2])
-    if value in '0123456789.-+':
-        try:
-            float(value)
-            return True
-        except ValueError:
-            return False
-    else:
-        return False
+class app(tk.Tk):
 
 
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self,*args,**kwargs)
+        container = tk.Frame(self)
+        container.pack(side="top",fill="both",expand=True)
+        container.grid_rowconfigure(0,weight=1)
+        container.grid_columnconfigure(0,weight=1)
+
+        self.frames ={}
+        frame = StartPage(container,self)
+        self.frames[StartPage] = frame
+
+        self.frames[StartPage]= frame
+
+        frame.grid(row=0,column=0,sticky="nsew")
+
+        self.show_frame(StartPage)
 
 
+    def show_frame(self,cont):
+        frame = self.frames[cont]
+        frame.tkraise()
 
-root = Tk()
-root.title("Feet to Meters")
-
-mainframe = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0)
-mainframe.columnconfigure(0, weight=1)
-mainframe.rowconfigure(0, weight=1)
-
-dayValue = StringVar()
-dayValue.trace('w', limitSizeDay)
-day_entry1=Entry(mainframe, width=2, textvariable=dayValue)
-
-
-ttk.Button(mainframe, text="run", command=calculate).grid(column=1, row=1)
-ttk.Button(mainframe, text = "today").grid(column=2,row =1)
-ttk.Button(mainframe, text= "by date").grid(column=3,row=1)
-ttk.Label(mainframe, text="Date 1").grid(column =4,row=1)
-day_entry1.grid(column=6,row=1)
+class StartPage(tk.Frame):
+    def __init__(self,parent,controller):
+        tk.Frame.__init__(self,parent)
+        label = tk.Label(self,text="start page")
+        label.pack()
 
 
 
+    def limitSizeDay(*args):
+        value = dayValue.get()
+        if len(value) > 2: dayValue.set(value[:2])
+        if value in '0123456789.-+':
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+            else:
+                return False
 
 
-root.bind('<Return>', calculate)
+app = app()
+app.mainloop()
 
-root.mainloop()
