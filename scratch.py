@@ -11,25 +11,81 @@ class app(tk.Tk):
         container.grid_columnconfigure(0,weight=1)
 
         self.frames ={}
-        frame = StartPage(container,self)
-        self.frames[StartPage] = frame
+        frame = mainPage(container, self)
+        self.frames[mainPage] = frame
 
-        self.frames[StartPage]= frame
+        self.frames[mainPage]= frame
 
         frame.grid(row=0,column=0,sticky="nsew")
 
-        self.show_frame(StartPage)
+        self.show_frame(mainPage)
 
 
     def show_frame(self,cont):
         frame = self.frames[cont]
         frame.tkraise()
 
-class StartPage(tk.Frame):
+def run():
+    print("run")
+def run_today():
+    print("today")
+def run_by_data():
+    print("date")
+
+
+
+
+class mainPage(tk.Frame):
+
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
-        label = tk.Label(self,text="start page")
-        label.pack()
+
+        run_all_btn = tk.Button(self,text ="run all",command= lambda: run())
+        today_btn = tk.Button(self,text = "today",command= lambda: run_today())
+        run_by_date_btn = tk.Button(self,text = "run by date",command= lambda: run_by_data())
+
+        day_entry = tk.Entry(self,width=2)
+        month_entry = tk.Entry(self, width = 2)
+        year_entry= tk.Entry(self,width = 4)
+
+        fSlash1 = tk.Label(self,text = "/")
+        fSlash2 = tk.Label(self,text = "/")
+
+        text_box = tk.Text(self)
+        text_box.insert(tk.END, "Just a text Widget\nin two lines\n")
+
+        column = 0
+        row = 0
+        run_by_date_btn.grid(row=1,column=column)
+        column+=1
+
+        run_all_btn.grid(row =1,column=column)
+        column+=1
+
+        today_btn.grid(row=1, column=column)
+        column+=1
+
+        day_entry.grid(row=1, column=column)
+        column+=1
+
+        fSlash1.grid(row=1, column =column)
+        column+=1
+
+        month_entry.grid(row=1,column=column)
+        column+=1
+
+        fSlash2.grid(row=1,column=column)
+        column+=1
+
+        year_entry.grid(row=1,column=column)
+        column+=1
+
+        text_box.grid(row = 2,column=0,columnspan=1000)
+        
+
+
+
+
 
 
 
