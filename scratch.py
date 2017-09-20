@@ -1,22 +1,24 @@
 import tkinter as tk
+import analyze
 
 class app(tk.Tk):
 
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self,*args,**kwargs)
-        container = tk.Frame(self)
-        container.pack(side="top",fill="both",expand=True)
+        container = tk.Frame(self,bg="red")
+        container.pack(fill="both",expand=True)
         container.grid_rowconfigure(0,weight=1)
         container.grid_columnconfigure(0,weight=1)
 
         self.frames ={}
         frame = mainPage(container, self)
+
+        frame.pack(fill="both", expand=1)
+
         self.frames[mainPage] = frame
 
-        self.frames[mainPage]= frame
 
-        frame.grid(row=0,column=0,sticky="nsew")
 
         self.show_frame(mainPage)
 
@@ -25,12 +27,16 @@ class app(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
-def run():
+def run(textbox):
+    textbox.insert(tk.END,analyze.analyze())
+
     print("run")
-def run_today():
+def run_today(textbox):
+    textbox.text = analyze.analyzeToday()
     print("today")
-def run_by_data():
+def run_by_data(d1,m1,):
     print("date")
+
 
 
 
@@ -39,49 +45,39 @@ class mainPage(tk.Frame):
 
     def __init__(self,parent,controller):
         tk.Frame.__init__(self,parent)
+        uiFrame = tk.Frame(self,bg="blue")
+        textBoxFrame = tk.Frame(self,bg="blue")
 
-        run_all_btn = tk.Button(self,text ="run all",command= lambda: run())
-        today_btn = tk.Button(self,text = "today",command= lambda: run_today())
-        run_by_date_btn = tk.Button(self,text = "run by date",command= lambda: run_by_data())
 
-        day_entry = tk.Entry(self,width=2)
-        month_entry = tk.Entry(self, width = 2)
-        year_entry= tk.Entry(self,width = 4)
 
-        fSlash1 = tk.Label(self,text = "/")
-        fSlash2 = tk.Label(self,text = "/")
 
-        text_box = tk.Text(self)
-        text_box.insert(tk.END, "Just a text Widget\nin two lines\n")
 
-        column = 0
-        row = 0
-        run_by_date_btn.grid(row=1,column=column)
-        column+=1
 
-        run_all_btn.grid(row =1,column=column)
-        column+=1
+        text_box = tk.Text(textBoxFrame)
+        run_all_btn = tk.Button(uiFrame,text ="run all",command= lambda:run(text_box))
+        today_btn = tk.Button(uiFrame,text = "today",command= lambda: run_today(text_box))
+        run_by_date_btn = tk.Button(uiFrame,text = "run by date",command= lambda: run_by_data())
 
-        today_btn.grid(row=1, column=column)
-        column+=1
+        day_entry = tk.Entry(uiFrame,width=2)
+        month_entry = tk.Entry(uiFrame, width = 2)
+        year_entry= tk.Entry(uiFrame,width = 4)
 
-        day_entry.grid(row=1, column=column)
-        column+=1
+        fSlash1 = tk.Label(uiFrame,text = "/")
+        fSlash2 = tk.Label(uiFrame,text = "/")
 
-        fSlash1.grid(row=1, column =column)
-        column+=1
 
-        month_entry.grid(row=1,column=column)
-        column+=1
+        uiFrame.pack()
+        run_all_btn.pack(side="left")
+        today_btn.pack(side="left")
 
-        fSlash2.grid(row=1,column=column)
-        column+=1
 
-        year_entry.grid(row=1,column=column)
-        column+=1
 
-        text_box.grid(row = 2,column=0,columnspan=1000)
-        
+
+        textBoxFrame.pack(fill="both",expand=True)
+        text_box.pack(fill="both",expand=True)
+
+
+
 
 
 
