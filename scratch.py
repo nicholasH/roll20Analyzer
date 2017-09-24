@@ -1,5 +1,8 @@
 import tkinter as tk
 import analyze
+from datetime import datetime
+from tkinter import messagebox
+
 
 class app(tk.Tk):
 
@@ -27,21 +30,21 @@ class app(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
-def run(textbox):
-    textbox.insert(tk.END,analyze.analyze())
 
-    print("run")
-def run_today(textbox):
-    textbox.text = analyze.analyzeToday()
-    print("today")
-def run_by_data(d1,m1,y1):
-    print(d1,m1,y1)
 
-    print("date")
 
-def limitSizeDay(dayString):
+
+
+
+
+
+
+
+
+
+def limitSizeDay(dayString,limit):
     value = dayString.get()
-    if len(value) > 2: dayString.set(value[:2])
+    if len(value) > limit: dayString.set(value[:limit])
     if value in '0123456789.-+':
         try:
             float(value)
@@ -58,26 +61,49 @@ class mainPage(tk.Frame):
         uiFrame = tk.Frame(self)
         textBoxFrame = tk.Frame(self)
 
-        dayString = tk.StringVar()
-        dayString.trace("w", lambda name, index, mode, dayString=dayString: limitSizeDay(dayString))
 
-        monthString = tk.StringVar()
-        monthString.trace("w", lambda name, index, mode, monthString=monthString: limitSizeDay(monthString))
 
-        day_entry = tk.Entry(uiFrame,width=2,textvariable=dayString)
-        month_entry = tk.Entry(uiFrame, width = 2,textvariable=monthString)
-        year_entry= tk.Entry(uiFrame,width = 4)
+        dayString1 = tk.StringVar()
+        dayString1.trace("w", lambda name, index, mode, dayString=dayString1: limitSizeDay(dayString,2))
+
+        monthString1 = tk.StringVar()
+        monthString1.trace("w", lambda name, index, mode, monthString=monthString1: limitSizeDay(monthString,2))
+
+        yearString1 = tk.StringVar()
+        yearString1.trace("w", lambda name, index, mode, dayString=dayString1: limitSizeDay(yearString1,4))
+
+        self.show = tk.IntVar()
+        showbox = tk.Checkbutton(uiFrame, text="to?", variable=self.show,command=self.cb)
+
+        dayString2 = tk.StringVar()
+        dayString2.trace("w", lambda name, index, mode, dayString=dayString2: limitSizeDay(dayString,2))
+        monthString2 = tk.StringVar()
+        monthString2.trace("w", lambda name, index, mode, monthString=monthString2: limitSizeDay(monthString,2))
+        yearString2 = tk.StringVar()
+        yearString2.trace("w", lambda name, index, mode, dayString=dayString2: limitSizeDay(yearString2,4))
+
+        self.day_entry1 = tk.Entry(uiFrame,width=2,textvariable=dayString1)
+        self.month_entry1 = tk.Entry(uiFrame, width = 2,textvariable=monthString1)
+        self.year_entry1= tk.Entry(uiFrame,width = 4,textvariable=yearString1)
+
+        self.day_entry2 = tk.Entry(uiFrame,width=2,textvariable=dayString2)
+        self.month_entry2 = tk.Entry(uiFrame, width = 2,textvariable=monthString2)
+        self.year_entry2= tk.Entry(uiFrame,width = 4,textvariable=yearString2)
+
 
         day1_lable = tk.Label(uiFrame,text="day 1")
+        day2_lable = tk.Label(uiFrame,text="day 2")
 
         fSlash1 = tk.Label(uiFrame,text = "/")
         fSlash2 = tk.Label(uiFrame,text = "/")
+        self.fSlash3 = tk.Label(uiFrame,text = "/")
+        self.fSlash4 = tk.Label(uiFrame,text = "/")
 
-
-        text_box = tk.Text(textBoxFrame)
-        run_all_btn = tk.Button(uiFrame,text ="run all",command= lambda:run(text_box))
-        today_btn = tk.Button(uiFrame,text = "today",command= lambda: run_today(text_box))
-        run_by_date_btn = tk.Button(uiFrame,text = "run by date",command= lambda: run_by_data(day_entry.get(),month_entry.get(),year_entry.get()))
+        self.text_box = tk.Text(textBoxFrame)
+        self.text_box.config(state="disabled")
+        run_all_btn = tk.Button(uiFrame,text ="run all",command= self.run)
+        today_btn = tk.Button(uiFrame,text = "today",command= self.run_today)
+        run_by_date_btn = tk.Button(uiFrame,text = "run by date",command= self.run_by_data)
 
 
 
@@ -86,19 +112,82 @@ class mainPage(tk.Frame):
         today_btn.pack(side="left")
         run_by_date_btn.pack(side="left")
         day1_lable.pack(side="left")
-        day_entry.pack(side="left")
-        month_entry.pack(side="left")
-        year_entry.pack(side="left")
+        self.month_entry1.pack(side="left")
+        fSlash1.pack(side="left")
+        self.day_entry1.pack(side="left")
+        fSlash2.pack(side="left")
+        self.year_entry1.pack(side="left")
+        showbox.pack(side="left")
+        day2_lable.pack(side="left")
+        #these must be at the end of the pack
+
+
 
 
 
 
         textBoxFrame.pack(fill="both",expand=True)
-        text_box.pack(fill="both",expand=True)
+        self.text_box.pack(fill="both",expand=True)
+
+    def cb(self):
+        if self.show.get():
+            self.month_entry2.pack(side="left")
+            self.fSlash3.pack(side="left")
+            self.day_entry2.pack(side="left")
+            self.fSlash4.pack(side="left")
+            self.year_entry2.pack(side="left")
+
+        else:
+            self.month_entry2.pack_forget()
+            self.fSlash3.pack_forget()
+            self.day_entry2.pack_forget()
+            self.fSlash4.pack_forget()
+            self.year_entry2.pack_forget()
+
+    def run(self):
+        self.update(analyze.analyze())
+
+    def run_today(self):
+        self.update( analyze.analyzeToday())
+
+    def run_by_data(self):
+        try:
+            date0 = datetime(int(self.year_entry1.get()), int(self.month_entry1.get()), int(self.day_entry1.get()))
+        except ValueError:
+
+            messagebox.showerror("Error", "bad date")
+            return
+
+        if self.show.get():
+            try:
+                date1 = datetime(int(self.year_entry2.get()), int(self.month_entry2.get()), int(self.day_entry2.get()))
+                print(date1)
+            except ValueError:
+                messagebox.showerror("Error", "bad date")
+                return
+            if date1 < date0:
+                messagebox.showerror("Error", "error date is out of order")
+                return
+            self.update(analyze.analyzeDateRange(date0, date1))
+        else:
+            self.update(analyze.analyzeDate(date0))
 
 
 
+    def update(self,text):
+        self.text_box.config(state="normal")
+        self.text_box.insert(tk.END, text)
+        self.text_box.config(state= "disable")
 
+    def popup_bonus(self):
+        win = tk.Toplevel()
+        win.wm_title("Window")
+
+        l = tk.Label(win, text="Input")
+        l.pack()
+
+        b = tk.Button(win, text="Okay", command=win.destroy)
+        b.pack()
 
 
 app = app()
