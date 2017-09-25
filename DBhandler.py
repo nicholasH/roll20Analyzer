@@ -37,15 +37,13 @@ columnName = [MessageID_field,
               Rolled_Field]
 
 """
-
-
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
-
+db = 'Chatlog.db'
 
 # todo test if changeing roll to fts to fti made any errors
 def createDB():
-    conn = sqlite3.connect('Chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
 
     c.execute(
@@ -67,7 +65,7 @@ def createDB():
 
 
 def destroyDB():
-    conn = sqlite3.connect('Chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS ' + Message_table)
     conn.commit()
@@ -75,7 +73,7 @@ def destroyDB():
 
 
 def addMessage(messageDic: dict):
-    conn = sqlite3.connect('Chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
 
     c.execute(
@@ -99,7 +97,7 @@ def addMessage(messageDic: dict):
 
 
 def getMessages():
-    conn = sqlite3.connect('Chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
     conn.commit()
@@ -122,7 +120,7 @@ def makeList(data):
 
 
 def printDB():
-    conn = sqlite3.connect('Chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
     conn.commit()
@@ -134,7 +132,7 @@ def printDB():
 
 
 def getlastMessage():
-    conn = sqlite3.connect('Chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("select count(*) from sqlite_master where type='table' and name='Message'")
     exist = c.fetchone()[0]
@@ -159,7 +157,7 @@ def getMessageDateTime(dateTime):
 
 #get two date time objects and gets the range of them
 def getMessageDateTimeRange(dateTimeA, dateTimeB):
-    conn = sqlite3.connect('chatlog.db')
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\"".format(
         tn=Message_table,
