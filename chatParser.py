@@ -24,8 +24,8 @@ stamped = False
 
 def getScrapParse():
     #todo remove code
-    #DBhandler.destroyDB()
-    #DBhandler.createDB()
+    DBhandler.destroyDB()
+    DBhandler.createDB()
     #todo remove above code
 
 

@@ -1,6 +1,9 @@
+import os
 import sqlite3
 from datetime import datetime, date, timedelta
 import pickle
+
+import sys
 
 Message_table = 'Message'
 
@@ -40,6 +43,7 @@ columnName = [MessageID_field,
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
 db = 'Chatlog.db'
+db = os.path.join(sys.path[0], "data", db)
 
 # todo test if changeing roll to fts to fti made any errors
 def createDB():
