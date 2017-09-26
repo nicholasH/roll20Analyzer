@@ -46,7 +46,7 @@ db = 'Chatlog.db'
 db = os.path.join(sys.path[0], "data", db)
 
 # todo test if changeing roll to fts to fti made any errors
-def createDB():
+def createDB(name,url):
     conn = sqlite3.connect(db)
     c = conn.cursor()
 
@@ -66,6 +66,13 @@ def createDB():
 
                     , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
     conn.close()
+
+    exe = "CREATE TABLE {tn} ({name} {fts}, {url} {fts})".format(
+        tn="gameData",
+        name=name,
+        url = url,
+        fts=string_field_type
+    )
 
 
 def destroyDB():

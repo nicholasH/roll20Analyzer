@@ -1,5 +1,6 @@
 import tkinter as tk
 import analyze
+import DBhandler
 from datetime import datetime
 from tkinter import messagebox
 
@@ -14,7 +15,7 @@ class app(tk.Tk):
 
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="New")
+        filemenu.add_command(label="New", command= self.new)
         filemenu.add_command(label="Open")
 
         filemenu.add_separator()
@@ -36,6 +37,11 @@ class app(tk.Tk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+
+    def new(self):
+        d = newDB(self)
+        self.wait_window(d.top)
+
 
 
 def limitSizeDay(dayString, limit):
@@ -110,11 +116,6 @@ class mainPage(tk.Frame):
         day2_lable.pack(side="left")
         # line above must be at the end of the pack
 
-
-
-
-
-
         textBoxFrame.pack(fill="both", expand=True)
         self.text_box.pack(fill="both", expand=True)
 
@@ -172,6 +173,35 @@ class mainPage(tk.Frame):
         finally:
             self.popup_menu.grab_release()
 
+
+
+class newDB:
+
+    def __init__(self, parent):
+
+        top = self.top = tk.Toplevel(parent)
+
+        name_lable = tk.Label(top, text="Name of game")
+        self.name_entry = tk.Entry(top)
+        url_lable = tk.Label(top,text="Game arcive URL")
+        self.url_entry = tk.Entry(top)
+        ok_btn = tk.Button(top, text="OK", command=self.ok)
+        cancel_btn = tk.Button(top,text ="cancel", command =self.cancel)
+
+
+        name_lable.pack()
+        self.name_entry.pack(padx=5)
+        url_lable.pack()
+        self.url_entry.pack(padx=5)
+        ok_btn.pack(pady=5)
+        cancel_btn.pack()
+
+    def ok(self):
+        print("value is", self.name_entry.get(),self.url_entry.get())
+        self.top.destroy()
+
+    def cancel(self):
+        self.top.destroy()
 
 app = app()
 app.mainloop()

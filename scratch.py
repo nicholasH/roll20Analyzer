@@ -1,46 +1,29 @@
-import tkinter as tk
-from tkinter import ttk
+from tkinter import *
 
-class Main(tk.Frame):
-    def __init__(self, master):
-        master.geometry('500x350')
-        self.master = master
-        tk.Frame.__init__(self, master)
-        self.tree = ttk.Treeview(self.master, height=15)
-        self.tree.pack(fill='x')
-        self.btn = tk.Button(master, text='click', command=self.clickbtn)
-        self.btn.pack()
-        self.rclick = RightClick(self.master)
-        self.num = 0
+class MyDialog:
 
-        # attach popup to treeview widget
-        self.tree.bind('<Button-3>', self.rclick.popup)
-    def clickbtn(self):
-        text = 'Hello ' + str(self.num)
-        self.tree.insert('', 'end', text=text)
-        self.num += 1
+    def __init__(self, parent):
 
-class RightClick:
-    def __init__(self, master):
+        top = self.top = Toplevel(parent)
 
-        # create a popup menu
-        self.aMenu = tk.Menu(master, tearoff=0)
-        self.aMenu.add_command(label='Delete', command=self.delete)
-        self.aMenu.add_command(label='Say Hello', command=self.hello)
+        Label(top, text="Value").pack()
 
-        self.tree_item = ''
+        self.e = Entry(top)
+        self.e.pack(padx=5)
 
-    def delete(self):
-        if self.tree_item:
-            app.tree.delete(self.tree_item)
+        b = Button(top, text="OK", command=self.ok)
+        b.pack(pady=5)
 
-    def hello(self):
-        print ('hello!')
+    def ok(self):
 
-    def popup(self, event):
-        self.aMenu.post(event.x_root, event.y_root)
-        self.tree_item = app.tree.focus()
+        print ("value is", self.e.get())
 
-root = tk.Tk()
-app=Main(root)
-root.mainloop()
+        self.top.destroy()
+
+root = Tk()
+Button(root, text="Hello!").pack()
+root.update()
+
+d = MyDialog(root)
+
+root.wait_window(d.top)
