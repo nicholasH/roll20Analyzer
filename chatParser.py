@@ -24,8 +24,8 @@ stamped = False
 
 def getScrapParse():
     #todo remove code
-    DBhandler.destroyDB()
-    DBhandler.createDB()
+    #DBhandler.destroyDB()
+    #DBhandler.createDB()
     #todo remove above code
 
 
@@ -43,8 +43,10 @@ def getScrapParse():
     f.close()
 
     URL = 'https://app.roll20.net/sessions/new'
-    jarUrl = 'https://app.roll20.net/campaigns/chatarchive/1610304'#todo take this out of hard code
-    testUrl = "https://app.roll20.net/campaigns/chatarchive/1644807"
+
+
+    gameURL = DBhandler.getURL()
+
 
 
     chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
@@ -81,7 +83,7 @@ def getScrapParse():
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
         if len(results) > 0:
-            browser.get(jarUrl)
+            browser.get(gameURL)
             html = browser.page_source
             browser.close()
         else:

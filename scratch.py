@@ -1,29 +1,30 @@
-from tkinter import *
+import os
 
-class MyDialog:
+import sys
 
-    def __init__(self, parent):
+import DBhandler
+import analyze
+name = "jarredgame"
+url = "https://app.roll20.net/campaigns/chatarchive/1610304"
 
-        top = self.top = Toplevel(parent)
+DBhandler.setDB(name)
+print(DBhandler.getDBPath())
 
-        Label(top, text="Value").pack()
+DBhandler.destroyDB()
+DBhandler.createDB(name,url)
+DBhandler.printDBData()
+print(DBhandler.getURL())
 
-        self.e = Entry(top)
-        self.e.pack(padx=5)
+url = DBhandler.getURL()
 
-        b = Button(top, text="OK", command=self.ok)
-        b.pack(pady=5)
+print(analyze.analyze())
 
-    def ok(self):
+name2 = "testGame"
+url2 ="https://app.roll20.net/campaigns/chatarchive/1644807"
+DBhandler.setDB(name2)
+DBhandler.createDB(name2,url2)
+print(analyze.analyze())
 
-        print ("value is", self.e.get())
 
-        self.top.destroy()
+DBhandler.printDBData()
 
-root = Tk()
-Button(root, text="Hello!").pack()
-root.update()
-
-d = MyDialog(root)
-
-root.wait_window(d.top)

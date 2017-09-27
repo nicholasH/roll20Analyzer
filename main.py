@@ -68,7 +68,7 @@ class mainPage(tk.Frame):
         monthString1.trace("w", lambda name, index, mode, monthString=monthString1: limitSizeDay(monthString, 2))
 
         yearString1 = tk.StringVar()
-        yearString1.trace("w", lambda name, index, mode, yearString=dayString1: limitSizeDay(yearString, 4))
+        yearString1.trace("w", lambda name, index, mode, yearString=yearString1: limitSizeDay(yearString, 4))
 
         self.show = tk.IntVar()
         showbox = tk.Checkbutton(uiFrame, text="to?", variable=self.show, command=self.cb)
@@ -78,7 +78,7 @@ class mainPage(tk.Frame):
         monthString2 = tk.StringVar()
         monthString2.trace("w", lambda name, index, mode, monthString=monthString2: limitSizeDay(monthString, 2))
         yearString2 = tk.StringVar()
-        yearString2.trace("w", lambda name, index, mode, dayString=dayString2: limitSizeDay(yearString2, 4))
+        yearString2.trace("w", lambda name, index, mode, yearString=yearString2: limitSizeDay(yearString, 4))
 
         self.day_entry1 = tk.Entry(uiFrame, width=2, textvariable=dayString1)
         self.month_entry1 = tk.Entry(uiFrame, width=2, textvariable=monthString1)
@@ -101,6 +101,9 @@ class mainPage(tk.Frame):
         run_all_btn = tk.Button(uiFrame, text="run all", command=self.run)
         today_btn = tk.Button(uiFrame, text="today", command=self.run_today)
         run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.run_by_data)
+
+        self.currentGameString = tk.stringVar()
+        self.currentGame_lable = tk.Label()
 
         uiFrame.pack()
         run_all_btn.pack(side="left")
@@ -198,6 +201,8 @@ class newDB:
 
     def ok(self):
         print("value is", self.name_entry.get(),self.url_entry.get())
+        DBhandler.createDB(self.name_entry.get(),self.url_entry.get())
+
         self.top.destroy()
 
     def cancel(self):

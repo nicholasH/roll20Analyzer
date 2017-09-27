@@ -6,6 +6,7 @@ import pickle
 import sys
 
 Message_table = 'Message'
+GameData_table = 'gameData'
 
 MessageID_field = "MessageID"
 MessageType_field = "MessageType"
@@ -42,11 +43,14 @@ columnName = [MessageID_field,
 """
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
+global db
 db = 'Chatlog.db'
-db = os.path.join(sys.path[0], "data", db)
 
 # todo test if changeing roll to fts to fti made any errors
 def createDB(name,url):
+
+    setDB(name)
+
     conn = sqlite3.connect(db)
     c = conn.cursor()
 
@@ -65,20 +69,40 @@ def createDB(name,url):
                     Roll=Rolled_Field
 
                     , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
-    conn.close()
 
-    exe = "CREATE TABLE {tn} ({name} {fts}, {url} {fts})".format(
+
+    exe = "CREATE TABLE {tn} (name {fts}, url {fts})".format(
         tn="gameData",
-        name=name,
-        url = url,
         fts=string_field_type
     )
+    c.execute(exe)
+    conn.close()
+    setdata(name,url)
+
+def setdata(name,url):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+
+    c.execute("INSERT INTO gameData VALUES (?,?)",(name,url))
+
+    conn.commit()
+    conn.close()
+
+def setDB(name):
+    global db
+    dbName = name +'.db'
+    db = os.path.join(sys.path[0], "data", "dataBase", dbName)
+
+
+def getDBPath():
+    return db
 
 
 def destroyDB():
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS ' + Message_table)
+    c.execute('DROP TABLE IF EXISTS ' + GameData_table)
     conn.commit()
     conn.close()
 
@@ -140,6 +164,26 @@ def printDB():
         print(row)
 
     conn.close()
+
+def printDBData():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM gameData")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+def getURL():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT url FROM gameData")
+    conn.commit()
+    url = c.fetchone()
+    conn.close()
+    return url[0]
 
 
 def getlastMessage():
