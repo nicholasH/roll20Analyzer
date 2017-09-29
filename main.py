@@ -1,4 +1,7 @@
+import os
 import tkinter as tk
+from tkinter import filedialog
+
 import analyze
 import DBhandler
 from datetime import datetime
@@ -16,7 +19,7 @@ class app(tk.Tk):
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command= self.new)
-        filemenu.add_command(label="Open")
+        filemenu.add_command(label="Open", command= self.loadDB)
 
         filemenu.add_separator()
 
@@ -33,6 +36,9 @@ class app(tk.Tk):
         self.frames[mainPage] = frame
 
         self.show_frame(mainPage)
+        self.currentDB_string = tk.StringVar()
+        self.currentGame_lable = tk.Label(textvariable = self.currentDB_string)
+        self.currentGame_lable.pack(side="left")
 
     def show_frame(self, cont):
         frame = self.frames[cont]
@@ -41,6 +47,17 @@ class app(tk.Tk):
     def new(self):
         d = newDB(self)
         self.wait_window(d.top)
+
+    def updatDBLable(self):
+        message = "Game Name: " + DBhandler.getGameName() + "| URL: "+ DBhandler.getURL()
+        self.currentDB_string.set(message)
+
+    def loadDB(self):
+        dateBase = os.path.join(os.sys.path[0], "data", "dataBase")
+        self.filename = filedialog.askopenfilename(initialdir=dateBase, title="Select file",
+                                                   filetypes=(("db files", "*.db"), ("all files", "*.*")))
+        DBhandler.setDB(self.filename)
+        self.updatDBLable()
 
 
 
@@ -102,8 +119,6 @@ class mainPage(tk.Frame):
         today_btn = tk.Button(uiFrame, text="today", command=self.run_today)
         run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.run_by_data)
 
-        self.currentGameString = tk.stringVar()
-        self.currentGame_lable = tk.Label()
 
         uiFrame.pack()
         run_all_btn.pack(side="left")
@@ -178,11 +193,14 @@ class mainPage(tk.Frame):
 
 
 
+
+
 class newDB:
 
     def __init__(self, parent):
 
         top = self.top = tk.Toplevel(parent)
+        self.p = parent
 
         name_lable = tk.Label(top, text="Name of game")
         self.name_entry = tk.Entry(top)
@@ -190,7 +208,6 @@ class newDB:
         self.url_entry = tk.Entry(top)
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top,text ="cancel", command =self.cancel)
-
 
         name_lable.pack()
         self.name_entry.pack(padx=5)
@@ -202,7 +219,7 @@ class newDB:
     def ok(self):
         print("value is", self.name_entry.get(),self.url_entry.get())
         DBhandler.createDB(self.name_entry.get(),self.url_entry.get())
-
+        self.p.updatDBLable()
         self.top.destroy()
 
     def cancel(self):

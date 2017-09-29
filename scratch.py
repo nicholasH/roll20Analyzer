@@ -1,30 +1,12 @@
 import os
+from tkinter import filedialog
+from tkinter import *
 
-import sys
+db = os.path.join(os.sys.path[0], "data", "dataBase")
 
-import DBhandler
-import analyze
-name = "jarredgame"
-url = "https://app.roll20.net/campaigns/chatarchive/1610304"
-
-DBhandler.setDB(name)
-print(DBhandler.getDBPath())
-
-DBhandler.destroyDB()
-DBhandler.createDB(name,url)
-DBhandler.printDBData()
-print(DBhandler.getURL())
-
-url = DBhandler.getURL()
-
-print(analyze.analyze())
-
-name2 = "testGame"
-url2 ="https://app.roll20.net/campaigns/chatarchive/1644807"
-DBhandler.setDB(name2)
-DBhandler.createDB(name2,url2)
-print(analyze.analyze())
+root = Tk()
 
 
-DBhandler.printDBData()
-
+root.filename = filedialog.askopenfilename(initialdir=db, title="Select file",
+                                           filetypes=(("db files", "*.db"), ("all files", "*.*")))
+print(root.filename)

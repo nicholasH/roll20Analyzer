@@ -44,7 +44,7 @@ columnName = [MessageID_field,
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
 global db
-db = 'Chatlog.db'
+db = None
 
 # todo test if changeing roll to fts to fti made any errors
 def createDB(name,url):
@@ -88,10 +88,9 @@ def setdata(name,url):
     conn.commit()
     conn.close()
 
-def setDB(name):
+def setDB(path):
     global db
-    dbName = name +'.db'
-    db = os.path.join(sys.path[0], "data", "dataBase", dbName)
+    db = path
 
 
 def getDBPath():
@@ -184,6 +183,15 @@ def getURL():
     url = c.fetchone()
     conn.close()
     return url[0]
+
+def getGameName():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT name FROM gameData")
+    conn.commit()
+    name = c.fetchone()
+    conn.close()
+    return name[0]
 
 
 def getlastMessage():
