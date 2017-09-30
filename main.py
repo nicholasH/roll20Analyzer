@@ -25,7 +25,8 @@ class app(tk.Tk):
 
         filemenu.add_command(label="Exit", command=self.quit)
         menubar.add_cascade(label="File", menu=filemenu)
-
+        self.title("Roll 20 analyze")
+        self.iconbitmap(r"C:\Users\Nick\Documents\GitHub\roll20Analyzer\ICON.ico")
         self.config(menu=menubar)
 
         self.frames = {}
@@ -77,7 +78,6 @@ class mainPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         uiFrame = tk.Frame(self)
         textBoxFrame = tk.Frame(self)
-
         dayString1 = tk.StringVar()
         dayString1.trace("w", lambda name, index, mode, dayString=dayString1: limitSizeDay(dayString, 2))
 
