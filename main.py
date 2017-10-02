@@ -2,6 +2,8 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
+import sys
+
 import analyze
 import DBhandler
 from datetime import datetime
@@ -26,7 +28,7 @@ class app(tk.Tk):
         filemenu.add_command(label="Exit", command=self.quit)
         menubar.add_cascade(label="File", menu=filemenu)
         self.title("Roll 20 analyze")
-        self.iconbitmap(r"C:\Users\Nick\Documents\GitHub\roll20Analyzer\ICON.ico")
+        self.iconbitmap(os.path.join(sys.path[0],'ICON.ico'))
         self.config(menu=menubar)
 
         self.frames = {}
