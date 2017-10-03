@@ -64,6 +64,7 @@ def diceCounter(diceFomula):
     nat20 = 0
     nat1 = 0
 
+
     if any("formattedformula" in t for t in s):
         for child in diceFomula.descendants:
             if not isinstance(child, NavigableString):
@@ -162,8 +163,50 @@ def returnStats():
         s = s + str(values["diceRolls"]) + "\n"
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
+        s = s + str(values["points"])
         s = s + ('\n\n')
     return s
+#todo add in a way to excluded players like the DM
+#todo add logic to make sure if two poeple have same number +20 dose not go the last person
+def findWinner(exclude):
+    s = ""
+    mostrolls = [None,0]
+    hightroll = [None,0]
+    highestCritsus = [None,0]
+    highestNats = [None,0]
+
+    for player, values in playerStats.items():
+        totrolls = sum(values["diceRolls"].values())
+        if mostrolls[1] <= totrolls:
+            mostrolls = [playerStats,totrolls]
+
+        if hightroll[1] <= values["highestRoll"]:
+            hightroll = [player,values["highestRoll"]]
+
+        if highestCritsus[1] <= values["totCrtSus"]:
+            highestCritsus = [player,values["totCrtSus"]]
+
+        if highestNats[1] <= values["nat20"]:
+            highestNats = [player, values["nat20"]]
+
+    val = playerStats[mostrolls[0]]
+    val["points"] += 20
+    playerStats[mostrolls[0]] = val
+
+    val = playerStats[hightroll[0]]
+    val["points"] += 20
+    playerStats[hightroll[0]] = val
+
+    val = playerStats[highestCritsus[0]]
+    val["points"] += 20
+    playerStats[highestCritsus[0]] = val
+
+    val = playerStats[highestNats[0]]
+    val["points"] += 20
+    playerStats[highestNats[0]] = val
+
+
+    return
 
 
 
@@ -172,7 +215,7 @@ def analyzeDB(messages):
     playerStats = dict()
 
     for message in messages:
-        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}
+        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0,"points": 0}
 
         id = message["UserID"]
         if id in playerStats:
@@ -205,7 +248,12 @@ def analyzeDB(messages):
                 else:
                     stats["totCrtFail"] += 1
             elif "critsuccess" in roll[0]:
+                print(m.group())
+                val = int(m.group()[1:])
+
+                stats["points"] = stats["points"] + val
                 if "d20" in roll[0]:
+
                     stats["nat20"] += 1
                     stats["totCrtSus"] += 1
                 else:
