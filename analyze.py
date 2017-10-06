@@ -1,3 +1,4 @@
+import operator
 import os
 from html.parser import HTMLParser
 
@@ -163,35 +164,46 @@ def returnStats():
         s = s + str(values["diceRolls"]) + "\n"
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
-        s = s + str(values["points"])
+        s = s + "points " + str(values["points"])
         s = s + ('\n\n')
+
+    s = s + " " + str(findWinner(""))
+    s = s +"\n"+ "#"*100
     return s
+
+
+
 #todo add in a way to excluded players like the DM
-#todo add logic to make sure if two poeple have same number +20 dose not go the last person
 def findWinner(exclude):
     s = ""
-    mostrolls = [None,0]
     hightroll = [None,0]
     highestCritsus = [None,0]
     highestNats = [None,0]
 
     for player, values in playerStats.items():
-        totrolls = sum(values["diceRolls"].values())
-        if mostrolls[1] <= totrolls:
-            mostrolls = [playerStats,totrolls]
+        if hightroll[1] < values["highestRoll"]:
+            if hightroll[1] ==  values["highestRoll"]:
+                if playerAHaveMoreRolls(hightroll[0],player):
+                    hightroll = [player, values["highestRoll"]]
+            else:
+                hightroll = [player,values["highestRoll"]]
 
-        if hightroll[1] <= values["highestRoll"]:
-            hightroll = [player,values["highestRoll"]]
+        if highestCritsus[1] < values["totCrtSus"]:
+            if hightroll[1] == values["totCrtSus"]:
+                if playerAHaveMoreRolls(hightroll[0],player):
+                    highestCritsus = [player, values["totCrtSus"]]
+            else:
+                highestCritsus = [player,values["totCrtSus"]]
 
-        if highestCritsus[1] <= values["totCrtSus"]:
-            highestCritsus = [player,values["totCrtSus"]]
+        if highestNats[1] < values["nat20"]:
+            if highestNats[1] == values["nat20"]:
+                if playerAHaveMoreRolls(highestNats[0], player):
+                    highestNats = [player, values["nat20"]]
+            else:
+                highestNats = [player, values["nat20"]]
 
-        if highestNats[1] <= values["nat20"]:
-            highestNats = [player, values["nat20"]]
-
-    val = playerStats[mostrolls[0]]
-    val["points"] += 20
-    playerStats[mostrolls[0]] = val
+    if any(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0]]):
+        return ""
 
     val = playerStats[hightroll[0]]
     val["points"] += 20
@@ -205,8 +217,19 @@ def findWinner(exclude):
     val["points"] += 20
     playerStats[highestNats[0]] = val
 
+    scores = []
+    for player, values in playerStats.items():
+        scores.append((values["names"],values["points"]))
 
-    return
+
+    return sorted(scores, key=lambda score: score[1])
+
+def playerAHaveMoreRolls(playerA,playerB):
+    if playerA == None:
+        return True
+    else:
+        return sum(playerStats[playerA]["diceRolls"].values()) > sum(playerStats[playerB]["diceRolls"].values())
+
 
 
 
@@ -237,7 +260,7 @@ def analyzeDB(messages):
             if m:
                 count[m.group(0)] += 1
             else:
-                print("error at for roll in rollList ",roll)
+                print("error at for roll in rollList ",message)
 
 
             if "critfail" in roll[0]:
@@ -248,8 +271,10 @@ def analyzeDB(messages):
                 else:
                     stats["totCrtFail"] += 1
             elif "critsuccess" in roll[0]:
-                print(m.group())
-                val = int(m.group()[1:])
+                if not isinstance(m, type(None)):
+                    val = int(m.group()[1:])
+                else:
+                    print("error at for roll in rollList ", message)
 
                 stats["points"] = stats["points"] + val
                 if "d20" in roll[0]:
