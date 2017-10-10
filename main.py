@@ -59,7 +59,7 @@ class app(tk.Tk):
         dateBase = os.path.join(os.sys.path[0], "data", "dataBase")
         self.filename = filedialog.askopenfilename(initialdir=dateBase, title="Select file",
                                                    filetypes=(("db files", "*.db"), ("all files", "*.*")))
-        DBhandler.setDB(self.filename)
+        DBhandler.loadDB(self.filename)
         self.updatDBLable()
 
 

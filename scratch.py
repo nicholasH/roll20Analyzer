@@ -1,4 +1,5 @@
 import os
+import sys
 from tkinter import filedialog
 from tkinter import *
 
@@ -26,3 +27,8 @@ from tkinter import *
 #this make tags only for the oneself
 '&tag -self'
 '&tag -24m -self'
+
+
+db = os.path.join(sys.path[0],'dataBase',"test")
+
+print(db)

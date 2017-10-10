@@ -40,6 +40,12 @@ columnName = [MessageID_field,
               RolledResultsList_field,
               Rolled_Field]
 
+
+#tag table
+
+tag_table = "tags"
+
+
 """
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
@@ -72,12 +78,16 @@ def createDB(name,url):
 
 
     exe = "CREATE TABLE {tn} (name {fts}, url {fts})".format(
-        tn="gameData",
+        tn=GameData_table,
         fts=string_field_type
     )
     c.execute(exe)
     conn.close()
     setdata(name,url)
+
+
+def createTagTable():
+    pass
 
 def setdata(name,url):
     conn = sqlite3.connect(db)
@@ -88,9 +98,14 @@ def setdata(name,url):
     conn.commit()
     conn.close()
 
-def setDB(path):
+def loadDB(path):
     global db
     db = path
+
+def setDB(name):
+    global db
+    dbName = name +'.db'
+    db = os.path.join(sys.path[0], "data", "dataBase", dbName)
 
 
 def getDBPath():

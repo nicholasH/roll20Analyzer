@@ -195,9 +195,6 @@ class static:
     tstamp = ""
     timeStamp = ""
 
-
-
-
 def addToDb():
     chatContent = getScrapParse()
     static.timeStamp = ""
@@ -215,10 +212,6 @@ def addToDb():
             pass
         else:
             print("unknown message type")
-
-
-
-
 
 def addRollresult(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
@@ -281,11 +274,19 @@ def addGleneral(datum):
 
 
 def addEmote(datum):
-    ts = datum.text.lower()
-    if "#ts" in ts:
+    emote = datum.text.lower()
+    if "#ts" in emote:
         match = re.search(r'\d{2}/\d{2}/\d{4}', datum.text)
         date = datetime.strptime(match.group(), '%m/%d/%Y')
         static.timeStamp =date
+    if "&" in emote:
+        tag = emote.strip().split("&")
+        tagDetales = tag[1].split("-")
+
+
+        print(tag)
+
+
     for content in datum.contents:
         if isinstance(content,Tag):
             s = content.attrs.get("class")
