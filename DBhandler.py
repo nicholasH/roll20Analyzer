@@ -42,8 +42,16 @@ columnName = [MessageID_field,
 
 
 #tag table
+Tag_table = "tags"
+MessageID_tag_field = MessageID_field
+Tag_name_field = "TagName"
 
-tag_table = "tags"
+
+
+tag_active_table = "tags_active"
+Tag_Active_name = Tag_name_field
+tag_type = "tagType"
+tag_data = "Data"
 
 
 """
@@ -82,6 +90,25 @@ def createDB(name,url):
         fts=string_field_type
     )
     c.execute(exe)
+
+
+    exe = "CREATE TABLE {tn} ({mf} {fts}, {tan} {fts})".format(
+        tn=Tag_table,
+        mf=MessageID_tag_field,
+        tan=Tag_name_field,
+        fts=string_field_type
+    )
+    c.execute(exe)
+
+    exe = "CREATE TABLE {tn} ({ta} {fts}, {tt} {fts}, {td} {fts})".format(
+        tn=tag_active_table,
+        ta=Tag_Active_name,
+        tt=tag_type,
+        td=tag_data,
+        fts=string_field_type
+    )
+
+
     conn.close()
     setdata(name,url)
 
