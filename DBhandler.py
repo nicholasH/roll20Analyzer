@@ -52,6 +52,7 @@ tag_active_table = "tags_active"
 Tag_Active_name = Tag_name_field
 tag_type = "tagType"
 tag_data = "Data"
+tag_active_feild = "active"
 
 
 """
@@ -100,13 +101,16 @@ def createDB(name,url):
     )
     c.execute(exe)
 
-    exe = "CREATE TABLE {tn} ({ta} {fts}, {tt} {fts}, {td} {fts})".format(
+    exe = "CREATE TABLE {tn} ({ta} {fts}, {tt} {fts}, {td} {fts}, {tact} {fit})".format(
         tn=tag_active_table,
         ta=Tag_Active_name,
         tt=tag_type,
         td=tag_data,
+        tact = tag_active_feild,
+        fit = integer_field_type,
         fts=string_field_type
     )
+    c.execute(exe)
 
 
     conn.close()
@@ -276,3 +280,17 @@ def getMessageDateTimeRange(dateTimeA, dateTimeB):
 
 
     return makeList(data)
+
+
+def addTagActive(tagArray):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+
+
+
+
+
+    c.close()
+
+def addtag():
+    pass

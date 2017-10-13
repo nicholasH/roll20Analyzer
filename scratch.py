@@ -29,6 +29,12 @@ from tkinter import *
 '&tag -24m -self'
 
 
+#bad inputs
+'$ -'
+'$tag -start -do'
+
+
+
 db = os.path.join(sys.path[0],'dataBase',"test")
 
 print(db)

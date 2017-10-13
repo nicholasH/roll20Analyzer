@@ -19,7 +19,7 @@ path = ""
 real = ""
 realDice = ["d4","d6","d10","d12","d20"]
 
-
+#old method that use to be used to get html that the user downloaded
 def getPath():
     path = ""
     # looks for the data in the data folder
