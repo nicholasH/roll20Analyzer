@@ -5,6 +5,8 @@ from tkinter import *
 
 
 #start a tag
+import DBhandler
+
 "&"
 #the word affter the & is the tag name. A tag like this will only work the the next roll
 "&tag"
@@ -35,6 +37,5 @@ from tkinter import *
 
 
 
-db = os.path.join(sys.path[0],'dataBase',"test")
 
-print(db)
+print(exe)

@@ -283,9 +283,9 @@ def addEmote(datum):
         tag = emote.strip().split("&")
         tagDetales = tag[1].split("-")
 
+        DBhandler.addTagActive(tagDetales)
 
-
-        print(tag)
+        print(tagDetales)
 
 
     for content in datum.contents:

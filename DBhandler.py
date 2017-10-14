@@ -5,8 +5,8 @@ import pickle
 
 import sys
 
+#messageTable
 Message_table = 'Message'
-GameData_table = 'gameData'
 
 MessageID_field = "MessageID"
 MessageType_field = "MessageType"
@@ -40,6 +40,11 @@ columnName = [MessageID_field,
               RolledResultsList_field,
               Rolled_Field]
 
+#game Table
+GameData_table = 'gameData'
+GameName_feild = 'name'
+GameUrl_feild = 'url'
+
 
 #tag table
 Tag_table = "tags"
@@ -49,9 +54,9 @@ Tag_name_field = "TagName"
 
 
 tag_active_table = "tags_active"
-Tag_Active_name = Tag_name_field
-tag_type = "tagType"
-tag_data = "Data"
+Tag_Active_name_field = Tag_name_field
+tag_type_field = "tagType"
+tag_data_field = "Data"
 tag_active_feild = "active"
 
 
@@ -59,13 +64,21 @@ tag_active_feild = "active"
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
 global db
+#db = 'C:\\Users\\Nick\\Documents\\GitHub\\roll20Analyzer\\data\\dataBase\\jarredgame.db'
 db = None
 
-# todo test if changeing roll to fts to fti made any errors
+#creates all the DBs tables and sets the metaData for the DB
 def createDB(name,url):
 
     setDB(name)
+    createMessageTable()
+    createGameDataTable()
+    createTagTable()
+    createActiveTageTable()
+    setdata(name,url)
 
+#creates the messageTable
+def createMessageTable():
     conn = sqlite3.connect(db)
     c = conn.cursor()
 
@@ -84,15 +97,23 @@ def createDB(name,url):
                     Roll=Rolled_Field
 
                     , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
-
-
-    exe = "CREATE TABLE {tn} (name {fts}, url {fts})".format(
+    conn.close()
+#creates the GameDataTable
+def createGameDataTable():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    exe = "CREATE TABLE {tn} ({n} {fts}, {url} {fts})".format(
         tn=GameData_table,
+        n= GameName_feild,
+        url = GameUrl_feild,
         fts=string_field_type
     )
     c.execute(exe)
-
-
+    conn.close()
+#creates the Tag table
+def createTagTable():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
     exe = "CREATE TABLE {tn} ({mf} {fts}, {tan} {fts})".format(
         tn=Tag_table,
         mf=MessageID_tag_field,
@@ -100,58 +121,58 @@ def createDB(name,url):
         fts=string_field_type
     )
     c.execute(exe)
-
+    conn.close()
+#creates the active tag table
+def createActiveTageTable():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
     exe = "CREATE TABLE {tn} ({ta} {fts}, {tt} {fts}, {td} {fts}, {tact} {fit})".format(
         tn=tag_active_table,
-        ta=Tag_Active_name,
-        tt=tag_type,
-        td=tag_data,
+        ta=Tag_Active_name_field,
+        tt=tag_type_field,
+        td=tag_data_field,
         tact = tag_active_feild,
         fit = integer_field_type,
         fts=string_field_type
     )
     c.execute(exe)
-
-
     conn.close()
-    setdata(name,url)
-
-
-def createTagTable():
-    pass
-
+#sets the meta data of the game
 def setdata(name,url):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-
     c.execute("INSERT INTO gameData VALUES (?,?)",(name,url))
-
     conn.commit()
     conn.close()
 
+#loads an DB from storage
 def loadDB(path):
     global db
     db = path
 
+#sets a new db
 def setDB(name):
     global db
     dbName = name +'.db'
     db = os.path.join(sys.path[0], "data", "dataBase", dbName)
 
-
 def getDBPath():
     return db
 
-
+#Destroys the DB
 def destroyDB():
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS ' + Message_table)
     c.execute('DROP TABLE IF EXISTS ' + GameData_table)
+    c.execute('DROP TABLE IF EXISTS ' + tag_active_table)
+    c.execute('DROP TABLE IF EXISTS ' + Tag_table)
+
     conn.commit()
     conn.close()
 
-
+#adds a single message to the db
+#gets a dict with all message feilds it add it to the db
 def addMessage(messageDic: dict):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -162,7 +183,6 @@ def addMessage(messageDic: dict):
             messageDic.get(MessageType_field),
             messageDic.get(UserID_field),
             messageDic.get(By_field),
-
             messageDic.get(Time_field),
             messageDic.get(TimeAddedToDB_field),
             messageDic.get(RolledFormula_field),
@@ -173,9 +193,7 @@ def addMessage(messageDic: dict):
     conn.close()
 
 
-"""Gets all the message in the DB"""
-
-
+#Gets all the message in the DB and returns a list
 def getMessages():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -184,6 +202,16 @@ def getMessages():
     data = c.fetchall()
     conn.close()
 
+    return makeList(data)
+
+#returns a list of all rollresults
+def getMessagesRoleresult():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM Message WHERE MessageType='rollresult'")
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
     return makeList(data)
 
 
@@ -197,12 +225,23 @@ def makeList(data):
 
     return listTurn
 
-
-
+#prints the DB
 def printDB():
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+#prints the Roleresults
+def printDBRoleresult():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM Message WHERE MessageType='rollresult'")
     conn.commit()
     rows = c.fetchall()
     for row in rows:
@@ -239,7 +278,7 @@ def getGameName():
     conn.close()
     return name[0]
 
-
+#gets the last message in the DB
 def getlastMessage():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -281,16 +320,14 @@ def getMessageDateTimeRange(dateTimeA, dateTimeB):
 
     return makeList(data)
 
-
+#gets array of tagDetails and addeds the tag to the active tag table
+#tagArray is a list  that can inclued one - three items
 def addTagActive(tagArray):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-
-
-
-
-
     c.close()
+
+
 
 def addtag():
     pass
