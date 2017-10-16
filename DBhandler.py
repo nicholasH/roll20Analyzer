@@ -47,24 +47,28 @@ GameUrl_feild = 'url'
 
 
 #tag table
-Tag_table = "tags"
+Tag_table = "Tags"
 MessageID_tag_field = MessageID_field
 Tag_name_field = "TagName"
 
 
-
+#active_table
 tag_active_table = "tags_active"
 Tag_Active_name_field = Tag_name_field
-tag_type_field = "tagType"
+tag_type_field = "TagType"
 tag_data_field = "Data"
-tag_active_feild = "active"
+tag_self_feild = "Self"
+tag_Active_playerID_feild = UserID_field
+
+#tagName
+All_tags_table = 'AllTags'
+all_tags_tag_names_feild = Tag_Active_name_field
 
 
 """
 roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
 """
 global db
-#db = 'C:\\Users\\Nick\\Documents\\GitHub\\roll20Analyzer\\data\\dataBase\\jarredgame.db'
 db = None
 
 #creates all the DBs tables and sets the metaData for the DB
@@ -75,6 +79,9 @@ def createDB(name,url):
     createGameDataTable()
     createTagTable()
     createActiveTageTable()
+    createAlltagsTable()
+
+
     setdata(name,url)
 
 #creates the messageTable
@@ -83,7 +90,7 @@ def createMessageTable():
     c = conn.cursor()
 
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts}, {MT} {fts},  {UI} {fts},{By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
+        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts},  {UI} {fts},{By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
             .format(tn=Message_table,
                     MID=MessageID_field,
                     MT=MessageType_field,
@@ -122,21 +129,39 @@ def createTagTable():
     )
     c.execute(exe)
     conn.close()
+
 #creates the active tag table
 def createActiveTageTable():
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    exe = "CREATE TABLE {tn} ({ta} {fts}, {tt} {fts}, {td} {fts}, {tact} {fit})".format(
+    exe = "CREATE TABLE {tn} (id {fit} PRIMARY KEY,{ta} {fts}, {tt} {fts}, {td} {fts}, {slf} {fit}, {uf} {fts})".format(
         tn=tag_active_table,
         ta=Tag_Active_name_field,
         tt=tag_type_field,
         td=tag_data_field,
-        tact = tag_active_feild,
+        slf=tag_self_feild,
+        uf=tag_Active_playerID_feild,
+
         fit = integer_field_type,
         fts=string_field_type
     )
     c.execute(exe)
     conn.close()
+
+#A table that conatans all tag names that has been used in the game
+def createAlltagsTable():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    exe = "CREATE TABLE {tn} ({ta} {fts} PRIMARY KEY)".format(
+        tn=All_tags_table,
+        ta=Tag_Active_name_field,
+
+        fts=string_field_type
+    )
+    c.execute(exe)
+    conn.close()
+
+
 #sets the meta data of the game
 def setdata(name,url):
     conn = sqlite3.connect(db)
@@ -167,6 +192,7 @@ def destroyDB():
     c.execute('DROP TABLE IF EXISTS ' + GameData_table)
     c.execute('DROP TABLE IF EXISTS ' + tag_active_table)
     c.execute('DROP TABLE IF EXISTS ' + Tag_table)
+    c.execute('DROP TABLE IF EXISTS ' + All_tags_table)
 
     conn.commit()
     conn.close()
@@ -237,6 +263,26 @@ def printDB():
 
     conn.close()
 
+def printDBAlltags():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM AllTags")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+    conn.close()
+
+def printDBActiveTags():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM tags_active")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+    conn.close()
+
 #prints the Roleresults
 def printDBRoleresult():
     conn = sqlite3.connect(db)
@@ -298,36 +344,62 @@ def getlastMessage():
         return None
 
 # get a single dateTime object and returns message on that date
-def getMessageDateTime(dateTime):
+def getRollresultDateTime(dateTime):
     dateA = dateTime
     dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
-    return getMessageDateTimeRange(dateA,dateB)
+    return getRollresultDateTimeRange(dateA, dateB)
 
 #get two date time objects and gets the range of them
-def getMessageDateTimeRange(dateTimeA, dateTimeB):
+def getRollresultDateTimeRange(dateTimeA, dateTimeB):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\"".format(
+    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='rollresult'".format(
         tn=Message_table,
         tf=Time_field,
+        mt = MessageType_field,
         DA=dateTimeA,
         DB=dateTimeB)
 
     c.execute(exe)
     data = c.fetchall()
     c.close()
-
-
     return makeList(data)
+
+
+#add a tag to alltags table
+def addAllTags(tagName):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('INSERT OR IGNORE INTO AllTags VALUES (?)', (tagName,))
+    conn.commit()
+    conn.close()
 
 #gets array of tagDetails and addeds the tag to the active tag table
 #tagArray is a list  that can inclued one - three items
-def addTagActive(tagArray):
+def addTagActive(tagName,tagType,tagDetails,self):
+    addAllTags(tagName)
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.close()
+
+
+    c.execute(
+        "INSERT INTO tags_active (TagName, TagType, Data, Self, UserID)VALUES (?,?,?,?,?)", (
+            tagName,
+            tagType,
+            pickle.dumps(tagDetails),
+            int(self),
+            ""
+        ))
+    conn.commit()
+    conn.close()
 
 
 
 def addtag():
+    pass
+
+def endtag(tagName):
+    pass
+
+def endAlltag():
     pass

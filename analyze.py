@@ -32,7 +32,7 @@ def getPath():
 
 def analyze():
     chatParser.addToDb()
-    analyzeDB(DBhandler.getMessages())
+    analyzeDB(DBhandler.getMessagesRoleresult())
     print(returnStats())
     return returnStats()
 
@@ -40,19 +40,19 @@ def analyze():
 def analyzeToday():
     chatParser.addToDb()
     startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
-    analyzeDB(DBhandler.getMessageDateTime(startToday))
+    analyzeDB(DBhandler.getRollresultDateTime(startToday))
     print(returnStats())
     return returnStats()
 
 #Gets 1 Datetime and returns the messages of that date
 def analyzeDate(date):
-    analyzeDB(DBhandler.getMessageDateTime(date))
+    analyzeDB(DBhandler.getRollresultDateTime(date))
     print(returnStats())
     return returnStats()
 
 #Gets 2 datestimes and returns the messaages between the dates
 def analyzeDateRange(date0,date1):
-    analyzeDB(DBhandler.getMessageDateTimeRange(date0,date1))
+    analyzeDB(DBhandler.getRollresultDateTimeRange(date0, date1))
     print(returnStats())
     return returnStats()
 
@@ -153,6 +153,9 @@ def getGivenPath():
 
 # todo make this look good
 def returnStats():
+
+    DBhandler.printDBActiveTags()
+
     s = ""
     for player, values in playerStats.items():
         # s = s + player
