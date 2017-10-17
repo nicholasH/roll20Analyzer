@@ -380,8 +380,6 @@ def addTagActive(tagName,tagType,tagDetails,self):
     addAllTags(tagName)
     conn = sqlite3.connect(db)
     c = conn.cursor()
-
-
     c.execute(
         "INSERT INTO tags_active (TagName, TagType, Data, Self, UserID)VALUES (?,?,?,?,?)", (
             tagName,
@@ -393,7 +391,48 @@ def addTagActive(tagName,tagType,tagDetails,self):
     conn.commit()
     conn.close()
 
+def removeActiveByName(tagName,tagType):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('DELETE FROM tags_active WHERE TagName = (?) and TagType = (?)', (tagName,tagType))
+    conn.commit()
+    conn.close()
 
+def removeActiveByIndex(index):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('DELETE FROM tags_active WHERE id = (?)', (index,))
+    conn.commit()
+    conn.close()
+
+def cleanActive():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM tags_active WHERE TagType ='timed'")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        data = pickle.loads(row[3])
+        timeToStop =""
+        if data[2] == "m":
+            timeToStop = data[0] + datetime.timedelta(minutes=date[1])
+        elif data[2] == "h":
+            timeToStop = data[0] + datetime.timedelta(minutes=date[1])
+
+        now = datetime.today()
+
+        if now > timeToStop:
+            removeActiveByIndex(row[0])
+    conn.close()
+
+def getActiveTagsNames():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT tagName FROM tags_active")
+    conn.commit()
+    rows = c.fetchall()
+    conn.close()
+    return rows
 
 def addtag():
     pass

@@ -335,8 +335,9 @@ def addEmote(datum):
 
             timeRegex = re.search(r'\d+(h|m)',td)
             if timeRegex is not None:
-                timeNum = timeRegex[:-1]
-                timeType = timeRegex[-1:]
+                timeNum = td[:-1]
+                timeType = td[-1:]
+                time = static.tstamp
                 tagDetails = [static.tstamp,timeNum,timeType]
 
                 tagType = "timed"
@@ -369,10 +370,9 @@ def addEmote(datum):
 
             timeRegex = re.search(r'\d+(h|m)', td)
             if timeRegex is not None:
-                timeNum = timeRegex[:-1]
-                timeType = timeRegex[-1:]
+                timeNum = td[:-1]
+                timeType = td[-1:]
                 tagDetails = [static.tstamp,timeNum, timeType]
-
                 tagType = "timed"
                 DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 

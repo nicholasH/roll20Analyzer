@@ -7,6 +7,9 @@ from tkinter import *
 #start a tag
 import sqlite3
 
+from datetime import datetime, date, timedelta
+import pickle
+
 import DBhandler
 
 "^"
@@ -41,13 +44,16 @@ import DBhandler
 
 test = 'lool ^^tag -test ^test'
 
-r = re.search(r'\^\w+( *-\w+){0,2}',test)
 
-print(r.group())
+day = datetime.today()
+testlist = [day,"1","M"]
 
-test2 = 'endall'
-print('end' in test)
-print('end' in test2)
-print(int(True))
+print(testlist)
+
+t =pickle.dumps(testlist)
+
+
+print(pickle.loads(t))
+
 
 

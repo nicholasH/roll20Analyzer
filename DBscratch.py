@@ -1,4 +1,7 @@
 import sqlite3
+from datetime import datetime, date, timedelta
+
+import pickle
 
 
 def creatDB():
@@ -31,7 +34,7 @@ def printDB():
         print(row)
 
     conn.close()
-
+#dis()
 #creatDB()
 print("end")
 testname = [('bill'),
@@ -42,9 +45,29 @@ testname = [('bill'),
 conn = sqlite3.connect('example.db')
 c = conn.cursor()
 
-t = 'tddm'
-c.execute('INSERT OR IGNORE INTO test (name) VALUES (?)', (t,))
+day = datetime.today()
+testlist = [day,"1","M"]
+
+print(testlist)
+
+t =pickle.dumps(testlist)
+
+
+print(pickle.loads(t))
+
+tr = t
+c.execute('INSERT INTO test (name) VALUES (?)', (tr,))
+
+c.execute('SELECT name from test')
+
+rows = c.fetchall()
+
 conn.commit()
 conn.close()
+
+
+print(rows)
+
+
 
 printDB()

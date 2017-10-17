@@ -148,14 +148,8 @@ def getGivenPath():
     return path
 
 
-
-
-
 # todo make this look good
 def returnStats():
-
-    DBhandler.printDBActiveTags()
-
     s = ""
     for player, values in playerStats.items():
         # s = s + player
@@ -178,6 +172,9 @@ def returnStats():
 
 #todo add in a way to excluded players like the DM
 def findWinner(exclude):
+    print(DBhandler.getActiveTagsNames())
+    DBhandler.cleanActive()
+    print(DBhandler.getActiveTagsNames())
     s = ""
     hightroll = [None,0]
     highestCritsus = [None,0]
