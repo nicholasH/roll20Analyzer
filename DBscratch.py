@@ -61,6 +61,8 @@ c.execute('INSERT INTO test (name) VALUES (?)', (tr,))
 c.execute('SELECT name from test')
 
 rows = c.fetchall()
+for row in rows:
+    print(pickle.loads(row[0]))
 
 conn.commit()
 conn.close()

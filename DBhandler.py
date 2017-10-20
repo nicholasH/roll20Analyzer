@@ -415,9 +415,9 @@ def cleanActive():
         data = pickle.loads(row[3])
         timeToStop =""
         if data[2] == "m":
-            timeToStop = data[0] + datetime.timedelta(minutes=date[1])
+            timeToStop = data[0] + timedelta(minutes=date[1])
         elif data[2] == "h":
-            timeToStop = data[0] + datetime.timedelta(minutes=date[1])
+            timeToStop = data[0] + timedelta(hours=date[1])
 
         now = datetime.today()
 
