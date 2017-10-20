@@ -172,9 +172,7 @@ def returnStats():
 
 #todo add in a way to excluded players like the DM
 def findWinner(exclude):
-    #print(DBhandler.getActiveTagsNames())
-    #DBhandler.cleanActive()
-    #print(DBhandler.getActiveTagsNames())
+
     s = ""
     hightroll = [None,0]
     highestCritsus = [None,0]

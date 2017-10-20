@@ -391,7 +391,7 @@ def addTagActive(tagName,tagType,tagDetails,self):
     conn.commit()
     conn.close()
 
-def removeActiveByName(tagName,tagType):
+def removeActiveByNameAndTagType(tagName,tagType):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('DELETE FROM tags_active WHERE TagName = (?) and TagType = (?)', (tagName,tagType))
@@ -411,19 +411,20 @@ def cleanActive():
     c.execute("SELECT * FROM tags_active WHERE TagType ='timed'")
     conn.commit()
     rows = c.fetchall()
+    conn.close()
     for row in rows:
         data = pickle.loads(row[3])
+        print(data)
         timeToStop =""
         if data[2] == "m":
-            timeToStop = data[0] + timedelta(minutes=date[1])
+            timeToStop = data[0] + timedelta(minutes=int(data[1]))
         elif data[2] == "h":
-            timeToStop = data[0] + timedelta(hours=date[1])
-
+            timeToStop = data[0] + timedelta(minutes=int(data[1]))
         now = datetime.today()
 
         if now > timeToStop:
             removeActiveByIndex(row[0])
-    conn.close()
+
 
 def getActiveTagsNames():
     conn = sqlite3.connect(db)
@@ -434,11 +435,44 @@ def getActiveTagsNames():
     conn.close()
     return rows
 
+#this will clean the Db of old tags and update the self tags with the player id
+def getActiveTagsAndUpdate(playerID):
+    cleanActive()
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM tags_active")
+    conn.commit()
+    rows = c.fetchall()
+    conn.close()
+    names = []
+    for row in rows:
+        for item in row:
+            names.append(item)
+
+
+
+
+
+
+
+    return rows
+
 def addtag():
     pass
 
 def endtag(tagName):
-    pass
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('DELETE FROM tags_active WHERE TagName = (?)', (tagName,))
+    conn.commit()
+    conn.close()
 
 def endAlltag():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("DELETE FROM tags_active")
+    conn.commit()
+    conn.close()
+
+def updateSelftags():
     pass
