@@ -440,21 +440,11 @@ def getActiveTagsAndUpdate(playerID):
     cleanActive()
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute("SELECT * FROM tags_active")
+    c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = ""',(playerID,))
+    c.execute("SELECT tagName FROM tags_active WHERE UserID = (?)",(playerID,))
     conn.commit()
     rows = c.fetchall()
     conn.close()
-    names = []
-    for row in rows:
-        for item in row:
-            names.append(item)
-
-
-
-
-
-
-
     return rows
 
 def addtag():

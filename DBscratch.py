@@ -1,3 +1,4 @@
+import random
 import sqlite3
 from datetime import datetime, date, timedelta
 
@@ -10,7 +11,7 @@ def creatDB():
 
     # Create table
     c.execute('''CREATE TABLE test
-                 (id INTEGER PRIMARY KEY,name text)''')
+                 (id INTEGER PRIMARY KEY,name text, test text)''')
 
     conn.commit()
     conn.close()
@@ -45,24 +46,18 @@ testname = [('bill'),
 conn = sqlite3.connect('example.db')
 c = conn.cursor()
 
-day = datetime.today()
-testlist = [day,"1","M"]
+tr =  str(random.randint(1,100))
+lol = ""
+testlol = 'tswo'
+c.execute('INSERT INTO test (name,test) VALUES (?,?)', (tr,lol))
+c.execute('UPDATE test SET test = (?) WHERE test = ""',(testlol,) )
+c.execute("SELECT name FROM test WHERE test = (?)", (testlol,))
 
-print(testlist)
 
-t =pickle.dumps(testlist)
-
-
-print(pickle.loads(t))
-
-tr = t
-c.execute('INSERT INTO test (name) VALUES (?)', (tr,))
-
-c.execute('SELECT name from test')
 
 rows = c.fetchall()
 for row in rows:
-    print(pickle.loads(row[0]))
+    print(row)
 
 conn.commit()
 conn.close()
