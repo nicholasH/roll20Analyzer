@@ -15,6 +15,16 @@ def creatDB():
 
     conn.commit()
     conn.close()
+def creatDB2():
+    conn = sqlite3.connect('example.db')
+    c = conn.cursor()
+
+    # Create table
+    c.execute('''CREATE TABLE test2
+                 (id INTEGER PRIMARY KEY,name text, test text)''')
+
+    conn.commit()
+    conn.close()
 
 def dis():
     conn = sqlite3.connect('example.db')
@@ -26,6 +36,7 @@ def dis():
     conn.close()
 
 def printDB():
+    print("db1")
     conn = sqlite3.connect('example.db')
     c = conn.cursor()
     c.execute("SELECT * FROM test")
@@ -35,9 +46,22 @@ def printDB():
         print(row)
 
     conn.close()
+def printDB2():
+    print("db2")
+    conn = sqlite3.connect('example.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM test2")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+
 #dis()
 #creatDB()
-print("end")
+#creatDB2()
 testname = [('bill'),
             ('tom'),
             ('kyle'),
@@ -46,25 +70,24 @@ testname = [('bill'),
 conn = sqlite3.connect('example.db')
 c = conn.cursor()
 
-tr =  str(random.randint(1,100))
-lol = ""
+tr =  str(random.randint(1,10))
+tr1 = str(random.randint(1,10))
+lol = "lol"
 testlol = 'tswo'
-c.execute('INSERT INTO test (name,test) VALUES (?,?)', (tr,lol))
-c.execute('UPDATE test SET test = (?) WHERE test = ""',(testlol,) )
-c.execute("SELECT name FROM test WHERE test = (?)", (testlol,))
+#c.execute('INSERT INTO test (name,test) VALUES (?,?)', (tr,lol))
+#c.execute('INSERT INTO test2 (name,test) VALUES (?,?)', (tr1,lol))
 
-
-
-rows = c.fetchall()
-for row in rows:
-    print(row)
-
+c = conn.cursor()
+c.execute("SELECT test.id, test.name, test.test FROM test "
+          "JOIN test2 "
+          "ON test.name = test2.name "
+          "WHERE test2.test = (?)", ("lol",)
+          )
+data = c.fetchall()
 conn.commit()
 conn.close()
-
-
-print(rows)
-
-
-
 printDB()
+printDB2()
+print("data")
+for da in data:
+    print(da)

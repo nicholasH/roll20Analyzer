@@ -241,6 +241,7 @@ def addRollresult(datum):
                 elif "rolled" in s:
                     roll = content.text.strip()
 
+
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID
 
@@ -252,6 +253,7 @@ def addRollresult(datum):
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
+    DBhandler.addtag(messageID,playerID)
     DBhandler.addMessage(message)
 
 
