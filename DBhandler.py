@@ -459,7 +459,7 @@ def cleanActive():
         if now > timeToStop:
             removeActiveByIndex(row[0])
 
-
+#todo make this return a list of strings
 def getActiveTagsNames():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -469,7 +469,8 @@ def getActiveTagsNames():
     conn.close()
     return rows
 
-
+#todo This only get self tags
+#todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
 def getActiveTagsAndUpdate(playerID):
     cleanActive()
@@ -489,9 +490,9 @@ def addtag(messageID, playerID):
     c = conn.cursor()
     for tag in tags:
         c.execute(
-            "INSERT INTO Tags (TagName, MessageID)VALUES (?,?)", (
+            "INSERT INTO Tags VALUES (?,?)", (
                 tag,
-                messageID
+                messageID,
             ))
     conn.commit()
     conn.close()
@@ -516,7 +517,7 @@ def endAlltag():
 def getMessagesWithTags(tagName):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute("SELECT * FROM Message "
+    c.execute("SELECT Message.* FROM Message "
               "JOIN Tags "
               "ON Message.MessageID = Tags.MessageID "
               "WHERE Tags.TagName = (?)",(tagName,))
@@ -527,8 +528,40 @@ def getMessagesWithTags(tagName):
     return makeList(data)
 
 def getMessagesWithTagsBYDate(tagName,dateTime):
-    pass
-def getMessagesWithTagsBYDateRange(tagName,dateTimeA,DateTimeB):
-    pass
+    dateA = dateTime
+    dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
+    return getMessagesWithTagsBYDateRange(tagName,dateA, dateB)
+
+
+
+def getMessagesWithTagsBYDateRange(tagName,dateTimeA,dateTimeB):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT Message.* FROM Message "
+              "JOIN Tags "
+              "ON Message.MessageID = Tags.MessageID "
+              "WHERE Tags.TagName = (?)"
+              "AND Time BETWEEN \"(?)\" AND \"(?)\" AND MessageType ='rollresult'",(tagName,dateTimeA,dateTimeB))
+    conn.commit()
+    data = c.fetchall()
+    c.close()
+    return makeList(data)
+
+def getTagNamesByDate(dateTime):
+    dateA = dateTime
+    dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
+    return getTagNamesByDateRange(dateA, dateB)
+
+def getTagNamesByDateRange(dateTimeA,dateTimeB):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT Tags.TagName FROM Tags "
+              "JOIN Message "
+              "ON Message.MessageID = Tags.MessageID "
+              "WHERE Time BETWEEN \"(?)\" AND \"(?)\" AND MessageType ='rollresult'",(dateTimeA,dateTimeB))
+    conn.commit()
+    data = c.fetchall()
+    c.close()
+    return date
 
 

@@ -78,7 +78,7 @@ testlol = 'tswo'
 #c.execute('INSERT INTO test2 (name,test) VALUES (?,?)', (tr1,lol))
 
 c = conn.cursor()
-c.execute("SELECT test.id, test.name, test.test FROM test "
+c.execute("SELECT test.* FROM test "
           "JOIN test2 "
           "ON test.name = test2.name "
           "WHERE test2.test = (?)", ("lol",)

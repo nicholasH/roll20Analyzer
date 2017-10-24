@@ -121,8 +121,13 @@ class mainPage(tk.Frame):
         today_btn = tk.Button(uiFrame, text="today", command=self.run_today)
         run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.run_by_data)
 
+        self.tag_text_entry = tk.Entry(uiFrame)
+        tag_btn = tk.Button(uiFrame, text="tag", command= self.run_by_tag)
+
 
         uiFrame.pack()
+        self.tag_text_entry.pack(side="left")
+        tag_btn.pack(side="left")
         run_all_btn.pack(side="left")
         today_btn.pack(side="left")
         run_by_date_btn.pack(side="left")
@@ -192,6 +197,8 @@ class mainPage(tk.Frame):
             self.popup_menu.tk_popup(event.x_root, event.y_root, 0)
         finally:
             self.popup_menu.grab_release()
+    def run_by_tag(self):
+        self.update(analyze.analyzeByTag(self.tag_text_entry.get()))
 
 
 
@@ -210,6 +217,8 @@ class newDB:
         self.url_entry = tk.Entry(top)
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top,text ="cancel", command =self.cancel)
+
+        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1644807")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)

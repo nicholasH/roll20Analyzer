@@ -56,6 +56,11 @@ def analyzeDateRange(date0,date1):
     print(returnStats())
     return returnStats()
 
+def analyzeByTag(tagName):
+    print(tagName)
+    analyzeDB(DBhandler.getMessagesWithTags(tagName))
+    print(returnStats())
+    return returnStats()
 
 def diceCounter(diceFomula):
     s = diceFomula.attrs.get("class")
