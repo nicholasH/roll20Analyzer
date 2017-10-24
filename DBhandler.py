@@ -476,8 +476,8 @@ def getActiveTagsAndUpdate(playerID):
     cleanActive()
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = ""', (playerID,))
-    c.execute("SELECT tagName FROM tags_active WHERE UserID = (?)", (playerID,))
+    c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = "" AND self = 1', (playerID,))
+    c.execute("SELECT tagName FROM tags_active WHERE UserID = (?) OR self = 0", (playerID,))
     conn.commit()
     rows = c.fetchall()
     conn.close()
@@ -491,7 +491,7 @@ def addtag(messageID, playerID):
     for tag in tags:
         c.execute(
             "INSERT INTO Tags VALUES (?,?)", (
-                tag,
+                str(tag),
                 messageID,
             ))
     conn.commit()
