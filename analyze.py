@@ -58,7 +58,7 @@ def analyzeDateRange(date0,date1):
 
 def analyzeByTag(tagName):
     print(tagName)
-    DBhandler.printDBAlltags()
+    DBhandler.printTags()
     analyzeDB(DBhandler.getMessagesWithTags(tagName))
     print(returnStats())
     return returnStats()

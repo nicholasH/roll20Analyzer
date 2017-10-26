@@ -66,28 +66,14 @@ testname = [('bill'),
             ('tom'),
             ('kyle'),
             ('tom'),]
+#conn = sqlite3.connect('example.db')
 
-conn = sqlite3.connect('example.db')
+conn = sqlite3.connect('E:\\GitProjects\\roll20Analyzer\\data\\dataBase\\t8.db')
 c = conn.cursor()
+tag = "-KwTsLk7VPcZCVEThMQu"
+c.execute("SELECT MessageID FROM tags "
+          "WHERE MessageID = (?)",(tag,))
 
-tr =  str(random.randint(1,10))
-tr1 = str(random.randint(1,10))
-lol = "lol"
-testlol = 'tswo'
-#c.execute('INSERT INTO test (name,test) VALUES (?,?)', (tr,lol))
-#c.execute('INSERT INTO test2 (name,test) VALUES (?,?)', (tr1,lol))
-
-c = conn.cursor()
-c.execute("SELECT test.* FROM test "
-          "JOIN test2 "
-          "ON test.name = test2.name "
-          "WHERE test2.test = (?)", ("lol",)
-          )
-data = c.fetchall()
 conn.commit()
+data = c.fetchall()
 conn.close()
-printDB()
-printDB2()
-print("data")
-for da in data:
-    print(da)

@@ -439,7 +439,7 @@ def removeActiveByIndex(index):
     conn.close()
 
 
-def cleanActive():
+def cleanActiveTime():
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM tags_active WHERE TagType ='timed'")
@@ -459,6 +459,16 @@ def cleanActive():
         if now > timeToStop:
             removeActiveByIndex(row[0])
 
+def cleanActiveSingles():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute()
+
+
+    
+    conn.commit()
+    conn.close()
+
 #todo make this return a list of strings
 def getActiveTagsNames():
     conn = sqlite3.connect(db)
@@ -473,7 +483,7 @@ def getActiveTagsNames():
 #todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
 def getActiveTagsAndUpdate(playerID):
-    cleanActive()
+    cleanActiveTime()
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = "" AND self = 1', (playerID,))
@@ -491,8 +501,8 @@ def addtag(messageID, playerID):
     for tag in tags:
         c.execute(
             "INSERT INTO Tags VALUES (?,?)", (
-                str(tag),
                 messageID,
+                tag[0],
             ))
     conn.commit()
     conn.close()
