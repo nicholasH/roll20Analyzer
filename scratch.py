@@ -54,6 +54,7 @@ t =pickle.dumps(testlist)
 
 
 print(pickle.loads(t))
-
+t = ('a',3)
+print(t[0])
 
 

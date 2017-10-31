@@ -198,8 +198,9 @@ class static:
 def addToDb():
     chatContent = getScrapParse()
     static.timeStamp = ""
-    for c in chatContent:
 
+    for c in chatContent:
+        print(DBhandler.getActiveTagsNames())
         s = c["class"]
 
         if "rollresult" in s:
@@ -319,7 +320,7 @@ def addEmote(datum):
 
     if m is not None:
         tagData = m.group().split("-")
-        print(DBhandler.getActiveTagsNames())
+
 
         if len(tagData) == 1:
             tagName = tagData[0].replace("^","").strip()
