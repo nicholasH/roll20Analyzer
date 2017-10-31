@@ -462,10 +462,7 @@ def cleanActiveTime():
 def cleanActiveSingles():
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute()
-
-
-    
+    c.execute('DELETE FROM tags_active WHERE TagType = "single"')
     conn.commit()
     conn.close()
 
@@ -491,6 +488,7 @@ def getActiveTagsAndUpdate(playerID):
     conn.commit()
     rows = c.fetchall()
     conn.close()
+    cleanActiveSingles()
     return rows
 
 
