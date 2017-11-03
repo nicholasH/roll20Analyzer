@@ -2,13 +2,7 @@ import os
 import sys
 from tkinter import filedialog
 from tkinter import *
-
-
-#start a tag
-import sqlite3
-
-from datetime import datetime, date, timedelta
-import pickle
+from apply import apply
 
 import DBhandler
 
@@ -42,19 +36,24 @@ import DBhandler
 '^tag -start -do'
 '^tag -4543 -self'
 
-test = 'lool ^^tag -test ^test'
 
 
-day = datetime.today()
-testlist = [day,"1","M"]
+# the constructor syntax is:
+# OptionMenu(master, variable, *values)
 
-print(testlist)
+OPTIONS = [
+    "egg",
+    "bunny",
+    "chicken"
+]
 
-t =pickle.dumps(testlist)
+master = Tk()
 
+variable = StringVar(master)
+variable.set(OPTIONS[0]) # default value
 
-print(pickle.loads(t))
-t = ('a',3)
-print(t[0])
+w = apply(OptionMenu, (master, variable) + tuple(OPTIONS))
+w.pack()
 
+mainloop()
 

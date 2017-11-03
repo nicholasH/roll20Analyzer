@@ -79,7 +79,13 @@ class mainPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         uiFrame = tk.Frame(self)
+        searchFrame = tk.Frame(self)
         textBoxFrame = tk.Frame(self)
+
+        self.offline = tk.IntVar()
+        offline_checkBox = tk.Checkbutton(uiFrame, text="Offline?", variable=self.offline)
+
+
         dayString1 = tk.StringVar()
         dayString1.trace("w", lambda name, index, mode, dayString=dayString1: limitSizeDay(dayString, 2))
 
@@ -121,13 +127,14 @@ class mainPage(tk.Frame):
         today_btn = tk.Button(uiFrame, text="today", command=self.run_today)
         run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.run_by_data)
 
-        self.tag_text_entry = tk.Entry(uiFrame)
-        tag_btn = tk.Button(uiFrame, text="tag", command= self.run_by_tag)
+        self.tag_text_entry = tk.Entry(searchFrame)
+        tag_btn = tk.Button(searchFrame, text="tag", command= self.run_by_tag)
+        self.name_text_entry = tk.Entry(searchFrame)
+        name_btn = tk.Button(searchFrame, text="name")
 
 
         uiFrame.pack()
-        self.tag_text_entry.pack(side="left")
-        tag_btn.pack(side="left")
+        offline_checkBox.pack(side = "left")
         run_all_btn.pack(side="left")
         today_btn.pack(side="left")
         run_by_date_btn.pack(side="left")
@@ -141,8 +148,17 @@ class mainPage(tk.Frame):
         day2_lable.pack(side="left")
         # line above must be at the end of the pack
 
+        searchFrame.pack()
+        self.tag_text_entry.pack(side="left")
+        tag_btn.pack(side="left")
+        self.name_text_entry.pack(side = "left")
+        name_btn.pack(side = 'left')
+
+
+
         textBoxFrame.pack(fill="both", expand=True)
         self.text_box.pack(fill="both", expand=True)
+
 
     def cb(self):
         if self.show.get():
@@ -189,6 +205,7 @@ class mainPage(tk.Frame):
 
     def update(self, text):
         self.text_box.config(state="normal")
+        self.text_box.delete(0.0, tk.END)
         self.text_box.insert(tk.END, text)
         self.text_box.config(state="disable")
 
