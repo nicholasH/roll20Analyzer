@@ -30,28 +30,36 @@ def getPath():
     return path
 
 
-def analyze():
-    chatParser.addToDb()
+def analyze(offline):
+    if not offline:
+        chatParser.addToDb()
+
     analyzeDB(DBhandler.getMessagesRoleresult())
     print(returnStats())
     return returnStats()
 
 
-def analyzeToday():
-    chatParser.addToDb()
+def analyzeToday(offline):
+    if not offline:
+        chatParser.addToDb()
+
     startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
     analyzeDB(DBhandler.getRollresultDateTime(startToday))
     print(returnStats())
     return returnStats()
 
 #Gets 1 Datetime and returns the messages of that date
-def analyzeDate(date):
+def analyzeDate(date,offline):
+    if not offline:
+        chatParser.addToDb()
     analyzeDB(DBhandler.getRollresultDateTime(date))
     print(returnStats())
     return returnStats()
 
 #Gets 2 datestimes and returns the messaages between the dates
-def analyzeDateRange(date0,date1):
+def analyzeDateRange(date0,date1,offline):
+    if not offline:
+        chatParser.addToDb()
     analyzeDB(DBhandler.getRollresultDateTimeRange(date0, date1))
     print(returnStats())
     return returnStats()

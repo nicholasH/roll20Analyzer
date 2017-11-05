@@ -1,7 +1,9 @@
 import os
 import sys
-from tkinter import filedialog
+from tkinter import filedialog, ttk
 from tkinter import *
+from tkinter.ttk import Combobox
+
 from apply import apply
 
 import DBhandler
@@ -38,22 +40,29 @@ import DBhandler
 
 
 
-# the constructor syntax is:
-# OptionMenu(master, variable, *values)
 
-OPTIONS = [
-    "egg",
-    "bunny",
-    "chicken"
-]
+class App:
 
-master = Tk()
+    value_of_combo = 'X'
 
-variable = StringVar(master)
-variable.set(OPTIONS[0]) # default value
 
-w = apply(OptionMenu, (master, variable) + tuple(OPTIONS))
-w.pack()
+    def __init__(self, parent):
+        self.parent = parent
+        self.combo()
 
-mainloop()
+    def combo(self):
+        self.box_value = StringVar()
+        self.box = ttk.Combobox(self.parent, textvariable=self.box_value)
+        self.box['values'] = ('X', 'Y', 'Z')
+        self.box.current(0)
+        self.box.grid(column=0, row=0)
+        self.run_all_btn = Button(self.parent, text="run all", command=self.run)
+        self.run_all_btn.grid(column=0, row=1)
 
+    def run(self):
+        print(self.box.get())
+
+if __name__ == '__main__':
+    root = Tk()
+    app = App(root)
+    root.mainloop()

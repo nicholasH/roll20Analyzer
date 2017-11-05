@@ -404,6 +404,20 @@ def addAllTags(tagName):
     conn.commit()
     conn.close()
 
+def getAlltags():
+    try:
+        conn = sqlite3.connect(db)
+    except(TypeError):
+        return [""]
+    c = conn.cursor()
+    c.execute('SELECT * FROM AllTags')
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+    listTurn = []
+    for d in data:
+        listTurn.append(d[0])
+    return listTurn
 
 # gets array of tagDetails and addeds the tag to the active tag table
 # tagArray is a list  that can inclued one - three items
