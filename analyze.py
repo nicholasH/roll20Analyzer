@@ -98,6 +98,23 @@ def analyzeByName(name,offline):
     analyzeDB(DBhandler.getMessagesByName(name))
     return returnStats()
 
+def analyzeByNameToday(name,offline):
+    if not offline:
+        chatParser.addToDb()
+    startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
+    analyzeDB(DBhandler.getMessagesByNameByDate(name,startToday))
+    return returnStats()
+def analyzeByNameByDate(name,date,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByNameByDate(name,date))
+    return returnStats()
+def analyzeByNameByDateRange(name,dateA,dateB,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByNameByDateRange(name,dateA,dateB))
+    return returnStats()
+
 def diceCounter(diceFomula):
     s = diceFomula.attrs.get("class")
     critsuc = 0

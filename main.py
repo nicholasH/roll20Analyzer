@@ -203,9 +203,13 @@ class mainPage(tk.Frame):
             self.updateText(analyze.analyze(self.offline.get()))
 
     def run_today(self):
-        if self.tagSearch.get():
-            t = analyze.analyzeByTagToday(self.tag_combo.get(),self.offline.get())
-            self.updateText(t)
+        if self.tagSearch.get() and self.nameSearch.get():
+            print("not in")
+            pass
+        elif self.nameSearch.get():
+            self.updateText(analyze.analyzeByNameToday(self.tag_combo.get(),self.offline.get()))
+        elif self.tagSearch.get():
+            self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(),self.offline.get()))
         else:
             self.updateText(analyze.analyzeToday(self.offline.get()))
 
@@ -228,13 +232,21 @@ class mainPage(tk.Frame):
             if date1 < date0:
                 messagebox.showerror("Error", "error date is out of order")
                 return
-            if self.tagSearch.get():
-                self.updateText(analyze.analyzeByTagDateRange(self.tag_combo.get(),date0,date1))
+            if self.tagSearch.get() and self.nameSearch.get():
+                pass
+            elif self.nameSearch.get():
+                self.updateText(analyze.analyzeByNameByDateRange(self.name_combo.get(),date0,date1,self.offline.get()))
+            elif self.tagSearch.get():
+                self.updateText(analyze.analyzeByTagDateRange(self.tag_combo.get(),date0,date1,self.offline.get()))
             else:
-                self.updateText(analyze.analyzeDateRange(date0, date1,self.offline.get()),self.offline.get())
+                self.updateText(analyze.analyzeDateRange(date0, date1,self.offline.get()))
         else:
-            if self.tagSearch.get():
-                self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(),date0),self.offline.get())
+            if self.tagSearch.get() and self.nameSearch.get():
+                pass
+            elif self.nameSearch.get():
+                self.updateText(analyze.analyzeByNameByDate(self.name_combo.get(),date0,self.offline.get()))
+            elif self.tagSearch.get():
+                self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(),date0,self.offline.get()))
             else:
                 self.updateText(analyze.analyzeDate(date0,self.offline.get()))
 

@@ -626,3 +626,17 @@ def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
     data = c.fetchall()
     c.close()
     return makeList(data)
+
+def getMessagesByTagAndName(tag,name):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT Message.* FROM Message "
+              "JOIN Tags "
+              "ON Message.MessageID = Tags.MessageID "
+              "WHERE Message.by = ? "
+              "AND Tags.TagName = ?", (name,tag))
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+
+    return makeList(data)
