@@ -562,8 +562,8 @@ def getMessagesWithTagsBYDateRange(tagName,dateTimeA,dateTimeB):
     c.execute("SELECT Message.* FROM Message "
               "JOIN Tags "
               "ON Message.MessageID = Tags.MessageID "
-              "WHERE Tags.TagName = (?)"
-              "AND Time BETWEEN \"(?)\" AND \"(?)\" AND MessageType ='rollresult'",(tagName,dateTimeA,dateTimeB))
+              "WHERE Tags.TagName = ?"
+              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult'",(tagName,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
@@ -580,10 +580,49 @@ def getTagNamesByDateRange(dateTimeA,dateTimeB):
     c.execute("SELECT Tags.TagName FROM Tags "
               "JOIN Message "
               "ON Message.MessageID = Tags.MessageID "
-              "WHERE Time BETWEEN \"(?)\" AND \"(?)\" AND MessageType ='rollresult'",(dateTimeA,dateTimeB))
+              "WHERE Time BETWEEN \"(?)\" AND \"(?)\" AND MessageType ='rollresult'",[dateTimeA,dateTimeB])
     conn.commit()
     data = c.fetchall()
     c.close()
-    return date
+    return data
 
+def getAllNames():
+    try:
+        conn = sqlite3.connect(db)
+    except(TypeError):
+        return [""]
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT BY FROM Message WHERE MessageType="rollresult"')
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+    listTurn = []
+    for d in data:
+        listTurn.append(d[0])
+    return listTurn
 
+def getMessagesByName(name):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM Message WHERE By = (?) AND MessageType ='rollresult'",(name,))
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+
+    return makeList(data)
+
+def getMessagesByNameByDate(name,dateTime):
+    dateA = dateTime
+    dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
+    return getMessagesByNameByDateRange(name,dateA, dateB)
+
+def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT * FROM Message "
+              "WHERE By = ?"
+              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult'",(name,dateTimeA,dateTimeB))
+    conn.commit()
+    data = c.fetchall()
+    c.close()
+    return makeList(data)

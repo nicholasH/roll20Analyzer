@@ -9,7 +9,6 @@ import DBhandler
 from datetime import datetime
 from tkinter import messagebox
 
-tags = [""]
 
 class app(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -134,19 +133,19 @@ class mainPage(tk.Frame):
 
         #search
         self.tagSearch = tk.IntVar()
-        tagSearch = tk.Checkbutton(searchFrame,text="tags")
+        tagSearch = tk.Checkbutton(searchFrame,text="tags",variable=self.tagSearch)
         self.tag_combo_value = tk.StringVar()
         self.tag_combo = ttk.Combobox(searchFrame, textvariable=self.tag_combo_value, postcommand = self.updateMenus)
-        self.tag_combo['values'] = tags
+        self.tag_combo['values'] = [""]
         self.tag_combo.current(0)
+        self.nameSearch = tk.IntVar()
+        nameSearch = tk.Checkbutton(searchFrame,text="name",variable=self.nameSearch)
+        self.name_combo_value = tk.StringVar()
+        self.name_combo = ttk.Combobox(searchFrame,textvariable=self.name_combo_value, postcommand = self.updateMenus)
+        self.name_combo['values'] = [""]
+        self.name_combo.current(0)
 
 
-
-
-
-
-        self.name_text_entry = tk.Entry(searchFrame)
-        name_btn = tk.Button(searchFrame, text="name")
 
 
         uiFrame.pack()
@@ -168,8 +167,8 @@ class mainPage(tk.Frame):
         self.tag_combo.pack(side ="left")
         tagSearch.pack(side ="left")
 
-        self.name_text_entry.pack(side = "left")
-        name_btn.pack(side = 'left')
+        self.name_combo.pack(side = "left")
+        nameSearch.pack(side ="left")
 
 
 
@@ -193,13 +192,23 @@ class mainPage(tk.Frame):
             self.year_entry2.pack_forget()
 
     def run(self):
-        if self.tag_combo_value:
-            self.updateText(analyze.analyzeByTag(self.tag_combo.get()))
+        if self.tagSearch.get() and self.nameSearch.get():
+            print("not in")
+            pass
+        elif self.tagSearch.get():
+            self.updateText(analyze.analyzeByTag(self.tag_combo.get(),self.offline.get()))
+        elif self.nameSearch.get():
+            self.updateText((analyze.analyzeByName(self.name_combo.get(),self.offline.get())))
         else:
             self.updateText(analyze.analyze(self.offline.get()))
 
     def run_today(self):
-        self.updateText(analyze.analyzeToday(self.offline.get()))
+        if self.tagSearch.get():
+            t = analyze.analyzeByTagToday(self.tag_combo.get(),self.offline.get())
+            self.updateText(t)
+        else:
+            self.updateText(analyze.analyzeToday(self.offline.get()))
+
 
     def run_by_data(self):
         try:
@@ -219,9 +228,15 @@ class mainPage(tk.Frame):
             if date1 < date0:
                 messagebox.showerror("Error", "error date is out of order")
                 return
-            self.updateText(analyze.analyzeDateRange(date0, date1,self.offline.get()))
+            if self.tagSearch.get():
+                self.updateText(analyze.analyzeByTagDateRange(self.tag_combo.get(),date0,date1))
+            else:
+                self.updateText(analyze.analyzeDateRange(date0, date1,self.offline.get()),self.offline.get())
         else:
-            self.updateText(analyze.analyzeDate(date0,self.offline.get()))
+            if self.tagSearch.get():
+                self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(),date0),self.offline.get())
+            else:
+                self.updateText(analyze.analyzeDate(date0,self.offline.get()))
 
     def updateText(self, text):
         self.text_box.config(state="normal")
@@ -232,6 +247,8 @@ class mainPage(tk.Frame):
     def updateMenus(self):
         taglist = DBhandler.getAlltags()
         self.tag_combo['values'] = taglist
+        nameList = DBhandler.getAllNames()
+        self.name_combo['values'] = nameList
 
     def popup(self, event):
         try:
