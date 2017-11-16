@@ -210,7 +210,7 @@ def destroyDB():
 def addMessage(messageDic: dict):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-
+    print(messageDic.get(MessageID_field))
     c.execute(
         "INSERT INTO Message VALUES (?,?,?,?,?,?,?,?,?)", (
             messageDic.get(MessageID_field),
@@ -627,14 +627,22 @@ def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
     c.close()
     return makeList(data)
 
-def getMessagesByTagAndName(tag,name):
+def getMessagesByTagAndName(tagNameList,name):
+    exe = "SELECT Message.* FROM Message "\
+              "JOIN Tags "\
+              "ON Message.MessageID = Tags.MessageID "\
+              "WHERE Message.by = ? "
+    andTag = "And Tags.TagName = ? "
+
+    exeVar = [name]
+
+    for tag in tagNameList:
+        exe = exe + andTag
+        exeVar.append(tag)
+
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute("SELECT Message.* FROM Message "
-              "JOIN Tags "
-              "ON Message.MessageID = Tags.MessageID "
-              "WHERE Message.by = ? "
-              "AND Tags.TagName = ?", (name,tag))
+    c.execute(exe, exeVar)
     conn.commit()
     data = c.fetchall()
     conn.close()

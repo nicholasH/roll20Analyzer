@@ -27,6 +27,8 @@ import DBhandler
 #this will end all tags for every one
 '^tag -endall'
 
+'^ -endall'
+
 #this make tags only for the oneself
 '^tag -self'
 '^tag -24m -self'
@@ -37,6 +39,8 @@ import DBhandler
 '^ -'
 '^tag -start -do'
 '^tag -4543 -self'
+
+#todo add a way to excuded tags
 
 
 

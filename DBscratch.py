@@ -68,10 +68,10 @@ testname = [('bill'),
             ('tom'),]
 #conn = sqlite3.connect('example.db')
 
-conn = sqlite3.connect('E:\\GitProjects\\roll20Analyzer\\data\\dataBase\\t8.db')
+conn = sqlite3.connect('E:\\GitProjects\\roll20Analyzer\\data\\dataBase\\jarredsGame.db')
 c = conn.cursor()
-tag = "-KwTsLk7VPcZCVEThMQu"
-c.execute("SELECT MessageID FROM tags "
+tag = "-Kz2334kdVOUgwyno4mX"
+c.execute("SELECT * FROM Message "
           "WHERE MessageID = (?)",(tag,))
 
 conn.commit()

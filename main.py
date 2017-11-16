@@ -193,8 +193,8 @@ class mainPage(tk.Frame):
 
     def run(self):
         if self.tagSearch.get() and self.nameSearch.get():
-            print("not in")
-            pass
+            tagNameList = [self.tag_combo.get()]
+            self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(),tagNameList,self.offline.get()))
         elif self.tagSearch.get():
             self.updateText(analyze.analyzeByTag(self.tag_combo.get(),self.offline.get()))
         elif self.nameSearch.get():

@@ -114,6 +114,11 @@ def analyzeByNameByDateRange(name,dateA,dateB,offline):
         chatParser.addToDb()
     analyzeDB(DBhandler.getMessagesByNameByDateRange(name,dateA,dateB))
     return returnStats()
+def analyzeByTagAndName(name,tagNameList,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByTagAndName(tagNameList,name))
+    return returnStats()
 
 def diceCounter(diceFomula):
     s = diceFomula.attrs.get("class")
