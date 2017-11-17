@@ -1,0 +1,6 @@
+README.md
+setup.py
+roll20Analyzer.egg-info/PKG-INFO
+roll20Analyzer.egg-info/SOURCES.txt
+roll20Analyzer.egg-info/dependency_links.txt
+roll20Analyzer.egg-info/top_level.txt
