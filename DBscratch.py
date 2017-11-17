@@ -4,6 +4,8 @@ from datetime import datetime, date, timedelta
 
 import pickle
 
+import DBhandler
+
 
 def creatDB():
     conn = sqlite3.connect('example.db')
@@ -67,8 +69,9 @@ testname = [('bill'),
             ('kyle'),
             ('tom'),]
 #conn = sqlite3.connect('example.db')
+print(DBhandler.getlastMessage())
 
-conn = sqlite3.connect('E:\\GitProjects\\roll20Analyzer\\data\\dataBase\\jarredsGame.db')
+conn = sqlite3.connect('C:\\Users\\Nick\\Documents\\GitHub\\roll20Analyzer\\data\\dataBase\\jarredsGame.db')
 c = conn.cursor()
 tag = "-Kz2334kdVOUgwyno4mX"
 c.execute("SELECT * FROM Message "
@@ -77,3 +80,6 @@ c.execute("SELECT * FROM Message "
 conn.commit()
 data = c.fetchall()
 conn.close()
+
+for d in data:
+    print(d)

@@ -210,7 +210,6 @@ def destroyDB():
 def addMessage(messageDic: dict):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    print(messageDic.get(MessageID_field))
     c.execute(
         "INSERT INTO Message VALUES (?,?,?,?,?,?,?,?,?)", (
             messageDic.get(MessageID_field),
