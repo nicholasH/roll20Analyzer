@@ -1,7 +1,4 @@
-import operator
 import os
-from html.parser import HTMLParser
-
 import sys
 from collections import Counter
 

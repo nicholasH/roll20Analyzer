@@ -1,11 +1,7 @@
 import os
 import re
 from datetime import datetime, timedelta
-import time
-
 import sys
-from telnetlib import EC
-
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from selenium import webdriver
