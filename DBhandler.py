@@ -185,6 +185,8 @@ def setDB(name):
     global db
     dbName = name + '.db'
     db = os.path.join(sys.path[0], "data", "dataBase", dbName)
+    if not os.path.exists(os.path.join(sys.path[0], "data", "dataBase")):
+        os.makedirs(os.path.join(sys.path[0], "data", "dataBase"))
 
 
 def getDBPath():
