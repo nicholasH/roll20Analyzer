@@ -192,63 +192,78 @@ class mainPage(tk.Frame):
             self.year_entry2.pack_forget()
 
     def run(self):
-        if self.tagSearch.get() and self.nameSearch.get():
-            tagNameList = [self.tag_combo.get()]
-            self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(),tagNameList,self.offline.get()))
-        elif self.tagSearch.get():
-            self.updateText(analyze.analyzeByTag(self.tag_combo.get(),self.offline.get()))
-        elif self.nameSearch.get():
-            self.updateText((analyze.analyzeByName(self.name_combo.get(),self.offline.get())))
-        else:
-            self.updateText(analyze.analyze(self.offline.get()))
+        try:
+            if self.tagSearch.get() and self.nameSearch.get():
+                tagNameList = [self.tag_combo.get()]
+                self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(),tagNameList,self.offline.get()))
+            elif self.tagSearch.get():
+                self.updateText(analyze.analyzeByTag(self.tag_combo.get(),self.offline.get()))
+            elif self.nameSearch.get():
+                self.updateText((analyze.analyzeByName(self.name_combo.get(),self.offline.get())))
+            else:
+                self.updateText(analyze.analyze(self.offline.get()))
+        except TypeError:
+            messagebox.showerror("Error", "No chat loaded")
+            return
 
     def run_today(self):
-        if self.tagSearch.get() and self.nameSearch.get():
-            print("not in")
-            pass
-        elif self.nameSearch.get():
-            self.updateText(analyze.analyzeByNameToday(self.tag_combo.get(),self.offline.get()))
-        elif self.tagSearch.get():
-            self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(),self.offline.get()))
-        else:
-            self.updateText(analyze.analyzeToday(self.offline.get()))
-
+        try:
+            if self.tagSearch.get() and self.nameSearch.get():
+                tagNameList = [self.tag_combo.get()]
+                self.updateText(analyze.analyzeByTagAndNameToday(self.name_combo.get(),tagNameList,self.offline.get()))
+            elif self.nameSearch.get():
+                self.updateText(analyze.analyzeByNameToday(self.tag_combo.get(),self.offline.get()))
+            elif self.tagSearch.get():
+                self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(),self.offline.get()))
+            else:
+                self.updateText(analyze.analyzeToday(self.offline.get()))
+        except TypeError:
+            messagebox.showerror("Error", "No chat loaded")
+            return
 
     def run_by_data(self):
         try:
             date0 = datetime(int(self.year_entry1.get()), int(self.month_entry1.get()), int(self.day_entry1.get()))
+            if self.show.get():
+                try:
+                    date1 = datetime(int(self.year_entry2.get()), int(self.month_entry2.get()),
+                                     int(self.day_entry2.get()))
+                    print(date1)
+                except ValueError:
+                    messagebox.showerror("Error", "bad date")
+                    return
+                if date1 < date0:
+                    messagebox.showerror("Error", "error date is out of order")
+                    return
+                if self.tagSearch.get() and self.nameSearch.get():
+                    self.updateText(analyze.analyzeByTagAndNameByDateRange(self.name_combo.get(),date0,date1,self.offline.get()))
+                elif self.nameSearch.get():
+                    self.updateText(
+                        analyze.analyzeByNameByDateRange(self.name_combo.get(), date0, date1, self.offline.get()))
+                elif self.tagSearch.get():
+                    self.updateText(
+                        analyze.analyzeByTagDateRange(self.tag_combo.get(), date0, date1, self.offline.get()))
+                else:
+                    self.updateText(analyze.analyzeDateRange(date0, date1, self.offline.get()))
+            else:
+                if self.tagSearch.get() and self.nameSearch.get():
+                    tagNameList = [self.tag_combo.get()]
+                    self.updateText(analyze.analyzeByTagAndNameByDate(self.name_combo.get(),tagNameList,date0,self.offline.get()))
+                elif self.nameSearch.get():
+                    self.updateText(analyze.analyzeByNameByDate(self.name_combo.get(), date0, self.offline.get()))
+                elif self.tagSearch.get():
+                    self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(), date0, self.offline.get()))
+                else:
+                    self.updateText(analyze.analyzeDate(date0, self.offline.get()))
         except ValueError:
 
             messagebox.showerror("Error", "bad date")
             return
+        except TypeError:
+            messagebox.showerror("Error", "No chat loaded")
+            return
 
-        if self.show.get():
-            try:
-                date1 = datetime(int(self.year_entry2.get()), int(self.month_entry2.get()), int(self.day_entry2.get()))
-                print(date1)
-            except ValueError:
-                messagebox.showerror("Error", "bad date")
-                return
-            if date1 < date0:
-                messagebox.showerror("Error", "error date is out of order")
-                return
-            if self.tagSearch.get() and self.nameSearch.get():
-                pass
-            elif self.nameSearch.get():
-                self.updateText(analyze.analyzeByNameByDateRange(self.name_combo.get(),date0,date1,self.offline.get()))
-            elif self.tagSearch.get():
-                self.updateText(analyze.analyzeByTagDateRange(self.tag_combo.get(),date0,date1,self.offline.get()))
-            else:
-                self.updateText(analyze.analyzeDateRange(date0, date1,self.offline.get()))
-        else:
-            if self.tagSearch.get() and self.nameSearch.get():
-                pass
-            elif self.nameSearch.get():
-                self.updateText(analyze.analyzeByNameByDate(self.name_combo.get(),date0,self.offline.get()))
-            elif self.tagSearch.get():
-                self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(),date0,self.offline.get()))
-            else:
-                self.updateText(analyze.analyzeDate(date0,self.offline.get()))
+
 
     def updateText(self, text):
         self.text_box.config(state="normal")

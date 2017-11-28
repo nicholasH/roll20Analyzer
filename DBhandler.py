@@ -632,10 +632,37 @@ def getMessagesByTagAndName(tagNameList,name):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
-              "WHERE Message.by = ? "
+              "WHERE Message.by = ? AND MessageType ='rollresult'"
     andTag = "And Tags.TagName = ? "
 
     exeVar = [name]
+
+    for tag in tagNameList:
+        exe = exe + andTag
+        exeVar.append(tag)
+
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute(exe, exeVar)
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+
+    return makeList(data)
+
+def getMessagesByTagAndNameByDate(tagNameList,name,dateTime):
+    dateA = dateTime
+    dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
+    return getMessagesByTagAndNameByDateRange(tagNameList,name,dateA, dateB)
+
+def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
+    exe = "SELECT Message.* FROM Message "\
+              "JOIN Tags "\
+              "ON Message.MessageID = Tags.MessageID "\
+              "WHERE Time BETWEEN (?) AND (?) AND Message.by = (?) AND MessageType ='rollresult '"
+    andTag = "AND Tags.TagName = (?) "
+
+    exeVar = [dateTimeA,dateTimeB,name]
 
     for tag in tagNameList:
         exe = exe + andTag

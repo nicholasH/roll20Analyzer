@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime, timedelta
 import sys
+
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 from selenium import webdriver

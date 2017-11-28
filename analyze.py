@@ -117,6 +117,26 @@ def analyzeByTagAndName(name,tagNameList,offline):
     analyzeDB(DBhandler.getMessagesByTagAndName(tagNameList,name))
     return returnStats()
 
+def analyzeByTagAndNameToday(name,tagNameList,offline):
+    if not offline:
+        chatParser.addToDb()
+    startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
+    analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList,name,startToday))
+    return returnStats()
+
+def analyzeByTagAndNameByDate(name,tagNameList,date,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList,name,date))
+    return returnStats()
+def analyzeByTagAndNameByDateRange(name,tagNameList,dateA,dateB,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByTagAndNameByDateRange(tagNameList,name,dateA,dateB))
+    return returnStats()
+
+
+
 def diceCounter(diceFomula):
     s = diceFomula.attrs.get("class")
     critsuc = 0
