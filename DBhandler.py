@@ -213,7 +213,7 @@ def addMessage(messageDic: dict):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute(
-        "INSERT INTO Message VALUES (?,?,?,?,?,?,?,?,?)", (
+        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?,?,?,?)", (
             messageDic.get(MessageID_field),
             messageDic.get(MessageType_field),
             messageDic.get(UserID_field),

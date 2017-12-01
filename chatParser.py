@@ -367,6 +367,11 @@ def addEmote(datum):
             tagName = tagData[0].replace("^", "").strip()
             self = 'self' in tagData[2]
 
+
+            if "self" in td:
+                td = tagData[1].lower()
+                self = 'self' in tagData[2]
+
             timeRegex = re.search(r'\d+(h|m)', td)
             if timeRegex is not None:
                 timeNum = td[:-1]
@@ -386,15 +391,13 @@ def addEmote(datum):
                     DBhandler.endAlltag()
                 else:
                     DBhandler.endtag(tagName)
-            elif "self" in td:
+
+
+            else:
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
                 DBhandler.addTagActive(tagName, tagType, tagDetails, self)
-
-            else:
-                print("bad tag: ", m.group())
-
 
 
 
