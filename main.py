@@ -212,7 +212,7 @@ class mainPage(tk.Frame):
                 tagNameList = [self.tag_combo.get()]
                 self.updateText(analyze.analyzeByTagAndNameToday(self.name_combo.get(),tagNameList,self.offline.get()))
             elif self.nameSearch.get():
-                self.updateText(analyze.analyzeByNameToday(self.tag_combo.get(),self.offline.get()))
+                self.updateText(analyze.analyzeByNameToday(self.name_combo.get(),self.offline.get()))
             elif self.tagSearch.get():
                 self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(),self.offline.get()))
             else:
@@ -236,7 +236,8 @@ class mainPage(tk.Frame):
                     messagebox.showerror("Error", "error date is out of order")
                     return
                 if self.tagSearch.get() and self.nameSearch.get():
-                    self.updateText(analyze.analyzeByTagAndNameByDateRange(self.name_combo.get(),date0,date1,self.offline.get()))
+                    tagNameList = [self.tag_combo.get()]
+                    self.updateText(analyze.analyzeByTagAndNameByDateRange(self.name_combo.get(),tagNameList,date0,date1,self.offline.get()))
                 elif self.nameSearch.get():
                     self.updateText(
                         analyze.analyzeByNameByDateRange(self.name_combo.get(), date0, date1, self.offline.get()))

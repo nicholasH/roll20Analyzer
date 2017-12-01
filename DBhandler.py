@@ -659,8 +659,8 @@ def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
-              "WHERE Time BETWEEN (?) AND (?) AND Message.by = (?) AND MessageType ='rollresult '"
-    andTag = "AND Tags.TagName = (?) "
+              "WHERE Time BETWEEN ? AND ? AND Message.by = ? AND MessageType ='rollresult'"
+    andTag = " AND Tags.TagName = ? "
 
     exeVar = [dateTimeA,dateTimeB,name]
 

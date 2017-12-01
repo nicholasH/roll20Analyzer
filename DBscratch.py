@@ -69,13 +69,11 @@ testname = [('bill'),
             ('kyle'),
             ('tom'),]
 #conn = sqlite3.connect('example.db')
-print(DBhandler.getlastMessage())
 
-conn = sqlite3.connect('C:\\Users\\Nick\\Documents\\GitHub\\roll20Analyzer\\data\\dataBase\\jarredsGame.db')
+conn = sqlite3.connect('C:\\Users\\Nick\\Documents\\GitHub\\roll20Analyzer\\data\\dataBase\\test.db')
 c = conn.cursor()
 tag = "-Kz2334kdVOUgwyno4mX"
-c.execute("SELECT * FROM Message "
-          "WHERE MessageID = (?)",(tag,))
+c.execute("SELECT Message.* FROM Message JOIN Tags ON Message.MessageID = Tags.MessageID WHERE Time BETWEEN '2017-11-27' AND '2017-12-27'")
 
 conn.commit()
 data = c.fetchall()
