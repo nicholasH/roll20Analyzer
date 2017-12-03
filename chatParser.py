@@ -58,7 +58,8 @@ def getScrapParse():
     #todo remove this login
     #Loging
     ######################################################################################
-    usernameElements = browser.find_elements_by_name("email")
+    '''
+        usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 
     for e in usernameElements:
@@ -74,6 +75,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
+    '''
     #######################################################################################
 
     try:
