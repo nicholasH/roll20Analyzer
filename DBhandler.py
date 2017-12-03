@@ -463,7 +463,6 @@ def cleanActiveTime():
     conn.close()
     for row in rows:
         data = pickle.loads(row[3])
-        print(data)
         timeToStop = ""
         if data[2] == "m":
             timeToStop = data[0] + timedelta(minutes=int(data[1]))
@@ -508,7 +507,7 @@ def getActiveTagsAndUpdate(playerID):
 
 
 def addtag(messageID, playerID):
-    tags = getActiveTagsAndUpdate(playerID)
+    tags = list(set(getActiveTagsAndUpdate(playerID)))
     conn = sqlite3.connect(db)
     c = conn.cursor()
     for tag in tags:

@@ -369,8 +369,8 @@ def addEmote(datum):
 
 
             if "self" in td:
-                td = tagData[1].lower()
-                self = 'self' in tagData[2]
+                td = tagData[2].lower()
+                self = 'self' in tagData[1]
 
             timeRegex = re.search(r'\d+(h|m)', td)
             if timeRegex is not None:
