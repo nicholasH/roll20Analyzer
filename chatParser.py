@@ -1,10 +1,7 @@
 import os
 import re
 from datetime import datetime, timedelta
-import time
-
 import sys
-from telnetlib import EC
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
@@ -24,8 +21,8 @@ stamped = False
 
 def getScrapParse():
     #todo remove code
-    DBhandler.destroyDB()
-    DBhandler.createDB()
+    #DBhandler.destroyDB()
+    #DBhandler.createDB()
     #todo remove above code
 
 
@@ -43,8 +40,10 @@ def getScrapParse():
     f.close()
 
     URL = 'https://app.roll20.net/sessions/new'
-    jarUrl = 'https://app.roll20.net/campaigns/chatarchive/1610304'#todo take this out of hard code
-    testUrl = "https://app.roll20.net/campaigns/chatarchive/1644807"
+
+
+    gameURL = DBhandler.getURL()
+
 
 
     chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
@@ -81,7 +80,7 @@ def getScrapParse():
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
         if len(results) > 0:
-            browser.get(testUrl)
+            browser.get(gameURL)
             html = browser.page_source
             browser.close()
         else:
@@ -193,30 +192,24 @@ class static:
     tstamp = ""
     timeStamp = ""
 
-
-
-
 def addToDb():
     chatContent = getScrapParse()
     static.timeStamp = ""
-    for c in chatContent:
 
+    for c in chatContent:
+        print(DBhandler.getActiveTagsNames())
         s = c["class"]
 
         if "rollresult" in s:
             addRollresult(c)
             pass
         elif "general" in s:
-            addGleneral(c)
+            addGeneral(c)
         elif "emote" in s:
             addEmote(c)
             pass
         else:
-            print("unknown message type")
-
-
-
-
+            print("unknown message type: ",c)
 
 def addRollresult(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
@@ -246,6 +239,7 @@ def addRollresult(datum):
                 elif "rolled" in s:
                     roll = content.text.strip()
 
+
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID
 
@@ -257,16 +251,21 @@ def addRollresult(datum):
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
-    print("test",playerID,messageID,static.by,static.tstamp,"|",dateAddToDb,dicerolls,dice.strip(),roll,)
-
-
+    DBhandler.addtag(messageID,playerID)
     DBhandler.addMessage(message)
 
 
 
 #find a way to get the roll data
 #right now the only way to get that data is to load in the game
-def addGleneral(datum):
+#stores MessageID, by, time, timeadd to DB
+#todo consider adding message text to the databace. right now the info stored is limited
+def addGeneral(datum):
+    message = dict.fromkeys(DBhandler.columnName, "")
+    messageID = datum.attrs.get("data-messageid")
+    dateAddToDb = datetime.now()
+
+
     for content in datum.contents:
         if isinstance(content,Tag):
             s = content.attrs.get("class")
@@ -278,21 +277,140 @@ def addGleneral(datum):
                     addTime(content.text)
 
 
+    message[DBhandler.MessageType_field] = 'general'
+    message[DBhandler.MessageID_field] = messageID
+    message[DBhandler.By_field] = static.by
+    message[DBhandler.Time_field] = static.tstamp
+    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+
+    DBhandler.addMessage(message)
+
+
+#adds emote to the database
+#finds emotes with tag and adds the tags to the active tag table
+#stores MessageID, time, timeadd to DB
+#todo consider adding message text to the databace. right now the info stored is limited
 def addEmote(datum):
-    ts = datum.text.lower()
-    if "#ts" in ts:
+    for content in datum.contents:
+        if isinstance(content,Tag):
+            s = content.attrs.get("class")
+            if not isinstance(s, type(None)):
+
+                if "by" in s:
+                    static.by = content.text
+                elif "tstamp" in s:
+                    addTime(content.text)
+
+    message = dict.fromkeys(DBhandler.columnName, "")
+    messageID = datum.attrs.get("data-messageid")
+    dateAddToDb = datetime.now()
+
+    emote = datum.text.lower()
+    if "#ts" in emote:
         match = re.search(r'\d{2}/\d{2}/\d{4}', datum.text)
         date = datetime.strptime(match.group(), '%m/%d/%Y')
         static.timeStamp =date
-    for content in datum.contents:
-        if isinstance(content,Tag):
-            s = content.attrs.get("class")
-            if not isinstance(s, type(None)):
+    regex = r'\^\w+( *-+\w+){0,2}'
 
-                if "by" in s:
-                    static.by = content.text
-                elif "tstamp" in s:
-                    addTime(content.text)
+    m = re.search(regex,datum.text)
+
+
+    if m is not None:
+        tagData = m.group().split("-")
+
+
+        if len(tagData) == 1:
+            tagName = tagData[0].replace("^","").strip()
+            tagType = "single"
+            tagDetails = [static.tstamp]
+            self = False
+            DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+
+        elif len(tagData) == 2:
+            td = tagData[1].lower()
+            tagName = tagData[0].replace("^","").strip()
+            self = False
+
+
+            timeRegex = re.search(r'\d+(h|m)',td)
+            if timeRegex is not None:
+                timeNum = td[:-1]
+                timeType = td[-1:]
+                time = static.tstamp
+                tagDetails = [static.tstamp,timeNum,timeType]
+
+                tagType = "timed"
+                DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+
+            elif "start" in td:
+                tagType = "indefinite"
+                tagDetails = [static.tstamp]
+                DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+
+
+            elif "end" in td:
+                if 'endall' in td:
+                    DBhandler.endAlltag()
+                else:
+                    DBhandler.endtag(tagName)
+            elif "self" in td:
+                tagType = "single"
+                tagDetails = [static.tstamp]
+                self = False
+                DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+
+            else:
+                print("bad tag: ",m.group())
+
+        elif len(tagData) == 3:
+            td = tagData[1].lower()
+            tagName = tagData[0].replace("^", "").strip()
+            self = 'self' in tagData[2]
+
+
+            if "self" in td:
+                td = tagData[2].lower()
+                self = 'self' in tagData[1]
+
+            timeRegex = re.search(r'\d+(h|m)', td)
+            if timeRegex is not None:
+                timeNum = td[:-1]
+                timeType = td[-1:]
+                tagDetails = [static.tstamp,timeNum, timeType]
+                tagType = "timed"
+                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+
+            elif "start" in td:
+                tagType = "indefinite"
+                tagDetails = [static.tstamp]
+                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+
+
+            elif "end" in td:
+                if 'endall' in td:
+                    DBhandler.endAlltag()
+                else:
+                    DBhandler.endtag(tagName)
+
+
+            else:
+                tagType = "single"
+                tagDetails = [static.tstamp]
+                self = False
+                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+
+
+
+    message[DBhandler.MessageType_field] = 'emote'
+    message[DBhandler.MessageID_field] = messageID
+    message[DBhandler.Time_field] = static.tstamp
+    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+
+    DBhandler.addMessage(message)
+
+
+
+
 
 #adds time tstamp to the static class
 #first trys a (Month day, year time) if that fails it takes todays date and just takes the time that it gets from the given time
@@ -314,17 +432,9 @@ def addTime(timeString):
                     static.tstamp = date
             else:
                 today = datetime.today()
-                today.replace(hour=hourDt.hour, minute=hourDt.minute)
+                today = today.replace(hour=hourDt.hour, minute=hourDt.minute)
                 static.tstamp = today
                 print("not full time string" + timeString)
-
-
-
-
-
-
-
-
 
         except ValueError:
             print("Error Time " + timeString)

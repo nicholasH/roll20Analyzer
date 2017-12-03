@@ -4,7 +4,6 @@ import discord
 import sys
 from discord.ext import commands
 import analyze
-import random
 
 
 path = os.path.join(sys.path[0], "config")

@@ -1,6 +1,4 @@
 import os
-from html.parser import HTMLParser
-
 import sys
 from collections import Counter
 
@@ -18,7 +16,7 @@ path = ""
 real = ""
 realDice = ["d4","d6","d10","d12","d20"]
 
-
+#old method that use to be used to get html that the user downloaded
 def getPath():
     path = ""
     # looks for the data in the data folder
@@ -29,31 +27,114 @@ def getPath():
     return path
 
 
-def analyze():
-    chatParser.addToDb()
-    analyzeDB(DBhandler.getMessages())
+def analyze(offline):
+    if not offline:
+        chatParser.addToDb()
+
+    analyzeDB(DBhandler.getMessagesRoleresult())
     print(returnStats())
     return returnStats()
 
 
-def analyzeToday():
-    chatParser.addToDb()
+def analyzeToday(offline):
+    if not offline:
+        chatParser.addToDb()
+
     startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
-    analyzeDB(DBhandler.getMessageDateTime(startToday))
+    analyzeDB(DBhandler.getRollresultDateTime(startToday))
     print(returnStats())
     return returnStats()
 
 #Gets 1 Datetime and returns the messages of that date
-def analyzeDate(date):
-    analyzeDB(DBhandler.getMessageDateTime(date))
+def analyzeDate(date,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getRollresultDateTime(date))
     print(returnStats())
     return returnStats()
 
 #Gets 2 datestimes and returns the messaages between the dates
-def analyzeDateRange(date0,date1):
-    analyzeDB(DBhandler.getMessageDateTimeRange(date0,date1))
+def analyzeDateRange(date0,date1,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getRollresultDateTimeRange(date0, date1))
     print(returnStats())
     return returnStats()
+
+def analyzeByTag(tagName,offline):
+    if not offline:
+        chatParser.addToDb()
+    print(tagName)
+    DBhandler.printTags()
+    analyzeDB(DBhandler.getMessagesWithTags(tagName))
+    print(returnStats())
+    return returnStats()
+
+def analyzeByTagToday(tagName,offline):
+    if not offline:
+        chatParser.addToDb()
+    startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
+    analyzeDB(DBhandler.getMessagesWithTagsBYDate(tagName,startToday))
+    return returnStats()
+
+def analyzeByTagDate(tagName,date,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesWithTagsBYDate(tagName,date))
+    return returnStats()
+
+def analyzeByTagDateRange(tagName, date0,date1,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesWithTagsBYDateRange(tagName,date0,date1))
+    return returnStats()
+
+def analyzeByName(name,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByName(name))
+    return returnStats()
+
+def analyzeByNameToday(name,offline):
+    if not offline:
+        chatParser.addToDb()
+    startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
+    analyzeDB(DBhandler.getMessagesByNameByDate(name,startToday))
+    return returnStats()
+def analyzeByNameByDate(name,date,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByNameByDate(name,date))
+    return returnStats()
+def analyzeByNameByDateRange(name,dateA,dateB,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByNameByDateRange(name,dateA,dateB))
+    return returnStats()
+def analyzeByTagAndName(name,tagNameList,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByTagAndName(tagNameList,name))
+    return returnStats()
+
+def analyzeByTagAndNameToday(name,tagNameList,offline):
+    if not offline:
+        chatParser.addToDb()
+    startToday = datetime(datetime.today().year,datetime.today().month,datetime.today().day)
+    analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList,name,startToday))
+    return returnStats()
+
+def analyzeByTagAndNameByDate(name,tagNameList,date,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList,name,date))
+    return returnStats()
+def analyzeByTagAndNameByDateRange(name,tagNameList,dateA,dateB,offline):
+    if not offline:
+        chatParser.addToDb()
+    analyzeDB(DBhandler.getMessagesByTagAndNameByDateRange(tagNameList,name,dateA,dateB))
+    return returnStats()
+
 
 
 def diceCounter(diceFomula):
@@ -63,6 +144,7 @@ def diceCounter(diceFomula):
     dices = []
     nat20 = 0
     nat1 = 0
+
 
     if any("formattedformula" in t for t in s):
         for child in diceFomula.descendants:
@@ -146,9 +228,6 @@ def getGivenPath():
     return path
 
 
-
-
-
 # todo make this look good
 def returnStats():
     s = ""
@@ -162,8 +241,73 @@ def returnStats():
         s = s + str(values["diceRolls"]) + "\n"
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
+        s = s + "points " + str(values["points"])
         s = s + ('\n\n')
+
+    s = s + " " + str(findWinner(""))
+    s = s +"\n"+ "#"*100
     return s
+
+
+
+#todo add in a way to excluded players like the DM
+def findWinner(exclude):
+
+    s = ""
+    hightroll = [None,0]
+    highestCritsus = [None,0]
+    highestNats = [None,0]
+
+    for player, values in playerStats.items():
+        if hightroll[1] < values["highestRoll"]:
+            if hightroll[1] ==  values["highestRoll"]:
+                if playerAHaveMoreRolls(hightroll[0],player):
+                    hightroll = [player, values["highestRoll"]]
+            else:
+                hightroll = [player,values["highestRoll"]]
+
+        if highestCritsus[1] < values["totCrtSus"]:
+            if hightroll[1] == values["totCrtSus"]:
+                if playerAHaveMoreRolls(hightroll[0],player):
+                    highestCritsus = [player, values["totCrtSus"]]
+            else:
+                highestCritsus = [player,values["totCrtSus"]]
+
+        if highestNats[1] < values["nat20"]:
+            if highestNats[1] == values["nat20"]:
+                if playerAHaveMoreRolls(highestNats[0], player):
+                    highestNats = [player, values["nat20"]]
+            else:
+                highestNats = [player, values["nat20"]]
+
+    if any(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0]]):
+        return ""
+
+    val = playerStats[hightroll[0]]
+    val["points"] += 20
+    playerStats[hightroll[0]] = val
+
+    val = playerStats[highestCritsus[0]]
+    val["points"] += 20
+    playerStats[highestCritsus[0]] = val
+
+    val = playerStats[highestNats[0]]
+    val["points"] += 20
+    playerStats[highestNats[0]] = val
+
+    scores = []
+    for player, values in playerStats.items():
+        scores.append((values["names"],values["points"]))
+
+
+    return sorted(scores, key=lambda score: score[1])
+
+def playerAHaveMoreRolls(playerA,playerB):
+    if playerA == None:
+        return True
+    else:
+        return sum(playerStats[playerA]["diceRolls"].values()) > sum(playerStats[playerB]["diceRolls"].values())
+
 
 
 
@@ -172,7 +316,7 @@ def analyzeDB(messages):
     playerStats = dict()
 
     for message in messages:
-        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0}
+        stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0,"diceRolls": Counter(), "topFormual":Counter(), "highestRoll": 0,"points": 0}
 
         id = message["UserID"]
         if id in playerStats:
@@ -194,7 +338,7 @@ def analyzeDB(messages):
             if m:
                 count[m.group(0)] += 1
             else:
-                print("error at for roll in rollList ",roll)
+                print("error at for roll in rollList ",message)
 
 
             if "critfail" in roll[0]:
@@ -205,7 +349,14 @@ def analyzeDB(messages):
                 else:
                     stats["totCrtFail"] += 1
             elif "critsuccess" in roll[0]:
+                if not isinstance(m, type(None)):
+                    val = int(m.group()[1:])
+                else:
+                    print("error at for roll in rollList ", message)
+
+                stats["points"] = stats["points"] + val
                 if "d20" in roll[0]:
+
                     stats["nat20"] += 1
                     stats["totCrtSus"] += 1
                 else:
