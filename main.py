@@ -324,4 +324,3 @@ class newDB:
 
 app = app()
 app.mainloop()
-

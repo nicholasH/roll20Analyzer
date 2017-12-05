@@ -9,21 +9,18 @@ from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException, TimeoutException
 import selenium.webdriver.support.ui as ui
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-
 import DBhandler
 
-#todo make this able to chanced by the user
+#todo have user define stamped
 global stamped
 stamped = False
 
 
 def getScrapParse():
-    #todo remove code
-    #DBhandler.destroyDB()
-    #DBhandler.createDB()
-    #todo remove above code
+    # todo remove code
+    # DBhandler.destroyDB()
+    # DBhandler.createDB()
+    # todo remove above code
 
 
     path = os.path.join(sys.path[0], "config")
@@ -41,22 +38,18 @@ def getScrapParse():
 
     URL = 'https://app.roll20.net/sessions/new'
 
-
     gameURL = DBhandler.getURL()
-
-
 
     chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
     browser = webdriver.Chrome(chromeDriver)
-    #browser.set_window_size(20, 20)
-    #browser.set_window_position(50, 50)
+    # browser.set_window_size(20, 20)
+    # browser.set_window_position(50, 50)
     browser.get(URL)
 
     wait = ui.WebDriverWait(browser, 120)  # timeout after 120 seconds
 
-
-    #todo remove this login
-    #Loging
+    # todo remove this login
+    # Loging
     ######################################################################################
 
     usernameElements = browser.find_elements_by_name("email")
@@ -91,23 +84,20 @@ def getScrapParse():
         browser.close()
         print("error timeout")
 
-
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
     generalmatch = re.compile('message \w+')
 
     lastMessage = DBhandler.getlastMessage()
-    if isinstance(lastMessage,type(None)):
+    if isinstance(lastMessage, type(None)):
         chatContent = soup.findAll("div", {"class": generalmatch})
         return chatContent
     else:
         c = soup.find("div", {"data-messageid": lastMessage})
         chatContent = soup.findAll("div", {"class": generalmatch})
-        return chatContent[chatContent.index(c)+1:]
+        return chatContent[chatContent.index(c) + 1:]
 
 
-
-
-
+# get the chat content from a path
 def getParse(path):
     f = open(path)
     soup = BeautifulSoup(f.read(), 'html.parser')  # make soup that is parse-able by bs
@@ -117,6 +107,7 @@ def getParse(path):
     chatContent = soup.findAll("div", {"class": generalmatch})
 
     return chatContent
+
 
 '''
 gets a path to a file and a hour number returns a subset of the parsed data
@@ -143,17 +134,15 @@ def getParseRollbackHours(path, hoursBack):
                         if first:
                             firstTime = chTime
                             first = False
-                        elif chTime < firstTime - timedelta(seconds = hoursBack):
+                        elif chTime < firstTime - timedelta(seconds=hoursBack):
                             return chatContent[len(chatContent) - index:]
     return chatContent
 
-'''
-Gets a path to a file and 2 date strings to return a subset of the parsed data
 
-This code is was broken since march 18 2017 roll20 now only shows the time in the roll not the full date
-'''
-def getParseTimeRange( date1String, date2String):
-    #chatContent = getParse(path)
+
+#Gets a path to a file and 2 date strings to return a subset of the parsed data
+def getParseTimeRange(date1String, date2String):
+    # chatContent = getParse(path)
     chatContent = getScrapParse()
     date1 = datetime.strptime(date1String, '%m %d %Y')
     date2 = datetime.strptime(date2String, '%m %d %Y')
@@ -164,7 +153,7 @@ def getParseTimeRange( date1String, date2String):
     lastDateFound = ""
 
     if date2.date() < date1.date():
-        return chatContent[startMessageIndex : endMessageIndex]
+        return chatContent[startMessageIndex: endMessageIndex]
 
     for index, chat in enumerate(chatContent):
         for ch in chat.contents:
@@ -183,10 +172,9 @@ def getParseTimeRange( date1String, date2String):
                             startFound = True
                         if date2.date() < chDate.date():
                             endMessageIndex = index - 1
-                            return chatContent[startMessageIndex : endMessageIndex]
+                            return chatContent[startMessageIndex: endMessageIndex]
 
-    return chatContent[startMessageIndex : endMessageIndex]
-
+    return chatContent[startMessageIndex: endMessageIndex]
 
 
 class static:
@@ -194,6 +182,7 @@ class static:
     tstamp = ""
     timeStamp = ""
 
+#roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb():
     chatContent = getScrapParse()
     static.timeStamp = ""
@@ -211,20 +200,22 @@ def addToDb():
             addEmote(c)
             pass
         else:
-            print("unknown message type: ",c)
+            print("unknown message type: ", c)
 
+#adds the rollresults messages to the DB
+#Also links active tags to the message ID
 def addRollresult(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
     photo = ""
-    dicerolls=""
+    dicerolls = ""
     dice = ""
     roll = ""
     dateAddToDb = datetime.now()
 
     for content in datum.contents:
-        if isinstance(content,Tag):
+        if isinstance(content, Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
 
@@ -241,7 +232,6 @@ def addRollresult(datum):
                 elif "rolled" in s:
                     roll = content.text.strip()
 
-
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID
 
@@ -253,23 +243,21 @@ def addRollresult(datum):
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
-    DBhandler.addtag(messageID,playerID)
+    DBhandler.addtag(messageID, playerID)
     DBhandler.addMessage(message)
 
 
-
-#find a way to get the roll data
-#right now the only way to get that data is to load in the game
-#stores MessageID, by, time, timeadd to DB
-#todo consider adding message text to the databace. right now the info stored is limited
+# find a way to get the roll data
+# right now the only way to get that data is to load in the game
+# stores MessageID, by, time, timeadd to DB
+# todo consider adding message text to the databace. right now the info stored is limited
 def addGeneral(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
     dateAddToDb = datetime.now()
 
-
     for content in datum.contents:
-        if isinstance(content,Tag):
+        if isinstance(content, Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
 
@@ -277,7 +265,6 @@ def addGeneral(datum):
                     static.by = content.text
                 elif "tstamp" in s:
                     addTime(content.text)
-
 
     message[DBhandler.MessageType_field] = 'general'
     message[DBhandler.MessageID_field] = messageID
@@ -288,13 +275,13 @@ def addGeneral(datum):
     DBhandler.addMessage(message)
 
 
-#adds emote to the database
-#finds emotes with tag and adds the tags to the active tag table
-#stores MessageID, time, timeadd to DB
-#todo consider adding message text to the databace. right now the info stored is limited
+# adds emote to the database
+# finds emotes with tag and adds the tags to the active tag table
+# stores MessageID, time, timeadd to DB
+# todo consider adding message text to the databace. right now the info stored is limited
 def addEmote(datum):
     for content in datum.contents:
-        if isinstance(content,Tag):
+        if isinstance(content, Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
 
@@ -311,43 +298,40 @@ def addEmote(datum):
     if "#ts" in emote:
         match = re.search(r'\d{2}/\d{2}/\d{4}', datum.text)
         date = datetime.strptime(match.group(), '%m/%d/%Y')
-        static.timeStamp =date
+        static.timeStamp = date
     regex = r'\^\w+( *-+\w+){0,2}'
 
-    m = re.search(regex,datum.text)
-
+    m = re.search(regex, datum.text)
 
     if m is not None:
         tagData = m.group().split("-")
 
-
         if len(tagData) == 1:
-            tagName = tagData[0].replace("^","").strip()
+            tagName = tagData[0].replace("^", "").strip()
             tagType = "single"
             tagDetails = [static.tstamp]
             self = False
-            DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+            DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
         elif len(tagData) == 2:
             td = tagData[1].lower()
-            tagName = tagData[0].replace("^","").strip()
+            tagName = tagData[0].replace("^", "").strip()
             self = False
 
-
-            timeRegex = re.search(r'\d+(h|m)',td)
+            timeRegex = re.search(r'\d+(h|m)', td)
             if timeRegex is not None:
                 timeNum = td[:-1]
                 timeType = td[-1:]
                 time = static.tstamp
-                tagDetails = [static.tstamp,timeNum,timeType]
+                tagDetails = [static.tstamp, timeNum, timeType]
 
                 tagType = "timed"
-                DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
 
             elif "end" in td:
@@ -359,16 +343,15 @@ def addEmote(datum):
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addTagActive(tagName,tagType,tagDetails,self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
             else:
-                print("bad tag: ",m.group())
+                print("bad tag: ", m.group())
 
         elif len(tagData) == 3:
             td = tagData[1].lower()
             tagName = tagData[0].replace("^", "").strip()
             self = 'self' in tagData[2]
-
 
             if "self" in td:
                 td = tagData[2].lower()
@@ -378,7 +361,7 @@ def addEmote(datum):
             if timeRegex is not None:
                 timeNum = td[:-1]
                 timeType = td[-1:]
-                tagDetails = [static.tstamp,timeNum, timeType]
+                tagDetails = [static.tstamp, timeNum, timeType]
                 tagType = "timed"
                 DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
@@ -401,8 +384,6 @@ def addEmote(datum):
                 self = False
                 DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
-
-
     message[DBhandler.MessageType_field] = 'emote'
     message[DBhandler.MessageID_field] = messageID
     message[DBhandler.Time_field] = static.tstamp
@@ -411,13 +392,10 @@ def addEmote(datum):
     DBhandler.addMessage(message)
 
 
-
-
-
-#adds time tstamp to the static class
-#first trys a (Month day, year time) if that fails it takes todays date and just takes the time that it gets from the given time
+# adds time tstamp to the static class
+# first trys a (Month day, year time) if that fails it takes todays date and just takes the time that it gets from the given time
+#stamped is unimplemented, it is away to set the date for the chat by the user
 def addTime(timeString):
-
     try:
         static.tstamp = datetime.strptime(timeString, "%B %d, %Y %I:%M%p")
 
@@ -427,7 +405,7 @@ def addTime(timeString):
 
             if stamped:
                 if static.timeStamp == "":
-                    static.tstamp =None
+                    static.tstamp = None
                 else:
                     date = static.timeStamp
                     date.replace(hour=hourDt.hour, minute=hourDt.minute)
@@ -442,28 +420,14 @@ def addTime(timeString):
             print("Error Time " + timeString)
             static.tstamp = None
 
-
-
 def getDiceRolls(contents):
     rlist = list()
     for c in contents:
         s = c.attrs.get("class")
         if not isinstance(s, type(None)):
-            if any("diceroll" in t for t in s ):
+            if any("diceroll" in t for t in s):
                 dice = ' '.join(s)
                 roll = c.text
-                rlist.append([dice,roll])
+                rlist.append([dice, roll])
 
     return rlist
-
-
-
-"""
- for content in contents:
-        if not isinstance(content, NavigableString):
-            s = content.attrs.get("class")
-            if not isinstance(s, type(None)):
-                if any("dicegrouping" in t for t in s):
-                    diceRolls = content.contents
-                    print("log")
-"""
