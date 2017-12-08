@@ -243,7 +243,7 @@ def addRollresult(datum):
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
-    DBhandler.addtag(messageID, playerID)
+    DBhandler.addtag(messageID, playerID,static.tstamp)
     DBhandler.addMessage(message)
 
 
@@ -322,9 +322,7 @@ def addEmote(datum):
             if timeRegex is not None:
                 timeNum = td[:-1]
                 timeType = td[-1:]
-                time = static.tstamp
-                tagDetails = [static.tstamp, timeNum, timeType]
-
+                tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
                 DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 
@@ -361,7 +359,7 @@ def addEmote(datum):
             if timeRegex is not None:
                 timeNum = td[:-1]
                 timeType = td[-1:]
-                tagDetails = [static.tstamp, timeNum, timeType]
+                tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
                 DBhandler.addTagActive(tagName, tagType, tagDetails, self)
 

@@ -455,7 +455,7 @@ def removeActiveByIndex(index):
     conn.close()
 
 #removes timed tags that are timed out from the DB
-def cleanActiveTime():
+def cleanActiveTime(time):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM tags_active WHERE TagType ='timed'")
@@ -464,6 +464,16 @@ def cleanActiveTime():
     conn.close()
     for row in rows:
         data = pickle.loads(row[3])
+
+        if data[0] is "":
+
+            data[0] = time
+            conn = sqlite3.connect(db)
+            c = conn.cursor()
+            c.execute("UPDATE tags_active SET Data = (?) Where id = (?)", (pickle.dumps(data), row[0]))
+            conn.commit()
+            conn.close()
+
         timeToStop = ""
         if data[2] == "m":
             timeToStop = data[0] + timedelta(minutes=int(data[1]))
@@ -497,8 +507,8 @@ def getActiveTagsNames():
 #todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
 #returns all the activeTags
-def getActiveTagsAndUpdate(playerID):
-    cleanActiveTime()
+def getActiveTagsAndUpdate(playerID,time):
+    cleanActiveTime(time)
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = "" AND self = 1', (playerID,))
@@ -510,8 +520,8 @@ def getActiveTagsAndUpdate(playerID):
     return rows
 
 #get messageID and playerID and adds all active tags to the DB and assosiates them with the MessageID
-def addtag(messageID, playerID):
-    tags = list(set(getActiveTagsAndUpdate(playerID)))
+def addtag(messageID, playerID,tstamp):
+    tags = list(set(getActiveTagsAndUpdate(playerID,tstamp)))
     conn = sqlite3.connect(db)
     c = conn.cursor()
     for tag in tags:
