@@ -13,7 +13,7 @@ import DBhandler
 "^tag"
 
 #this  tag will tag every post for the next 24 hours
-'^tag -24h'
+'^tag -24h' #todo timed is not working make work
 
 #this will tag every thing in the next 60 min
 '^tag -24m'
