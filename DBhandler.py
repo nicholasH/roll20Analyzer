@@ -478,10 +478,10 @@ def cleanActiveTime(time):
         if data[2] == "m":
             timeToStop = data[0] + timedelta(minutes=int(data[1]))
         elif data[2] == "h":
-            timeToStop = data[0] + timedelta(minutes=int(data[1]))
-        now = datetime.today()
+            timeToStop = data[0] + timedelta(hours=int(data[1]))
 
-        if now > timeToStop:
+
+        if time > timeToStop:
             removeActiveByIndex(row[0])
 
 #Remove single use tags from the DB
