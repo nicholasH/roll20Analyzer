@@ -503,7 +503,6 @@ def getActiveTagsNames():
     conn.close()
     return rows
 
-#todo This only get self tags
 #todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
 #returns all the activeTags
