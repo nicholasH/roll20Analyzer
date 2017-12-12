@@ -62,9 +62,7 @@ tag_Active_playerID_feild = UserID_field
 All_tags_table = 'AllTags'
 all_tags_tag_names_feild = Tag_Active_name_field
 
-"""
-roll is a string because some rolls might have more than just ints, ex 1d20<0 will aways roll 1 successes
-"""
+
 global db
 db = None
 
@@ -274,7 +272,7 @@ def printDB():
 
     conn.close()
 
-
+#pints all the tags that have ever been used in the DB
 def printDBAlltags():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -285,7 +283,7 @@ def printDBAlltags():
         print(row)
     conn.close()
 
-
+#prints all the active tags in the DB
 def printDBActiveTags():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -309,7 +307,7 @@ def printDBRoleresult():
 
     conn.close()
 
-
+#prints the gameData from the DB
 def printDBData():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -321,6 +319,7 @@ def printDBData():
 
     conn.close()
 
+#prints the tags table
 def printTags():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -332,7 +331,7 @@ def printTags():
 
     conn.close()
 
-
+#get the url or the gamedata
 def getURL():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -342,7 +341,7 @@ def getURL():
     conn.close()
     return url[0]
 
-
+#get the name of the game
 def getGameName():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -405,11 +404,13 @@ def addAllTags(tagName):
     conn.commit()
     conn.close()
 
+#gets a list of all tags that have been ever used
 def getAlltags():
     try:
         conn = sqlite3.connect(db)
     except(TypeError):
         return [""]
+
     c = conn.cursor()
     c.execute('SELECT * FROM AllTags')
     conn.commit()
@@ -437,7 +438,7 @@ def addTagActive(tagName, tagType, tagDetails, self):
     conn.commit()
     conn.close()
 
-
+#remove a activetag by tagname from the DB
 def removeActiveByNameAndTagType(tagName, tagType):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -445,7 +446,7 @@ def removeActiveByNameAndTagType(tagName, tagType):
     conn.commit()
     conn.close()
 
-
+#remove the ActiveTag by index from the DB
 def removeActiveByIndex(index):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -453,8 +454,8 @@ def removeActiveByIndex(index):
     conn.commit()
     conn.close()
 
-
-def cleanActiveTime():
+#removes timed tags that are timed out from the DB
+def cleanActiveTime(time):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute("SELECT * FROM tags_active WHERE TagType ='timed'")
@@ -463,16 +464,27 @@ def cleanActiveTime():
     conn.close()
     for row in rows:
         data = pickle.loads(row[3])
+
+        if data[0] is "":
+
+            data[0] = time
+            conn = sqlite3.connect(db)
+            c = conn.cursor()
+            c.execute("UPDATE tags_active SET Data = (?) Where id = (?)", (pickle.dumps(data), row[0]))
+            conn.commit()
+            conn.close()
+
         timeToStop = ""
         if data[2] == "m":
             timeToStop = data[0] + timedelta(minutes=int(data[1]))
         elif data[2] == "h":
-            timeToStop = data[0] + timedelta(minutes=int(data[1]))
-        now = datetime.today()
+            timeToStop = data[0] + timedelta(hours=int(data[1]))
 
-        if now > timeToStop:
+
+        if time > timeToStop:
             removeActiveByIndex(row[0])
 
+#Remove single use tags from the DB
 def cleanActiveSingles():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -481,6 +493,7 @@ def cleanActiveSingles():
     conn.close()
 
 #todo make this return a list of strings
+#gets all the active tags from the DB
 def getActiveTagsNames():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -490,11 +503,11 @@ def getActiveTagsNames():
     conn.close()
     return rows
 
-#todo This only get self tags
 #todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
-def getActiveTagsAndUpdate(playerID):
-    cleanActiveTime()
+#returns all the activeTags
+def getActiveTagsAndUpdate(playerID,time):
+    cleanActiveTime(time)
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = "" AND self = 1', (playerID,))
@@ -505,9 +518,9 @@ def getActiveTagsAndUpdate(playerID):
     cleanActiveSingles()
     return rows
 
-
-def addtag(messageID, playerID):
-    tags = list(set(getActiveTagsAndUpdate(playerID)))
+#get messageID and playerID and adds all active tags to the DB and assosiates them with the MessageID
+def addtag(messageID, playerID,tstamp):
+    tags = list(set(getActiveTagsAndUpdate(playerID,tstamp)))
     conn = sqlite3.connect(db)
     c = conn.cursor()
     for tag in tags:
@@ -519,7 +532,7 @@ def addtag(messageID, playerID):
     conn.commit()
     conn.close()
 
-
+#removes a Active tag by name
 def endtag(tagName):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -527,7 +540,7 @@ def endtag(tagName):
     conn.commit()
     conn.close()
 
-
+#removes all active tags
 def endAlltag():
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -535,7 +548,7 @@ def endAlltag():
     conn.commit()
     conn.close()
 
-
+#gets all the messages it a tags name
 def getMessagesWithTags(tagName):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -569,6 +582,7 @@ def getMessagesWithTagsBYDateRange(tagName,dateTimeA,dateTimeB):
     c.close()
     return makeList(data)
 
+#get date and return a tagnames from that date
 def getTagNamesByDate(dateTime):
     dateA = dateTime
     dateB = datetime(dateA.year, dateA.month, dateA.day, 23, 59, 59)
@@ -586,6 +600,7 @@ def getTagNamesByDateRange(dateTimeA,dateTimeB):
     c.close()
     return data
 
+#returns all the names that have every been used
 def getAllNames():
     try:
         conn = sqlite3.connect(db)
@@ -601,6 +616,7 @@ def getAllNames():
         listTurn.append(d[0])
     return listTurn
 
+#gets a name and returns all the message with the name
 def getMessagesByName(name):
     conn = sqlite3.connect(db)
     c = conn.cursor()
@@ -627,6 +643,7 @@ def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
     c.close()
     return makeList(data)
 
+#get a taglist and a character name and returns all messages that have all of them
 def getMessagesByTagAndName(tagNameList,name):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
