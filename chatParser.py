@@ -23,18 +23,6 @@ def getScrapParse():
     # todo remove above code
 
 
-    path = os.path.join(sys.path[0], "config")
-
-    f = open(path)
-    EMAIL = ''
-    PASSWORD = ''
-    for line in f:
-        if "Email:" in line:
-            EMAIL = line.split("Email:")[1].strip()
-        if "Password:" in line:
-            PASSWORD = line.split("Password:")[1].strip()
-
-    f.close()
 
     URL = 'https://app.roll20.net/sessions/new'
 
@@ -52,6 +40,19 @@ def getScrapParse():
     # Loging
     ######################################################################################
     '''
+    path = os.path.join(sys.path[0], "config")
+
+    f = open(path)
+    EMAIL = ''
+    PASSWORD = ''
+    for line in f:
+        if "Email:" in line:
+            EMAIL = line.split("Email:")[1].strip()
+        if "Password:" in line:
+            PASSWORD = line.split("Password:")[1].strip()
+
+    f.close()
+    
     usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 

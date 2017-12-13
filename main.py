@@ -299,7 +299,7 @@ class newDB:
 
         name_lable = tk.Label(top, text="Name of game")
         self.name_entry = tk.Entry(top)
-        url_lable = tk.Label(top,text="Game arcive URL")
+        url_lable = tk.Label(top,text="Game archive URL")
         self.url_entry = tk.Entry(top)
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top,text ="cancel", command =self.cancel)
