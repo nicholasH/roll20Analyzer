@@ -6,7 +6,7 @@ from discord.ext import commands
 import analyze
 
 
-path = os.path.join(sys.path[0], "config")
+path = os.path.join(sys.path[0], "config.txt")
 
 f = open(path)
 token = ''

@@ -40,7 +40,7 @@ def getScrapParse():
     # Loging
     ######################################################################################
     '''
-    path = os.path.join(sys.path[0], "config")
+    path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
     EMAIL = ''
