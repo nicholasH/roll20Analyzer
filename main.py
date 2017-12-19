@@ -4,12 +4,14 @@ from tkinter import filedialog, ttk
 
 import sys
 
+import DBscratch
 import analyze
 import DBhandler
 from datetime import datetime
 from tkinter import messagebox
 from threading import Thread
 
+import chatParser
 
 
 class app(tk.Tk):
@@ -194,12 +196,12 @@ class mainPage(tk.Frame):
             self.year_entry2.pack_forget()
 
     def runThread(self):
-        d = cancel(self)
-        d.top
-        ttk.Progressbar.start()
-
         t1 = Thread(target= self.run)
         t1.start()
+        d = cancel(self)
+        d.top
+
+
 
 
 
@@ -335,21 +337,38 @@ class newDB:
     def cancel(self):
         self.top.destroy()
 
-class cancel:
+class cancel(tk.Tk):
 
     def __init__(self,parent):
+        tk.Tk.__init__(self)
+        self.destroy()
         top = self.top = tk.Toplevel(parent)
-        self.p = parent
+
 
         name_lable = tk.Label(top, text="Your game is being analyzed this may take a few minutes")
 
         url_lable = tk.Label(top,text="Game archive URL")
         cancel_btn = tk.Button(top,text ="cancel", command =self.cancelAnalysis)
-        #todo take out this line of code
+
+        self.progress = ttk.Progressbar(self.top, orient="horizontal",length=200, mode="determinate")
 
         name_lable.pack()
         url_lable.pack()
+        self.progress.pack()
         cancel_btn.pack()
+        self.read_bytes()
+
+    def read_bytes(self):
+        self.progress["value"] = chatParser.current
+        self.maxbytes = chatParser.size
+        self.progress["maximum"] = chatParser.size
+        self.bytes = chatParser.current
+
+        self.progress["value"] = self.bytes
+        if self.bytes < self.maxbytes:
+            self.after(100,self.read_bytes)
+
+
 
     def cancelAnalysis(self):
         pass

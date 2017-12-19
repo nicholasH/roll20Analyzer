@@ -63,22 +63,24 @@ class SampleApp(tk.Tk):
                                         length=200, mode="determinate")
         self.progress.pack()
 
-        self.bytes = 0
-        self.maxbytes = 0
 
     def start(self):
-        self.progress["value"] = 0
-        self.maxbytes = 50000
-        self.progress["maximum"] = 50000
+        t1 = Thread(target=DBscratch.countToMax)
+        t1.start()
+        self.progress["value"] = DBscratch.x
+        self.maxbytes = DBscratch.maax
+        self.progress["maximum"] = DBscratch.maax
+
         self.read_bytes()
 
     def read_bytes(self):
-        '''simulate reading 500 bytes; update progress bar'''
-        self.bytes += 500
+        self.bytes = DBscratch.x
         self.progress["value"] = self.bytes
         if self.bytes < self.maxbytes:
             # read more bytes after 100 ms
             self.after(100, self.read_bytes)
+
+
 
 app = SampleApp()
 app.mainloop()

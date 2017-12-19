@@ -15,7 +15,9 @@ import DBhandler
 global stamped
 stamped = False
 
-global size
+global size,current
+current = 0
+size = 1
 
 
 def getScrapParse():
@@ -191,10 +193,12 @@ class static:
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb():
+    global current
     chatContent = getScrapParse()
     static.timeStamp = ""
-
+    x =0
     for c in chatContent:
+        current = x
         print(DBhandler.getActiveTagsNames())
         s = c["class"]
 
@@ -208,6 +212,7 @@ def addToDb():
             pass
         else:
             print("unknown message type: ", c)
+        x += 1
 
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID

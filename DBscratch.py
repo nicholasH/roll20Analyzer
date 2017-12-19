@@ -6,7 +6,6 @@ import time
 import pickle
 
 import DBhandler
-import scratch
 
 
 def creatDB():
@@ -63,6 +62,20 @@ def printDB2():
         print(row)
 
     conn.close()
+
+
+global x
+x = 0
+global max
+maax = 1000000
+
+def countToMax():
+    global x,maax
+    while(x<maax):
+        x += 1
+        print(x)
+
+
 
 
 
