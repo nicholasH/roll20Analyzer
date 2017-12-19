@@ -8,6 +8,8 @@ import analyze
 import DBhandler
 from datetime import datetime
 from tkinter import messagebox
+from threading import Thread
+
 
 
 class app(tk.Tk):
@@ -126,7 +128,7 @@ class mainPage(tk.Frame):
 
         self.text_box = tk.Text(textBoxFrame)
         self.text_box.config(state="disabled")
-        run_all_btn = tk.Button(uiFrame, text="run all", command=self.run)
+        run_all_btn = tk.Button(uiFrame, text="run all", command=self.runThread)
         today_btn = tk.Button(uiFrame, text="today", command=self.run_today)
         run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.run_by_data)
 
@@ -190,6 +192,17 @@ class mainPage(tk.Frame):
             self.day_entry2.pack_forget()
             self.fSlash4.pack_forget()
             self.year_entry2.pack_forget()
+
+    def runThread(self):
+        d = cancel(self)
+        d.top
+        ttk.Progressbar.start()
+
+        t1 = Thread(target= self.run)
+        t1.start()
+
+
+
 
     def run(self):
         try:
@@ -304,7 +317,7 @@ class newDB:
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top,text ="cancel", command =self.cancel)
         #todo take out this line of code
-        #self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1644807")
+        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1644807")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)
@@ -321,6 +334,25 @@ class newDB:
 
     def cancel(self):
         self.top.destroy()
+
+class cancel:
+
+    def __init__(self,parent):
+        top = self.top = tk.Toplevel(parent)
+        self.p = parent
+
+        name_lable = tk.Label(top, text="Your game is being analyzed this may take a few minutes")
+
+        url_lable = tk.Label(top,text="Game archive URL")
+        cancel_btn = tk.Button(top,text ="cancel", command =self.cancelAnalysis)
+        #todo take out this line of code
+
+        name_lable.pack()
+        url_lable.pack()
+        cancel_btn.pack()
+
+    def cancelAnalysis(self):
+        pass
 
 app = app()
 app.mainloop()

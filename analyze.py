@@ -169,7 +169,8 @@ def returnStats():
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
 
-    s = s + " " + str(findWinner(""))
+    s = s + str(findWinner(""))+"\n\n"
+    s = s +"Current Active Tags"+ str(DBhandler.getActiveTagsNames())
     s = s + "\n" + "#" * 100
     print(s)
     return s

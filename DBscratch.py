@@ -1,10 +1,12 @@
 import random
 import sqlite3
 from datetime import datetime, date, timedelta
+import time
 
 import pickle
 
 import DBhandler
+import scratch
 
 
 def creatDB():
@@ -39,6 +41,8 @@ def dis():
 
 def printDB():
     print("db1")
+    time.sleep(3)
+    scratch.update("test")
     conn = sqlite3.connect('example.db')
     c = conn.cursor()
     c.execute("SELECT * FROM test")
@@ -61,6 +65,8 @@ def printDB2():
     conn.close()
 
 
+
+"""
 #dis()
 #creatDB()
 #creatDB2()
@@ -81,3 +87,5 @@ conn.close()
 
 for d in data:
     print(d)
+    
+"""

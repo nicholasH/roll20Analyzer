@@ -15,6 +15,8 @@ import DBhandler
 global stamped
 stamped = False
 
+global size
+
 
 def getScrapParse():
     # todo remove code
@@ -39,7 +41,7 @@ def getScrapParse():
     # todo remove this login
     # Loging
     ######################################################################################
-    '''
+
     path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
@@ -69,7 +71,7 @@ def getScrapParse():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    '''
+
     #######################################################################################
 
     try:
@@ -88,14 +90,18 @@ def getScrapParse():
     soup = BeautifulSoup(html, 'html.parser')  # make soup that is parse-able by bs
     generalmatch = re.compile('message \w+')
 
+    global size
     lastMessage = DBhandler.getlastMessage()
     if isinstance(lastMessage, type(None)):
         chatContent = soup.findAll("div", {"class": generalmatch})
+        size = len(chatContent)
         return chatContent
     else:
         c = soup.find("div", {"data-messageid": lastMessage})
         chatContent = soup.findAll("div", {"class": generalmatch})
-        return chatContent[chatContent.index(c) + 1:]
+        chatContent = chatContent[chatContent.index(c) + 1:]
+        size = len(chatContent)
+        return chatContent
 
 
 # get the chat content from a path
