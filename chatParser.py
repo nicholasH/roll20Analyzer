@@ -15,9 +15,17 @@ import DBhandler
 global stamped
 stamped = False
 
-global size,current
+global size,current,cancel
 current = 0
 size = 1
+
+cancel = False
+
+def resetGlobal():
+    global size,current,cancel
+    current = 0
+    size = 1
+    cancel = False
 
 
 def getScrapParse():
@@ -193,26 +201,27 @@ class static:
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb():
-    global current
+    global current,cancel
     chatContent = getScrapParse()
     static.timeStamp = ""
-    x =0
+    x =1
     for c in chatContent:
-        current = x
-        print(DBhandler.getActiveTagsNames())
-        s = c["class"]
-
-        if "rollresult" in s:
-            addRollresult(c)
-            pass
-        elif "general" in s:
-            addGeneral(c)
-        elif "emote" in s:
-            addEmote(c)
-            pass
+        if(not cancel):
+            current = x
+            print(DBhandler.getActiveTagsNames())
+            s = c["class"]
+            if "rollresult" in s:
+                addRollresult(c)
+            elif "general" in s:
+                addGeneral(c)
+            elif "emote" in s:
+                addEmote(c)
+            else:
+                print("unknown message type: ", c)
+            x += 1
         else:
-            print("unknown message type: ", c)
-        x += 1
+            print("chatPar has been canceled")
+            return
 
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID
@@ -441,3 +450,7 @@ def getDiceRolls(contents):
                 rlist.append([dice, roll])
 
     return rlist
+
+def cancelParser():
+    global cancel
+    cancel = True

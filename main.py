@@ -131,8 +131,8 @@ class mainPage(tk.Frame):
         self.text_box = tk.Text(textBoxFrame)
         self.text_box.config(state="disabled")
         run_all_btn = tk.Button(uiFrame, text="run all", command=self.runThread)
-        today_btn = tk.Button(uiFrame, text="today", command=self.run_today)
-        run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.run_by_data)
+        today_btn = tk.Button(uiFrame, text="today", command=self.runTodayThread)
+        run_by_date_btn = tk.Button(uiFrame, text="run by date", command=self.runByDateThread)
 
 
         #search
@@ -196,15 +196,14 @@ class mainPage(tk.Frame):
             self.year_entry2.pack_forget()
 
     def runThread(self):
+        if not self.offline.get():
+            chatParser.resetGlobal()
+            d = cancel(self)
+            d.top.grab_set()
+            d.top.widgetName =  "cancel"
+
         t1 = Thread(target= self.run)
         t1.start()
-        d = cancel(self)
-        d.top
-
-
-
-
-
 
     def run(self):
         try:
@@ -219,7 +218,19 @@ class mainPage(tk.Frame):
                 self.updateText(analyze.analyze(self.offline.get()))
         except TypeError:
             messagebox.showerror("Error", "No chat loaded")
+            for child in self.winfo_children():
+                if child.widgetName == "cancel":
+                    child.destroy()
             return
+
+    def runTodayThread(self):
+        if not self.offline.get():
+            chatParser.resetGlobal()
+            d = cancel(self)
+            d.top.grab_set()
+            d.top.widgetName =  "cancel"
+        t1 = Thread(target= self.run_today)
+        t1.start()
 
     def run_today(self):
         try:
@@ -234,9 +245,21 @@ class mainPage(tk.Frame):
                 self.updateText(analyze.analyzeToday(self.offline.get()))
         except TypeError:
             messagebox.showerror("Error", "No chat loaded")
+            for child in self.winfo_children():
+                if child.widgetName == "cancel":
+                    child.destroy()
             return
 
-    def run_by_data(self):
+    def runByDateThread(self):
+        if not self.offline.get():
+            chatParser.resetGlobal()
+            d = cancel(self)
+            d.top.grab_set()
+            d.top.widgetName =  "cancel"
+        t1 = Thread(target= self.run_by_date)
+        t1.start()
+
+    def run_by_date(self):
         try:
             date0 = datetime(int(self.year_entry1.get()), int(self.month_entry1.get()), int(self.day_entry1.get()))
             if self.show.get():
@@ -274,9 +297,15 @@ class mainPage(tk.Frame):
         except ValueError:
 
             messagebox.showerror("Error", "bad date")
+            for child in self.winfo_children():
+                if child.widgetName == "cancel":
+                    child.destroy()
             return
         except TypeError:
             messagebox.showerror("Error", "No chat loaded")
+            for child in self.winfo_children():
+                if child.widgetName == "cancel":
+                    child.destroy()
             return
 
 
@@ -345,33 +374,37 @@ class cancel(tk.Tk):
         top = self.top = tk.Toplevel(parent)
 
 
+
         name_lable = tk.Label(top, text="Your game is being analyzed this may take a few minutes")
 
-        url_lable = tk.Label(top,text="Game archive URL")
         cancel_btn = tk.Button(top,text ="cancel", command =self.cancelAnalysis)
 
         self.progress = ttk.Progressbar(self.top, orient="horizontal",length=200, mode="determinate")
 
         name_lable.pack()
-        url_lable.pack()
         self.progress.pack()
         cancel_btn.pack()
-        self.read_bytes()
+        self.loading()
 
-    def read_bytes(self):
+    def loading(self):
         self.progress["value"] = chatParser.current
-        self.maxbytes = chatParser.size
+        self.maxMessages = chatParser.size
         self.progress["maximum"] = chatParser.size
-        self.bytes = chatParser.current
+        self.message = chatParser.current
 
-        self.progress["value"] = self.bytes
-        if self.bytes < self.maxbytes:
-            self.after(100,self.read_bytes)
+        self.progress["value"] = self.message
+        if self.message < self.maxMessages:
+            print(self.message)
+            print(self.maxMessages)
+            self.after(100, self.loading)
+        elif(self.message == self.maxMessages):
+            self.top.destroy()
 
 
 
     def cancelAnalysis(self):
-        pass
+        chatParser.cancelParser()
+        self.top.destroy()
 
 app = app()
 app.mainloop()
