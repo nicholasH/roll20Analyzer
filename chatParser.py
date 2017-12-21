@@ -208,7 +208,7 @@ def addToDb():
     for c in chatContent:
         if(not cancel):
             current = x
-            print(DBhandler.getActiveTagsNames())
+            #print(DBhandler.getActiveTagsNames())
             s = c["class"]
             if "rollresult" in s:
                 addRollresult(c)

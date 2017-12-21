@@ -185,6 +185,8 @@ def findWinner(exclude):
     hightroll = [None, 0]
     highestCritsus = [None, 0]
     highestNats = [None, 0]
+    highestCritFail =[None,0]
+    highestNatOnes =[None,0]
 
     for player, values in playerStats.items():
         if hightroll[1] < values["highestRoll"]:
@@ -208,20 +210,38 @@ def findWinner(exclude):
             else:
                 highestNats = [player, values["nat20"]]
 
-    if any(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0]]):
+        if highestCritFail[1] < values["totCrtFail"]:
+            if highestCritFail[1] == values["totCrtFail"]:
+                if playerAHaveMoreRolls(highestCritFail[0],player):
+                    highestCritFail = [player,values["totCrtFail"]]
+            else:
+                highestCritFail = [player,values["totCrtFail"]]
+
+        if highestNatOnes[1] < values["nat1"]:
+            if highestNatOnes[1] == values["nat1"]:
+                if playerAHaveMoreRolls(highestCritFail[0],player):
+                    highestNatOnes = [player,values["nat1"]]
+            else:
+                highestNatOnes = [player,values["nat1"]]
+
+    if any(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0], highestCritFail[0],highestNats[0]]):
         return ""
 
     val = playerStats[hightroll[0]]
-    val["points"] += 20
+    val["points"] += 10
     playerStats[hightroll[0]] = val
 
     val = playerStats[highestCritsus[0]]
-    val["points"] += 20
+    val["points"] += 10
     playerStats[highestCritsus[0]] = val
 
     val = playerStats[highestNats[0]]
-    val["points"] += 20
+    val["points"] += 10
     playerStats[highestNats[0]] = val
+
+    val = playerStats[highestCritFail[0]]
+    val["points"] += 10
+    playerStats[highestCritFail[0]] = val
 
     scores = []
     for player, values in playerStats.items():
@@ -278,6 +298,7 @@ def analyzeDB(messages):
                 if not isinstance(m, type(None)):
                     val = int(m.group()[1:])
                 else:
+                    val = 0
                     print("error at for roll in rollList ", message)
 
                 stats["points"] = stats["points"] + val
