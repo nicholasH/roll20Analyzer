@@ -1,12 +1,15 @@
 import os
 import sys
+from threading import Thread
 from tkinter import filedialog, ttk
-from tkinter import *
+import tkinter as tk
 from tkinter.ttk import Combobox
 
-from apply import apply
+import time
 
 import DBhandler
+import DBscratch
+import analyze
 
 "^"
 #the word after the ^ is the tag name. A tag like this will only work the the next roll
@@ -49,28 +52,35 @@ import DBhandler
 
 
 
-class App:
 
-    value_of_combo = 'X'
+class SampleApp(tk.Tk):
+
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        self.button = ttk.Button(text="start", command=self.start)
+        self.button.pack()
+        self.progress = ttk.Progressbar(self, orient="horizontal",
+                                        length=200, mode="determinate")
+        self.progress.pack()
 
 
-    def __init__(self, parent):
-        self.parent = parent
-        self.combo()
+    def start(self):
+        t1 = Thread(target=DBscratch.countToMax)
+        t1.start()
+        self.progress["value"] = DBscratch.x
+        self.maxbytes = DBscratch.maax
+        self.progress["maximum"] = DBscratch.maax
 
-    def combo(self):
-        self.box_value = StringVar()
-        self.box = ttk.Combobox(self.parent, textvariable=self.box_value)
-        self.box['values'] = ('X', 'Y', 'Z')
-        self.box.current(0)
-        self.box.grid(column=0, row=0)
-        self.run_all_btn = Button(self.parent, text="run all", command=self.run)
-        self.run_all_btn.grid(column=0, row=1)
+        self.read_bytes()
 
-    def run(self):
-        print(self.box.get())
+    def read_bytes(self):
+        self.bytes = DBscratch.x
+        self.progress["value"] = self.bytes
+        if self.bytes < self.maxbytes:
+            # read more bytes after 100 ms
+            self.after(100, self.read_bytes)
 
-if __name__ == '__main__':
-    root = Tk()
-    app = App(root)
-    root.mainloop()
+
+
+app = SampleApp()
+app.mainloop()
