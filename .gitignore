@@ -13,5 +13,8 @@ example.db
 Chatlog.db
 DBhandler.py
 __pycache__/analyze.cpython-36.pyc
+<<<<<<< HEAD
+=======
 config.txt
+>>>>>>> origin/master
 config.txt
