@@ -4,7 +4,6 @@ from tkinter import filedialog, ttk
 
 import sys
 
-import DBscratch
 import analyze
 import DBhandler
 from datetime import datetime
@@ -430,8 +429,6 @@ class cancel(tk.Tk):
 
         self.progress["value"] = self.message
         if self.message < self.maxMessages:
-            print(self.message)
-            print(self.maxMessages)
             self.after(100, self.loading)
         elif (self.message == self.maxMessages):
             self.top.destroy()
