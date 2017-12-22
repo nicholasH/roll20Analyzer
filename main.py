@@ -386,7 +386,7 @@ class newDB:
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
         # todo take out this line of code
-        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1065012")
+        #self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1065012")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)
