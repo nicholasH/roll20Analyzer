@@ -224,6 +224,7 @@ def findWinner(exclude):
             else:
                 highestNatOnes = [player,values["nat1"]]
 
+    #TODO Make this work even with a few rolls
     if any(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0], highestCritFail[0],highestNats[0]]):
         return ""
 
