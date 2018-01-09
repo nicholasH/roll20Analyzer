@@ -188,6 +188,8 @@ def findWinner(exclude):
     highestCritFail =[None,0]
     highestNatOnes =[None,0]
 
+    stars = [highestCritsus,highestCritsus,highestNats,highestCritFail,highestNatOnes]
+
     for player, values in playerStats.items():
         if hightroll[1] < values["highestRoll"]:
             if hightroll[1] == values["highestRoll"]:
@@ -224,8 +226,13 @@ def findWinner(exclude):
             else:
                 highestNatOnes = [player,values["nat1"]]
 
-    if any(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0], highestCritFail[0],highestNats[0]]):
+    if all(a is None for a in [highestNats[0], highestCritsus[0], hightroll[0], highestCritFail[0],highestNats[0]]):
         return ""
+
+    print(player)
+    for val in stars:
+        if val[0] is None:
+            val[0] = player
 
     val = playerStats[hightroll[0]]
     val["points"] += 10
