@@ -21,7 +21,7 @@ about = 'Programed by:Nicholas Hoover\n' \
         'The 9999999 is the game ID\n' \
         'Pressing any of the buttons run all, run today, and run by date will open a browser to the roll20 login page\n' \
         'login to you account and the program will start grabbing you data and start analysing\n' \
-        'checking the offline? check box will make it so the program wont grab new data from roll20 \n' \
+        'checking the offline? check box will make it so the program won\'t grab new data from roll20 \n' \
         '\n' \
         'How to add tags to my game:\n' \
         'There are 3 types of tag single Tags, timed tags, and indefinite tags\n' \
@@ -41,7 +41,7 @@ about = 'Programed by:Nicholas Hoover\n' \
         'example:\n' \
         '/em ^wizTower -5h -self (All roll by the next person who rolls will be tagged with wizTower for the next 5 hours)\n' \
         '/em ^dawfFort -start -self (All roll by the next person who rolls will be tagged with dawfFort until told to stop)\n' \
-        'The above examples can be the can also be writen like this /em ^wizTower -self -5h or /em ^dawfFort -self -start\n\n' \
+        'The above examples can be the can also be written like this /em ^wizTower -self -5h or /em ^dawfFort -self -start\n\n' \
         'Ending tags\n' \
         'there are 2 way to end a tag the -end and -endall\n' \
         '-end will stop all indefinite or timed tag early with the tag name given\n' \
