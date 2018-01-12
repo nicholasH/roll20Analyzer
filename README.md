@@ -21,3 +21,8 @@ python main.py
 ```
 
 -Or you can go to to where you saved the master branch folder and click on main.py. If this does not work, right click the file, select open with. If you want to simply run the script, find python.exe and select it
+
+
+# Limitation of the roll20Analyzer
+
+As of now this program can only counts rolls for Roll 20's default dice roller. Meaning that if a player is rolling from a imported character sheet that roll is not counted in the results. 
