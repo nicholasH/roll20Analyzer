@@ -55,3 +55,6 @@ points 10
 
 [({'Saeros Amastacia:'}, 0), ({'Bubbles Voronda:'}, 10), ({'Vorastrix:'}, 72)]
 ```
+
+# Scoring 
+Players get points for each crit success they get for example if player rolls a 8 on a d8 they get 8 points added to their total score. Player also get bounce points if they have most of something. The player who get the most Nat20, CritSus, nat1, and critfails get 10 points for each. The player with the highest roll also gets 10 points
