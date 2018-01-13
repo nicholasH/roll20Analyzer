@@ -28,7 +28,7 @@ python main.py
 As of now this program can only counts rolls for Roll 20's default dice roller. Meaning that if a player is rolling from a imported character sheet that roll is not counted in the results. 
 
 # Sample Results 
-
+```
 {'Vorastrix:'} 1
 Total Number of Rolls 19
 Crit success: 3, Nat20: 1, Crit fail: 3, Nat1: 0
@@ -54,3 +54,4 @@ Top 5 Formual[('rolling 1d20 +3', 4), ('rolling d20 +9', 3), ('rolling 1d20+4', 
 points 10
 
 [({'Saeros Amastacia:'}, 0), ({'Bubbles Voronda:'}, 10), ({'Vorastrix:'}, 72)]
+```
