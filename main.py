@@ -55,10 +55,10 @@ about = 'Programed by:Nicholas Hoover\n' \
         '\n' \
         'scoring:\n' \
         'Players get points for each crit success they get \n' \
-        'example if player rolls a 8 on a d8 they get 8 points add to their total score\n' \
+        'example if player rolls a 8 on a d8 they get 8 points added to their total score\n' \
         'player also get bounce points if they have most of something\n' \
         'The player who get the most Nat20, CritSus, nat1, and critfails get 10 points\n' \
-        'The player with the highest number roll also gets 10 points'
+        'The player with the highest roll also gets 10 points'
 
 class app(tk.Tk):
     def __init__(self, *args, **kwargs):
