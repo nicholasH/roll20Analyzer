@@ -29,7 +29,7 @@ def getPath():
 
 def analyze(offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
 
     analyzeDB(DBhandler.getMessagesRoleresult())
     return returnStats()
@@ -37,7 +37,7 @@ def analyze(offline):
 
 def analyzeToday(offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
 
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getRollresultDateTime(startToday))
@@ -47,7 +47,7 @@ def analyzeToday(offline):
 # Gets 1 Datetime and returns the messages of that date
 def analyzeDate(date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getRollresultDateTime(date))
     return returnStats()
 
@@ -55,7 +55,7 @@ def analyzeDate(date, offline):
 # Gets 2 datestimes and returns the messages between the dates
 def analyzeDateRange(date0, date1, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getRollresultDateTimeRange(date0, date1))
     return returnStats()
 
@@ -63,7 +63,7 @@ def analyzeDateRange(date0, date1, offline):
 # get a tag name and return the messages with the tags
 def analyzeByTag(tagName, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     DBhandler.printTags()
     analyzeDB(DBhandler.getMessagesWithTags(tagName))
     return returnStats()
@@ -71,7 +71,7 @@ def analyzeByTag(tagName, offline):
 
 def analyzeByTagToday(tagName, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getMessagesWithTagsBYDate(tagName, startToday))
     return returnStats()
@@ -79,14 +79,14 @@ def analyzeByTagToday(tagName, offline):
 
 def analyzeByTagDate(tagName, date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesWithTagsBYDate(tagName, date))
     return returnStats()
 
 
 def analyzeByTagDateRange(tagName, date0, date1, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesWithTagsBYDateRange(tagName, date0, date1))
     return returnStats()
 
@@ -94,14 +94,14 @@ def analyzeByTagDateRange(tagName, date0, date1, offline):
 # gets a players name and returns all the messages with that name
 def analyzeByName(name, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByName(name))
     return returnStats()
 
 
 def analyzeByNameToday(name, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getMessagesByNameByDate(name, startToday))
     return returnStats()
@@ -109,14 +109,14 @@ def analyzeByNameToday(name, offline):
 
 def analyzeByNameByDate(name, date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByNameByDate(name, date))
     return returnStats()
 
 
 def analyzeByNameByDateRange(name, dateA, dateB, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByNameByDateRange(name, dateA, dateB))
     return returnStats()
 
@@ -124,14 +124,14 @@ def analyzeByNameByDateRange(name, dateA, dateB, offline):
 #the list of tag name is for future feature
 def analyzeByTagAndName(name, tagNameList, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByTagAndName(tagNameList, name))
     return returnStats()
 
 
 def analyzeByTagAndNameToday(name, tagNameList, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList, name, startToday))
     return returnStats()
@@ -139,14 +139,14 @@ def analyzeByTagAndNameToday(name, tagNameList, offline):
 
 def analyzeByTagAndNameByDate(name, tagNameList, date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList, name, date))
     return returnStats()
 
 
 def analyzeByTagAndNameByDateRange(name, tagNameList, dateA, dateB, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByTagAndNameByDateRange(tagNameList, name, dateA, dateB))
     return returnStats()
 

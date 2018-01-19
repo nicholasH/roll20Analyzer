@@ -60,6 +60,9 @@ about = 'Programed by:Nicholas Hoover\n' \
         'The player who get the most Nat20, CritSus, nat1, and critfails get 10 points\n' \
         'The player with the highest roll also gets 10 points'
 
+
+
+
 class app(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -72,6 +75,7 @@ class app(tk.Tk):
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.new)
+        filemenu.add_command(label="Import", command=self.importChat)
         filemenu.add_command(label="Open", command=self.loadDB)
         filemenu.add_command(label="About", command=self.about)
 
@@ -99,10 +103,37 @@ class app(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
+    def deleteIfDbExist(self,name):
+        path = os.path.join(os.sys.path[0], "data", "dataBase", name +".db")
+        if os.path.exists(path):
+            if messagebox.askyesno("File exists", "A chat log with this name exists would you like to delete it?"):
+                os.remove(path)
+
     def new(self):
         d = newDB(self)
         d.top.grab_set()
         self.wait_window(d.top)
+
+    def importChat(self):
+        self.filename = filedialog.askopenfilename(title="Select file",
+                                                   filetypes=(("html files", "*.html"), ("all files", "*.*")))
+        #todo make it so offline is all ways on
+        #todo make it so the lable displays correctly
+
+        #todo make so the url location is "local file"
+        #todo make it so a db with a local file location is away offline
+
+        print(self.filename)
+        name = str(self.filename).split("/")[-1]
+
+        self.deleteIfDbExist(name)
+        location= "offline"
+        print("value is", name, location)
+        DBhandler.createDB(name, location)
+        self.updatDBLable()
+
+        chatParser.addParseToDB(self.filename)
+
 
     def about(self):
         self.frame.updateText(about)
@@ -396,12 +427,14 @@ class newDB:
 
     def ok(self):
         print("value is", self.name_entry.get(), self.url_entry.get())
+        self.p.deleteIfDbExist(self.name_entry.get())
         DBhandler.createDB(self.name_entry.get(), self.url_entry.get())
         self.p.updatDBLable()
         self.top.destroy()
 
     def cancel(self):
         self.top.destroy()
+
 
 
 class cancel(tk.Tk):
