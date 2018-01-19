@@ -76,6 +76,7 @@ class app(tk.Tk):
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.new)
         filemenu.add_command(label="Import", command=self.importChat)
+        filemenu.add_command(label="continue", command=self.continueImport)
         filemenu.add_command(label="Open", command=self.loadDB)
         filemenu.add_command(label="About", command=self.about)
 
@@ -115,13 +116,9 @@ class app(tk.Tk):
         self.wait_window(d.top)
 
     def importChat(self):
+        #todo fail safe when people exit the dialog below
         self.filename = filedialog.askopenfilename(title="Select file",
                                                    filetypes=(("html files", "*.html"), ("all files", "*.*")))
-        #todo make it so offline is all ways on
-        #todo make it so the lable displays correctly
-
-        #todo make so the url location is "local file"
-        #todo make it so a db with a local file location is away offline
 
         print(self.filename)
         name = str(self.filename).split("/")[-1]
@@ -132,8 +129,43 @@ class app(tk.Tk):
         DBhandler.createDB(name, location)
         self.updatDBLable()
 
-        chatParser.addParseToDB(self.filename)
 
+        chatParser.resetGlobal()
+        d = importCancel(self)
+        d.top.grab_set()
+        d.top.widgetName = "importCancel"
+
+        t1 = Thread(target=self.theadImport)
+        t1.start()
+
+    def continueImport(self):
+        self.filename = filedialog.askopenfilename(title="Select file",
+                                                   filetypes=(("html files", "*.html"), ("all files", "*.*")))
+
+        name = str(self.filename).split("/")[-1]
+        if os.path.exists(os.path.join(os.sys.path[0], "data", "dataBase", name +".db")):
+            db = os.path.join(os.sys.path[0], "data", "dataBase", name +".db")
+            DBhandler.loadDB(db)
+        else:
+            #todo test if this works
+            location = "offline"
+            print("value is", name, location)
+            DBhandler.createDB(name, location)
+
+        self.updatDBLable()
+        chatParser.resetGlobal()
+        d = importCancel(self)
+        d.top.grab_set()
+        d.top.widgetName = "importCancel"
+
+        t1 = Thread(target=self.theadImport)
+        t1.start()
+
+
+
+
+    def theadImport(self):
+        chatParser.addParseToDB(self.filename)
 
     def about(self):
         self.frame.updateText(about)
@@ -266,8 +298,10 @@ class mainPage(tk.Frame):
             self.fSlash4.pack_forget()
             self.year_entry2.pack_forget()
 
+
+
     def runThread(self):
-        if not self.offline.get():
+        if not self.isOffline():
             chatParser.resetGlobal()
             d = cancel(self)
             d.top.grab_set()
@@ -280,13 +314,13 @@ class mainPage(tk.Frame):
         try:
             if self.tagSearch.get() and self.nameSearch.get():
                 tagNameList = [self.tag_combo.get()]
-                self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(), tagNameList, self.offline.get()))
+                self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(), tagNameList, self.isOffline()))
             elif self.tagSearch.get():
-                self.updateText(analyze.analyzeByTag(self.tag_combo.get(), self.offline.get()))
+                self.updateText(analyze.analyzeByTag(self.tag_combo.get(), self.isOffline()))
             elif self.nameSearch.get():
-                self.updateText((analyze.analyzeByName(self.name_combo.get(), self.offline.get())))
+                self.updateText((analyze.analyzeByName(self.name_combo.get(), self.isOffline())))
             else:
-                self.updateText(analyze.analyze(self.offline.get()))
+                self.updateText(analyze.analyze(self.isOffline()))
         except TypeError:
             for child in self.winfo_children():
                 if child.widgetName == "cancel":
@@ -295,7 +329,7 @@ class mainPage(tk.Frame):
             return
 
     def runTodayThread(self):
-        if not self.offline.get():
+        if not self.isOffline():
             chatParser.resetGlobal()
             d = cancel(self)
             d.top.grab_set()
@@ -308,13 +342,13 @@ class mainPage(tk.Frame):
             if self.tagSearch.get() and self.nameSearch.get():
                 tagNameList = [self.tag_combo.get()]
                 self.updateText(
-                    analyze.analyzeByTagAndNameToday(self.name_combo.get(), tagNameList, self.offline.get()))
+                    analyze.analyzeByTagAndNameToday(self.name_combo.get(), tagNameList, self.isOffline()))
             elif self.nameSearch.get():
-                self.updateText(analyze.analyzeByNameToday(self.name_combo.get(), self.offline.get()))
+                self.updateText(analyze.analyzeByNameToday(self.name_combo.get(), self.isOffline()))
             elif self.tagSearch.get():
-                self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(), self.offline.get()))
+                self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(), self.isOffline()))
             else:
-                self.updateText(analyze.analyzeToday(self.offline.get()))
+                self.updateText(analyze.analyzeToday(self.isOffline()))
         except TypeError:
             for child in self.winfo_children():
                 if child.widgetName == "cancel":
@@ -323,7 +357,7 @@ class mainPage(tk.Frame):
             return
 
     def runByDateThread(self):
-        if not self.offline.get():
+        if not self.isOffline():
             chatParser.resetGlobal()
             d = cancel(self)
             d.top.grab_set()
@@ -349,26 +383,26 @@ class mainPage(tk.Frame):
                     tagNameList = [self.tag_combo.get()]
                     self.updateText(
                         analyze.analyzeByTagAndNameByDateRange(self.name_combo.get(), tagNameList, date0, date1,
-                                                               self.offline.get()))
+                                                               self.isOffline()))
                 elif self.nameSearch.get():
                     self.updateText(
-                        analyze.analyzeByNameByDateRange(self.name_combo.get(), date0, date1, self.offline.get()))
+                        analyze.analyzeByNameByDateRange(self.name_combo.get(), date0, date1, self.isOffline()))
                 elif self.tagSearch.get():
                     self.updateText(
-                        analyze.analyzeByTagDateRange(self.tag_combo.get(), date0, date1, self.offline.get()))
+                        analyze.analyzeByTagDateRange(self.tag_combo.get(), date0, date1, self.isOffline()))
                 else:
-                    self.updateText(analyze.analyzeDateRange(date0, date1, self.offline.get()))
+                    self.updateText(analyze.analyzeDateRange(date0, date1, self.isOffline()))
             else:
                 if self.tagSearch.get() and self.nameSearch.get():
                     tagNameList = [self.tag_combo.get()]
                     self.updateText(analyze.analyzeByTagAndNameByDate(self.name_combo.get(), tagNameList, date0,
-                                                                      self.offline.get()))
+                                                                      self.isOffline()))
                 elif self.nameSearch.get():
-                    self.updateText(analyze.analyzeByNameByDate(self.name_combo.get(), date0, self.offline.get()))
+                    self.updateText(analyze.analyzeByNameByDate(self.name_combo.get(), date0, self.isOffline()))
                 elif self.tagSearch.get():
-                    self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(), date0, self.offline.get()))
+                    self.updateText(analyze.analyzeByTagDate(self.tag_combo.get(), date0, self.isOffline()))
                 else:
-                    self.updateText(analyze.analyzeDate(date0, self.offline.get()))
+                    self.updateText(analyze.analyzeDate(date0, self.isOffline()))
         except ValueError:
             for child in self.winfo_children():
                 if child.widgetName == "cancel":
@@ -381,6 +415,7 @@ class mainPage(tk.Frame):
                     child.destroy()
             messagebox.showerror("Error", "No chat loaded")
             return
+
 
     def updateText(self, text):
         self.text_box.config(state="normal")
@@ -403,6 +438,8 @@ class mainPage(tk.Frame):
     def run_by_tag(self):
         self.updateText(analyze.analyzeByTag(self.tag_text_entry.get()))
 
+    def isOffline(self):
+        return (DBhandler.getURL() == "offline") or self.offline.get()
 
 class newDB:
     def __init__(self, parent):
@@ -467,6 +504,39 @@ class cancel(tk.Tk):
             self.top.destroy()
 
     def cancelAnalysis(self):
+        chatParser.cancelParser()
+        self.top.destroy()
+
+class importCancel(tk.Tk):
+    def __init__(self, parent):
+        tk.Tk.__init__(self)
+        self.destroy()
+        top = self.top = tk.Toplevel(parent)
+
+        name_lable = tk.Label(top, text="Your game is being imported this may take a few minutes")
+
+        cancel_btn = tk.Button(top, text="cancel", command=self.cancelImport)
+
+        self.progress = ttk.Progressbar(self.top, orient="horizontal", length=200, mode="determinate")
+
+        name_lable.pack()
+        self.progress.pack()
+        cancel_btn.pack()
+        self.loading()
+
+    def loading(self):
+        self.progress["value"] = chatParser.current
+        self.maxMessages = chatParser.size
+        self.progress["maximum"] = chatParser.size
+        self.message = chatParser.current
+
+        self.progress["value"] = self.message
+        if self.message < self.maxMessages:
+            self.after(100, self.loading)
+        elif (self.message == self.maxMessages):
+            self.top.destroy()
+
+    def cancelImport(self):
         chatParser.cancelParser()
         self.top.destroy()
 
