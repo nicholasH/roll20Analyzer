@@ -164,9 +164,6 @@ class app(tk.Tk):
         t1 = Thread(target=self.theadImport)
         t1.start()
 
-
-
-
     def theadImport(self):
         chatParser.addParseToDB(self.filename)
 

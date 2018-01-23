@@ -142,6 +142,7 @@ class static:
     by = ""
     tstamp = ""
     timeStamp = ""
+    photo = ""
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
@@ -172,7 +173,6 @@ def addRollresult(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
-    photo = ""
     dicerolls = ""
     dice = ""
     roll = ""
@@ -187,6 +187,8 @@ def addRollresult(datum):
                     static.by = content.text
                 elif "tstamp" in s:
                     addTime(content.text)
+                elif "avatar" in s:
+                    static.photo = content.text
 
                 elif "formula" in s:
                     if "formattedformula" in s:
@@ -198,7 +200,7 @@ def addRollresult(datum):
 
     message[DBhandler.MessageType_field] = 'rollresult'
     message[DBhandler.MessageID_field] = messageID
-
+    message[DBhandler.Avatar_field] = static.photo
     message[DBhandler.UserID_field] = playerID
     message[DBhandler.By_field] = static.by
     message[DBhandler.RolledResultsList_field] = dicerolls
@@ -219,7 +221,6 @@ def addGeneral(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
     dateAddToDb = datetime.now()
-
     for content in datum.contents:
         if isinstance(content, Tag):
             s = content.attrs.get("class")
@@ -229,6 +230,9 @@ def addGeneral(datum):
                     static.by = content.text
                 elif "tstamp" in s:
                     addTime(content.text)
+                elif "avatar" in s:
+                    static.photo = content.text
+
                 elif any("sheet-rolltemplate" in c for c in s):
                     charSheetRoll(content)
                     pass
@@ -240,6 +244,7 @@ def addGeneral(datum):
 
     message[DBhandler.MessageType_field] = 'general'
     message[DBhandler.MessageID_field] = messageID
+    message[DBhandler.Avatar_field] = static.photo
     message[DBhandler.By_field] = static.by
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
@@ -261,6 +266,8 @@ def addEmote(datum):
                     static.by = content.text
                 elif "tstamp" in s:
                     addTime(content.text)
+                elif "avatar" in s:
+                    static.photo = content.text
 
     message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
@@ -356,6 +363,7 @@ def addEmote(datum):
 
     message[DBhandler.MessageType_field] = 'emote'
     message[DBhandler.MessageID_field] = messageID
+    message[DBhandler.Avatar_field] = static.photo
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 

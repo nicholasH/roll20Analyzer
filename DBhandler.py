@@ -32,6 +32,7 @@ Tstamp_field = 'timestamp'
 
 columnName = [MessageID_field,
               MessageType_field,
+              Avatar_field,
               UserID_field,
               By_field,
               Time_field,
@@ -56,6 +57,7 @@ Tag_Active_name_field = Tag_name_field
 tag_type_field = "TagType"
 tag_data_field = "Data"
 tag_self_feild = "Self"
+tag_Avatar_field = Avatar_field
 tag_Active_playerID_feild = UserID_field
 
 # tagName
@@ -85,13 +87,13 @@ def createMessageTable():
     c = conn.cursor()
 
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts},  {UI} {fts},{By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
+        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
             .format(tn=Message_table,
                     MID=MessageID_field,
                     MT=MessageType_field,
+                    AVA=Avatar_field,
                     UI=UserID_field,
                     By=By_field,
-
                     TF=Time_field,
                     TAD=TimeAddedToDB_field,
                     RF=RolledFormula_field,
@@ -134,12 +136,13 @@ def createTagTable():
 def createActiveTageTable():
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    exe = "CREATE TABLE {tn} (id {fit} PRIMARY KEY,{ta} {fts}, {tt} {fts}, {td} {fts}, {slf} {fit}, {uf} {fts})".format(
+    exe = "CREATE TABLE {tn} (id {fit} PRIMARY KEY,{ta} {fts}, {tt} {fts}, {td} {fts}, {slf} {fit}, {ava} {fts}, {uf} {fts})".format(
         tn=tag_active_table,
         ta=Tag_Active_name_field,
         tt=tag_type_field,
         td=tag_data_field,
         slf=tag_self_feild,
+        ava=tag_Avatar_field,
         uf=tag_Active_playerID_feild,
 
         fit=integer_field_type,
@@ -211,9 +214,10 @@ def addMessage(messageDic: dict):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute(
-        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?,?,?,?)", (
+        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?,?,?,?,?)", (
             messageDic.get(MessageID_field),
             messageDic.get(MessageType_field),
+            messageDic.get(Avatar_field),
             messageDic.get(UserID_field),
             messageDic.get(By_field),
             messageDic.get(Time_field),
@@ -433,16 +437,17 @@ def getAlltags():
 
 # gets array of tagDetails and addeds the tag to the active tag table
 # tagArray is a list  that can inclued one - three items
-def addTagActive(tagName, tagType, tagDetails, self):
+def addTagActive(tagName, tagType, tagDetails,Avatar, self):
     addAllTags(tagName)
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute(
-        "INSERT INTO tags_active (TagName, TagType, Data, Self, UserID)VALUES (?,?,?,?,?)", (
+        "INSERT INTO tags_active (TagName, TagType, Data, Self,  Avatar, UserID)VALUES (?,?,?,?,?)", (
             tagName,
             tagType,
             pickle.dumps(tagDetails),
             int(self),
+            Avatar,
             ""
         ))
     conn.commit()
