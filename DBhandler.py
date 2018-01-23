@@ -442,7 +442,7 @@ def addTagActive(tagName, tagType, tagDetails,Avatar, self):
     conn = sqlite3.connect(db)
     c = conn.cursor()
     c.execute(
-        "INSERT INTO tags_active (TagName, TagType, Data, Self,  Avatar, UserID)VALUES (?,?,?,?,?)", (
+        "INSERT INTO tags_active (TagName, TagType, Data, Self,  Avatar, UserID)VALUES (?,?,?,?,?,?)", (
             tagName,
             tagType,
             pickle.dumps(tagDetails),

@@ -152,6 +152,8 @@ def addToDb(chatContent):
     for c in chatContent:
         if(not cancel):
             current = x
+            test = c.attrs.get("data-messageid")
+            print(test)
             #print(DBhandler.getActiveTagsNames())
             s = c["class"]
             if "rollresult" in s:
@@ -290,7 +292,7 @@ def addEmote(datum):
             tagType = "single"
             tagDetails = [static.tstamp]
             self = False
-            DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+            DBhandler.addTagActive(tagName, tagType, tagDetails, static.photo, self)
 
         elif len(tagData) == 2:
             td = tagData[1].lower()
@@ -303,12 +305,12 @@ def addEmote(datum):
                 timeType = td[-1:]
                 tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
-                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
 
 
             elif "end" in td:
@@ -320,7 +322,7 @@ def addEmote(datum):
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
 
             else:
                 print("bad tag: ", m.group())
@@ -340,12 +342,12 @@ def addEmote(datum):
                 timeType = td[-1:]
                 tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
-                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
 
 
             elif "end" in td:
@@ -359,7 +361,7 @@ def addEmote(datum):
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addTagActive(tagName, tagType, tagDetails, self)
+                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
 
     message[DBhandler.MessageType_field] = 'emote'
     message[DBhandler.MessageID_field] = messageID
