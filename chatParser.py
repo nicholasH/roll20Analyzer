@@ -47,11 +47,13 @@ def addScrapParseToDB():
     browser.get(URL)
 
     wait = ui.WebDriverWait(browser, 120)  # timeout after 120 seconds
+    gameNumber = DBhandler.getGameNumber()
+    game="https://app.roll20.net/editor/setcampaign/"+gameNumber
 
     # todo remove this login
     # Loging
     ######################################################################################
-    '''
+
     path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
@@ -81,13 +83,14 @@ def addScrapParseToDB():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    '''
+
     #######################################################################################
 
     try:
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
         if len(results) > 0:
+            browser.get(game)
             browser.get(gameURL)
             html = browser.page_source
             browser.close()
@@ -226,6 +229,14 @@ def addGeneral(datum):
                     static.by = content.text
                 elif "tstamp" in s:
                     addTime(content.text)
+                elif any("sheet-rolltemplate" in c for c in s):
+                    charSheetRoll(content)
+                    pass
+
+
+
+
+
 
     message[DBhandler.MessageType_field] = 'general'
     message[DBhandler.MessageID_field] = messageID
@@ -390,6 +401,28 @@ def getDiceRolls(contents):
                 rlist.append([dice, roll])
 
     return rlist
+
+def charSheetRoll(content):
+    print(content)
+    childContent = content.findChildren()
+    for cc in childContent:
+        ccClass = cc.attrs.get("class")
+        if not isinstance(ccClass,type(None)):
+            if any("inlinerollresult" in t for t in ccClass):
+                dice = list()
+                ccTitle = cc.attrs.get("title")
+                roll = cc.text
+                soup = BeautifulSoup(ccTitle, 'html.parser')
+                for s in soup.contents:
+                    test = str(s)
+                    if "rolling" in str(s).lower():
+                        rolling = s
+                    if "basicdiceroll" in str(s).lower():
+                        dice.append(s.text)
+            pass
+
+
+
 
 def cancelParser():
     global cancel

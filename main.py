@@ -119,6 +119,8 @@ class app(tk.Tk):
         #todo fail safe when people exit the dialog below
         self.filename = filedialog.askopenfilename(title="Select file",
                                                    filetypes=(("html files", "*.html"), ("all files", "*.*")))
+        if not self.filename:
+            return
 
         print(self.filename)
         name = str(self.filename).split("/")[-1]
@@ -141,7 +143,8 @@ class app(tk.Tk):
     def continueImport(self):
         self.filename = filedialog.askopenfilename(title="Select file",
                                                    filetypes=(("html files", "*.html"), ("all files", "*.*")))
-
+        if not self.filename:
+            return
         name = str(self.filename).split("/")[-1]
         if os.path.exists(os.path.join(os.sys.path[0], "data", "dataBase", name +".db")):
             db = os.path.join(os.sys.path[0], "data", "dataBase", name +".db")
@@ -178,6 +181,8 @@ class app(tk.Tk):
         dateBase = os.path.join(os.sys.path[0], "data", "dataBase")
         self.filename = filedialog.askopenfilename(initialdir=dateBase, title="Select file",
                                                    filetypes=(("db files", "*.db"), ("all files", "*.*")))
+        if not self.filename:
+            return
         DBhandler.loadDB(self.filename)
         self.updatDBLable()
 
@@ -453,7 +458,7 @@ class newDB:
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
         # todo take out this line of code
-        #self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1065012")
+        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/2945450")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)

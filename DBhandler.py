@@ -341,6 +341,16 @@ def getURL():
     conn.close()
     return url[0]
 
+def getGameNumber():
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute("SELECT url FROM gameData")
+    conn.commit()
+    url = c.fetchone()
+    conn.close()
+    return str(url[0]).split("/")[-1]
+
+
 #get the name of the game
 def getGameName():
     conn = sqlite3.connect(db)
