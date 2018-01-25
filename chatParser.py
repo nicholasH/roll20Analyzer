@@ -144,6 +144,18 @@ class static:
     timeStamp = ""
     photo = ""
 
+
+def updatePhoto(content):
+    childen = content.findChildren()
+    for c in childen:
+        if not isinstance(c, type(None)):
+            p = str(c.attrs.get("src"))
+            last = p.rfind("/")
+            static.photo = p[:last]
+
+
+    print(static.photo)
+
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
     global current,cancel
@@ -190,7 +202,7 @@ def addRollresult(datum):
                 elif "tstamp" in s:
                     addTime(content.text)
                 elif "avatar" in s:
-                    static.photo = content.text
+                    updatePhoto(content)
 
                 elif "formula" in s:
                     if "formattedformula" in s:
@@ -233,16 +245,11 @@ def addGeneral(datum):
                 elif "tstamp" in s:
                     addTime(content.text)
                 elif "avatar" in s:
-                    static.photo = content.text
+                    updatePhoto(content)
 
                 elif any("sheet-rolltemplate" in c for c in s):
                     charSheetRoll(content)
                     pass
-
-
-
-
-
 
     message[DBhandler.MessageType_field] = 'general'
     message[DBhandler.MessageID_field] = messageID
@@ -263,13 +270,8 @@ def addEmote(datum):
         if isinstance(content, Tag):
             s = content.attrs.get("class")
             if not isinstance(s, type(None)):
-
-                if "by" in s:
-                    static.by = content.text
-                elif "tstamp" in s:
-                    addTime(content.text)
-                elif "avatar" in s:
-                    static.photo = content.text
+                if "avatar" in s:
+                    updatePhoto(content)
 
     message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
