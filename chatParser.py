@@ -249,7 +249,7 @@ def addGeneral(datum):
 
                 elif any("sheet-rolltemplate" in c for c in s):
                     charSheetRoll(content)
-                    pass
+                    return
 
     message[DBhandler.MessageType_field] = 'general'
     message[DBhandler.MessageID_field] = messageID
@@ -431,7 +431,7 @@ def charSheetRoll(content):
                         rolling = s
                     if "basicdiceroll" in str(s).lower():
                         dice.append(s.text)
-            pass
+
 
 
 

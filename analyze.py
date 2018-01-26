@@ -40,6 +40,8 @@ def analyzeToday(offline):
         chatParser.addScrapParseToDB()
 
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
+
+    #todo take higher and take lower rolls are not got from the dm
     analyzeDB(DBhandler.getRollresultDateTime(startToday))
     return returnStats()
 
