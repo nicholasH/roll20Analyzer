@@ -66,7 +66,7 @@ def addScrapParseToDB():
             PASSWORD = line.split("Password:")[1].strip()
 
     f.close()
-    
+
     usernameElements = browser.find_elements_by_name("email")
     passwordElements = browser.find_elements_by_name("password")
 
@@ -235,6 +235,7 @@ def addGeneral(datum):
     message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
     dateAddToDb = datetime.now()
+    charSheet = False
     for content in datum.contents:
         if isinstance(content, Tag):
             s = content.attrs.get("class")
@@ -248,17 +249,26 @@ def addGeneral(datum):
                     updatePhoto(content)
 
                 elif any("sheet-rolltemplate" in c for c in s):
-                    charSheetRoll(content)
-                    return
+                    charSheet = True
+                    char = content
 
-    message[DBhandler.MessageType_field] = 'general'
-    message[DBhandler.MessageID_field] = messageID
-    message[DBhandler.Avatar_field] = static.photo
-    message[DBhandler.By_field] = static.by
-    message[DBhandler.Time_field] = static.tstamp
-    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
-    DBhandler.addMessage(message)
+    if charSheet:
+        message[DBhandler.MessageID_field] = messageID
+        message[DBhandler.Avatar_field] = static.photo
+        message[DBhandler.By_field] = static.by
+        message[DBhandler.Time_field] = static.tstamp
+
+        charSheetRoll(char, message)
+    else:
+        message[DBhandler.MessageType_field] = 'general'
+        message[DBhandler.MessageID_field] = messageID
+        message[DBhandler.Avatar_field] = static.photo
+        message[DBhandler.By_field] = static.by
+        message[DBhandler.Time_field] = static.tstamp
+        message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+
+        DBhandler.addMessage(message)
 
 
 # adds emote to the database
@@ -367,8 +377,6 @@ def addEmote(datum):
 
     message[DBhandler.MessageType_field] = 'emote'
     message[DBhandler.MessageID_field] = messageID
-    message[DBhandler.Avatar_field] = static.photo
-    message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
     DBhandler.addMessage(message)
@@ -414,25 +422,35 @@ def getDiceRolls(contents):
 
     return rlist
 
-def charSheetRoll(content):
+def charSheetRoll(content,message):
     print(content)
+    dicerolls = list()
+    dice = ""
+    roll = ""
     childContent = content.findChildren()
     for cc in childContent:
         ccClass = cc.attrs.get("class")
         if not isinstance(ccClass,type(None)):
             if any("inlinerollresult" in t for t in ccClass):
-                dice = list()
+
                 ccTitle = cc.attrs.get("title")
                 roll = cc.text
                 soup = BeautifulSoup(ccTitle, 'html.parser')
                 for s in soup.contents:
                     test = str(s)
                     if "rolling" in str(s).lower():
-                        rolling = s
+                        dice = s
                     if "basicdiceroll" in str(s).lower():
-                        dice.append(s.text)
+                        dicerolls.append(s.text)
 
-
+    message[DBhandler.MessageType_field] = 'characterSheet'
+    message[DBhandler.RolledResultsList_field] = dicerolls
+    message[DBhandler.RolledFormula_field] = dice
+    message[DBhandler.Rolled_Field] = roll
+    message[DBhandler.Time_field] = static.tstamp
+    #todo make a add tage with out player id
+    DBhandler.addtag(message[DBhandler.MessageID_field], "add tag with out player id",static.tstamp)
+    DBhandler.addMessage(message)
 
 
 
