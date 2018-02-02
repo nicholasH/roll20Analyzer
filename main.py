@@ -9,7 +9,7 @@ import DBhandler
 from datetime import datetime
 from tkinter import messagebox
 from threading import Thread
-
+import errors
 import chatParser
 
 about = 'Programed by:Nicholas Hoover\n' \
@@ -303,69 +303,75 @@ class mainPage(tk.Frame):
 
 
     def runThread(self):
-        if not self.isOffline():
-            chatParser.resetGlobal()
-            d = cancel(self)
-            d.top.grab_set()
-            d.top.widgetName = "cancel"
+        try:
+            if not self.isOffline():
+                chatParser.resetGlobal()
+                d = cancel(self)
+                d.top.grab_set()
+                d.top.widgetName = "cancel"
 
-        t1 = Thread(target=self.run)
-        t1.start()
+            t1 = Thread(target=self.run)
+            t1.start()
+
+        except errors.DBNotLoaded:
+            for child in self.winfo_children():
+                if child.widgetName == "cancel":
+                    child.destroy()
+            messagebox.showerror("Error", "No chat loaded")
 
     def run(self):
-        try:
-            if self.tagSearch.get() and self.nameSearch.get():
-                tagNameList = [self.tag_combo.get()]
-                self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(), tagNameList, self.isOffline()))
-            elif self.tagSearch.get():
-                self.updateText(analyze.analyzeByTag(self.tag_combo.get(), self.isOffline()))
-            elif self.nameSearch.get():
-                self.updateText((analyze.analyzeByName(self.name_combo.get(), self.isOffline())))
-            else:
-                self.updateText(analyze.analyze(self.isOffline()))
-        except TypeError:
-            for child in self.winfo_children():
-                if child.widgetName == "cancel":
-                    child.destroy()
-            messagebox.showerror("Error", "No chat loaded")
-            return
+        if self.tagSearch.get() and self.nameSearch.get():
+            tagNameList = [self.tag_combo.get()]
+            self.updateText(analyze.analyzeByTagAndName(self.name_combo.get(), tagNameList, self.isOffline()))
+        elif self.tagSearch.get():
+            self.updateText(analyze.analyzeByTag(self.tag_combo.get(), self.isOffline()))
+        elif self.nameSearch.get():
+            self.updateText((analyze.analyzeByName(self.name_combo.get(), self.isOffline())))
+        else:
+            self.updateText(analyze.analyze(self.isOffline()))
 
     def runTodayThread(self):
-        if not self.isOffline():
-            chatParser.resetGlobal()
-            d = cancel(self)
-            d.top.grab_set()
-            d.top.widgetName = "cancel"
-        t1 = Thread(target=self.run_today)
-        t1.start()
-
-    def run_today(self):
         try:
-            if self.tagSearch.get() and self.nameSearch.get():
-                tagNameList = [self.tag_combo.get()]
-                self.updateText(
-                    analyze.analyzeByTagAndNameToday(self.name_combo.get(), tagNameList, self.isOffline()))
-            elif self.nameSearch.get():
-                self.updateText(analyze.analyzeByNameToday(self.name_combo.get(), self.isOffline()))
-            elif self.tagSearch.get():
-                self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(), self.isOffline()))
-            else:
-                self.updateText(analyze.analyzeToday(self.isOffline()))
-        except TypeError:
+            if not self.isOffline():
+                chatParser.resetGlobal()
+                d = cancel(self)
+                d.top.grab_set()
+                d.top.widgetName = "cancel"
+            t1 = Thread(target=self.run_today)
+            t1.start()
+        except errors.DBNotLoaded:
             for child in self.winfo_children():
                 if child.widgetName == "cancel":
                     child.destroy()
             messagebox.showerror("Error", "No chat loaded")
-            return
+
+    def run_today(self):
+        if self.tagSearch.get() and self.nameSearch.get():
+            tagNameList = [self.tag_combo.get()]
+            self.updateText(
+                analyze.analyzeByTagAndNameToday(self.name_combo.get(), tagNameList, self.isOffline()))
+        elif self.nameSearch.get():
+            self.updateText(analyze.analyzeByNameToday(self.name_combo.get(), self.isOffline()))
+        elif self.tagSearch.get():
+            self.updateText(analyze.analyzeByTagToday(self.tag_combo.get(), self.isOffline()))
+        else:
+            self.updateText(analyze.analyzeToday(self.isOffline()))
+
 
     def runByDateThread(self):
-        if not self.isOffline():
-            chatParser.resetGlobal()
-            d = cancel(self)
-            d.top.grab_set()
-            d.top.widgetName = "cancel"
-        t1 = Thread(target=self.run_by_date)
-        t1.start()
+        try:
+            if not self.isOffline():
+                chatParser.resetGlobal()
+                d = cancel(self)
+                d.top.grab_set()
+                d.top.widgetName = "cancel"
+            t1 = Thread(target=self.run_by_date)
+            t1.start()
+        except errors.DBNotLoaded:
+            for child in self.winfo_children():
+                if child.widgetName == "cancel":
+                    child.destroy()
+            messagebox.showerror("Error", "No chat loaded")
 
     def run_by_date(self):
         try:
@@ -411,12 +417,7 @@ class mainPage(tk.Frame):
                     child.destroy()
             messagebox.showerror("Error", "bad date: DD/MM/YYYY")
             return
-        except TypeError:
-            for child in self.winfo_children():
-                if child.widgetName == "cancel":
-                    child.destroy()
-            messagebox.showerror("Error", "No chat loaded")
-            return
+
 
 
     def updateText(self, text):

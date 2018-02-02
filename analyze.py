@@ -172,7 +172,7 @@ def returnStats():
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
 
-    s = s + "Character Sheets \n"
+    s = s + "Character Sheets: \n\n"
     for char,values in charSheetStats.items():
         # s = s + player
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
@@ -207,7 +207,9 @@ def findWinner(exclude):
 
     stars = [highestCritsus,highestCritsus,highestNats,highestCritFail,highestNatOnes]
 
-    for player, values in playerStats.items():
+    allstats = {**playerStats, **charSheetStats}
+
+    for player, values in allstats.items():
         if hightroll[1] < values["highestRoll"]:
             if hightroll[1] == values["highestRoll"]:
                 if playerAHaveMoreRolls(hightroll[0], player):
@@ -251,24 +253,24 @@ def findWinner(exclude):
         if val[0] is None:
             val[0] = player
 
-    val = playerStats[hightroll[0]]
+    val = allstats[hightroll[0]]
     val["points"] += 10
-    playerStats[hightroll[0]] = val
+    allstats[hightroll[0]] = val
 
-    val = playerStats[highestCritsus[0]]
+    val = allstats[highestCritsus[0]]
     val["points"] += 10
-    playerStats[highestCritsus[0]] = val
+    allstats[highestCritsus[0]] = val
 
-    val = playerStats[highestNats[0]]
+    val = allstats[highestNats[0]]
     val["points"] += 10
-    playerStats[highestNats[0]] = val
+    allstats[highestNats[0]] = val
 
-    val = playerStats[highestCritFail[0]]
+    val = allstats[highestCritFail[0]]
     val["points"] += 10
-    playerStats[highestCritFail[0]] = val
+    allstats[highestCritFail[0]] = val
 
     scores = []
-    for player, values in playerStats.items():
+    for player, values in allstats.items():
         scores.append((values["names"], values["points"]))
 
     return sorted(scores, key=lambda score: score[1])
@@ -290,12 +292,44 @@ def analyzeDB(messages):
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0, "diceRolls": Counter(),
                  "topFormual": Counter(), "highestRoll": 0, "points": 0}
 
+        rolled = message["Rolled"]
+        rollFomula = message["RolledFormula"]
+        rollList = message["RolledResultsList"]
+
+
         if message["MessageType"] == "characterSheet":
             id = message["BY"]
             if id in charSheetStats:
                 stats = charSheetStats[id]
             else:
                 charSheetStats[id] = stats
+
+            count = stats["diceRolls"]
+            for roll in rollList:
+                side = roll[0]
+                crit = roll[1]
+                rollVal = roll[2]
+
+                count[side] += 1
+
+
+                if "critfail" in crit:
+                    if "d20" in side:
+                        stats["nat1"] += 1
+                        stats["totCrtFail"] += 1
+
+                    else:
+                        stats["totCrtFail"] += 1
+                elif "critsuccess" in crit:
+                    val = side[1:]
+
+                    stats["points"] = stats["points"] + int(val)
+                    if "d20" in side:
+                        stats["nat20"] += 1
+                        stats["totCrtSus"] += 1
+                    else:
+                        stats["totCrtSus"] += 1
+
 
         else:
             id = message["UserID"]
@@ -304,44 +338,38 @@ def analyzeDB(messages):
             else:
                 playerStats[id] = stats
 
-        stats["names"].add(message["BY"])
-
-        rolled = message["Rolled"]
-        rollFomula = message["RolledFormula"]
-        rollList = message["RolledResultsList"]
-
-        count = stats["diceRolls"]
-        stats["topFormual"][rollFomula] += 1
-
-        for roll in rollList:
-            m = re.search('d\d+', roll[0])
-            if m:
-                count[m.group(0)] += 1
-            else:
-                print("error at for roll in rollList ", message)
-
-            if "critfail" in roll[0]:
-                if "d20" in roll[0]:
-                    stats["nat1"] += 1
-                    stats["totCrtFail"] += 1
-
+            count = stats["diceRolls"]
+            for roll in rollList:
+                m = re.search('d\d+', roll[0])
+                if m:
+                    count[m.group(0)] += 1
                 else:
-                    stats["totCrtFail"] += 1
-            elif "critsuccess" in roll[0]:
-                if not isinstance(m, type(None)):
-                    val = int(m.group()[1:])
-                else:
-                    val = 0
                     print("error at for roll in rollList ", message)
 
-                stats["points"] = stats["points"] + val
-                if "d20" in roll[0]:
+                if "critfail" in roll[0]:
+                    if "d20" in roll[0]:
+                        stats["nat1"] += 1
+                        stats["totCrtFail"] += 1
 
-                    stats["nat20"] += 1
-                    stats["totCrtSus"] += 1
-                else:
-                    stats["totCrtSus"] += 1
+                    else:
+                        stats["totCrtFail"] += 1
+                elif "critsuccess" in roll[0]:
+                    if not isinstance(m, type(None)):
+                        val = int(m.group()[1:])
+                    else:
+                        val = 0
+                        print("error at for roll in rollList ", message)
 
+                    stats["points"] = stats["points"] + val
+                    if "d20" in roll[0]:
+
+                        stats["nat20"] += 1
+                        stats["totCrtSus"] += 1
+                    else:
+                        stats["totCrtSus"] += 1
+
+        stats["names"].add(message["BY"])
+        stats["topFormual"][rollFomula] += 1
         stats["diceRolls"] = count
 
         lastHigestRoll = stats.get("highestRoll")

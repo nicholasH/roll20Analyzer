@@ -443,12 +443,13 @@ def charSheetRoll(content,message):
                     if "rolling" in str(s).lower():
                         dice = str(s).split("=")[0]
                         side = re.search("\d+d\d+",dice).group(0).split("d")[-1]
+                        side = "d"+side
 
 
                     if "basicdiceroll" in str(s).lower():
                         dicerolls.append(s.text)
                         if len(s.attrs["class"]) >= 3:
-                            crit.append(s.attr["class"][1])
+                            crit.append(s.attrs["class"][1])
                         else:
                             crit.append("")
 
