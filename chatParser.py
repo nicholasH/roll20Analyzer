@@ -443,14 +443,14 @@ def charSheetRoll(content,message):
                     if "basicdiceroll" in str(s).lower():
                         dicerolls.append(s.text)
 
-    message[DBhandler.MessageType_field] = 'characterSheet'
-    message[DBhandler.RolledResultsList_field] = dicerolls
-    message[DBhandler.RolledFormula_field] = dice
-    message[DBhandler.Rolled_Field] = roll
-    message[DBhandler.Time_field] = static.tstamp
-    #todo make a add tage with out player id
-    DBhandler.addtag(message[DBhandler.MessageID_field], "add tag with out player id",static.tstamp)
-    DBhandler.addMessage(message)
+                message[DBhandler.MessageType_field] = 'characterSheet'
+                message[DBhandler.RolledResultsList_field] = dicerolls
+                message[DBhandler.RolledFormula_field] = dice
+                message[DBhandler.Rolled_Field] = roll
+                message[DBhandler.Time_field] = static.tstamp
+                #todo make a add tage with out player id
+                DBhandler.addtag(message[DBhandler.MessageID_field], "add tag with out player id",static.tstamp)
+                DBhandler.addMessage(message)
 
 
 
