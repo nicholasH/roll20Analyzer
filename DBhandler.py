@@ -243,10 +243,10 @@ def getMessages():
 
 
 # returns a list of all rollresults
-def getMessagesRoleresult():
+def getMessagesRolls():
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute("SELECT * FROM Message WHERE MessageType='rollresult'")
+    c.execute("SELECT * FROM Message WHERE MessageType='rollresult' OR MessageType='characterSheet'")
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -397,7 +397,7 @@ def getRollresultDateTime(dateTime):
 def getRollresultDateTimeRange(dateTimeA, dateTimeB):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='rollresult'".format(
+    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='rollresult' OR {mt}='characterSheet'".format(
         tn=Message_table,
         tf=Time_field,
         mt=MessageType_field,
@@ -520,6 +520,7 @@ def getActiveTagsNames():
 
 #todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
+# if player ID is None returns only the game tag not the self tags
 #returns all the activeTags
 def getActiveTagsAndUpdate(playerID,time):
     cleanActiveTime(time)
@@ -546,6 +547,8 @@ def addtag(messageID, playerID,tstamp):
             ))
     conn.commit()
     conn.close()
+
+
 
 #removes a Active tag by name
 def endtag(tagName):
@@ -591,7 +594,7 @@ def getMessagesWithTagsBYDateRange(tagName,dateTimeA,dateTimeB):
               "JOIN Tags "
               "ON Message.MessageID = Tags.MessageID "
               "WHERE Tags.TagName = ?"
-              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult'",(tagName,dateTimeA,dateTimeB))
+              "AND Time BETWEEN ? AND ?",(tagName,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
@@ -622,7 +625,7 @@ def getAllNames():
     except(TypeError):
         return [""]
     c = conn.cursor()
-    c.execute('SELECT DISTINCT BY FROM Message WHERE MessageType="rollresult"')
+    c.execute('SELECT DISTINCT BY FROM Message WHERE MessageType="rollresult" OR MessageType="characterSheet"')
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -635,7 +638,7 @@ def getAllNames():
 def getMessagesByName(name):
     conn = sqlite3.connect(db)
     c = conn.cursor()
-    c.execute("SELECT * FROM Message WHERE By = (?) AND MessageType ='rollresult'",(name,))
+    c.execute("SELECT * FROM Message WHERE By = (?) AND MessageType ='rollresult' OR MessageType='characterSheet'",(name,))
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -652,7 +655,7 @@ def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
     c = conn.cursor()
     c.execute("SELECT * FROM Message "
               "WHERE By = ?"
-              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult'",(name,dateTimeA,dateTimeB))
+              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult' OR MessageType='characterSheet'",(name,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
@@ -663,7 +666,7 @@ def getMessagesByTagAndName(tagNameList,name):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
-              "WHERE Message.by = ? AND MessageType ='rollresult'"
+              "WHERE Message.by = ? AND MessageType ='rollresult' OR MessageType='characterSheet'"
     andTag = "And Tags.TagName = ? "
 
     exeVar = [name]
@@ -690,7 +693,7 @@ def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
-              "WHERE Time BETWEEN ? AND ? AND Message.by = ? AND MessageType ='rollresult'"
+              "WHERE Time BETWEEN ? AND ? AND Message.by = ? AND MessageType ='rollresult' OR MessageType='characterSheet'"
     andTag = " AND Tags.TagName = ? "
 
     exeVar = [dateTimeA,dateTimeB,name]
@@ -707,3 +710,18 @@ def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
     conn.close()
 
     return makeList(data)
+
+def getPlayerID():
+    setTurn = set()
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT UserID FROM Message WHERE MessageType="rollresult"')
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+    listTurn = []
+    for d in data:
+        set.add(d[0])
+    return listTurn
+
+

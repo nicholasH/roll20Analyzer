@@ -31,7 +31,7 @@ def analyze(offline):
     if not offline:
         chatParser.addScrapParseToDB()
 
-    analyzeDB(DBhandler.getMessagesRoleresult())
+    analyzeDB(DBhandler.getMessagesRolls())
     return returnStats()
 
 
@@ -263,6 +263,7 @@ def playerAHaveMoreRolls(playerA, playerB):
         return True
     else:
         return sum(playerStats[playerA]["diceRolls"].values()) > sum(playerStats[playerB]["diceRolls"].values())
+
 
 #gets lists of messages and adds up each stat in set stat
 def analyzeDB(messages):

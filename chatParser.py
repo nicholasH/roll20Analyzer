@@ -423,7 +423,6 @@ def getDiceRolls(contents):
     return rlist
 
 def charSheetRoll(content,message):
-    print(content)
     dicerolls = list()
     dice = ""
     roll = ""
@@ -449,7 +448,7 @@ def charSheetRoll(content,message):
                 message[DBhandler.Rolled_Field] = roll
                 message[DBhandler.Time_field] = static.tstamp
                 #todo make a add tage with out player id
-                DBhandler.addtag(message[DBhandler.MessageID_field], "add tag with out player id",static.tstamp)
+                DBhandler.addtag(message[DBhandler.MessageID_field], None ,static.tstamp)
                 DBhandler.addMessage(message)
 
 
