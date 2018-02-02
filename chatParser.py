@@ -258,6 +258,8 @@ def addGeneral(datum):
         message[DBhandler.Avatar_field] = static.photo
         message[DBhandler.By_field] = static.by
         message[DBhandler.Time_field] = static.tstamp
+        message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+
 
         charSheetRoll(char, message)
     else:
@@ -426,6 +428,7 @@ def charSheetRoll(content,message):
     dicerolls = list()
     dice = ""
     roll = ""
+    crit = list()
     childContent = content.findChildren()
     for cc in childContent:
         ccClass = cc.attrs.get("class")
@@ -438,16 +441,27 @@ def charSheetRoll(content,message):
                 for s in soup.contents:
                     test = str(s)
                     if "rolling" in str(s).lower():
-                        dice = s
+                        dice = str(s).split("=")[0]
+                        side = re.search("\d+d\d+",dice).group(0).split("d")[-1]
+
+
                     if "basicdiceroll" in str(s).lower():
                         dicerolls.append(s.text)
+                        if len(s.attrs["class"]) >= 3:
+                            crit.append(s.attr["class"][1])
+                        else:
+                            crit.append("")
+
+                #todo make match format
+                sides = [side] * len(dicerolls)
+                rollResults = list(zip(sides,crit,dicerolls))
 
                 message[DBhandler.MessageType_field] = 'characterSheet'
-                message[DBhandler.RolledResultsList_field] = dicerolls
+                message[DBhandler.RolledResultsList_field] = rollResults
                 message[DBhandler.RolledFormula_field] = dice
                 message[DBhandler.Rolled_Field] = roll
                 message[DBhandler.Time_field] = static.tstamp
-                #todo make a add tage with out player id
+
                 DBhandler.addtag(message[DBhandler.MessageID_field], None ,static.tstamp)
                 DBhandler.addMessage(message)
 

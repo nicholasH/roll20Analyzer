@@ -9,6 +9,8 @@ import re
 
 global playerStats  # PlayerId:dict() states
 playerStats = dict()
+global charSheetStats
+charSheetStats = dict()
 
 path = ""
 
@@ -170,6 +172,20 @@ def returnStats():
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
 
+    s = s + "Character Sheets \n"
+    for char,values in charSheetStats.items():
+        # s = s + player
+        s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
+        s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
+        s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
+                                                                                  values["totCrtFail"],
+                                                                                  values["nat1"])) + "\n"
+        s = s + str(values["diceRolls"]) + "\n"
+        s = s + "highest roll " + str(values["highestRoll"]) + "\n"
+        s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
+        s = s + "points " + str(values["points"])
+        s = s + ('\n\n')
+
     s = s + str(findWinner(""))+"\n\n"
     s = s +"Current Active Tags"+ str(DBhandler.getActiveTagsNames())
     s = s + "\n" + "#" * 100
@@ -267,18 +283,26 @@ def playerAHaveMoreRolls(playerA, playerB):
 
 #gets lists of messages and adds up each stat in set stat
 def analyzeDB(messages):
-    global playerStats
+    global playerStats,charSheetStats
     playerStats = dict()
-
+    charSheetStats = dict()
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0, "diceRolls": Counter(),
                  "topFormual": Counter(), "highestRoll": 0, "points": 0}
 
-        id = message["UserID"]
-        if id in playerStats:
-            stats = playerStats[id]
+        if message["MessageType"] == "characterSheet":
+            id = message["BY"]
+            if id in charSheetStats:
+                stats = charSheetStats[id]
+            else:
+                charSheetStats[id] = stats
+
         else:
-            playerStats[id] = stats
+            id = message["UserID"]
+            if id in playerStats:
+                stats = playerStats[id]
+            else:
+                playerStats[id] = stats
 
         stats["names"].add(message["BY"])
 
