@@ -686,8 +686,6 @@ def getMessagesByTagAndName(tagNameList,name):
     conn.commit()
     data = c.fetchall()
     conn.close()
-    for e in makeList(data):
-        print(e)
     return makeList(data)
 
 def getMessagesByTagAndNameByDate(tagNameList,name,dateTime):

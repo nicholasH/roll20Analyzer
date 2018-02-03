@@ -154,7 +154,6 @@ def updatePhoto(content):
             static.photo = p[:last]
 
 
-    print(static.photo)
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
@@ -442,8 +441,16 @@ def charSheetRoll(content,message):
                     test = str(s)
                     if "rolling" in str(s).lower():
                         dice = str(s).split("=")[0]
-                        side = re.search("\d+d\d+",dice).group(0).split("d")[-1]
-                        side = "d"+side
+                        reg = re.search("\d+d\d+",dice)
+
+                        if reg is None:
+                            print("unkown formula")
+                            print(message["MessageID"])
+                            #todo maybe may this break 
+                            return
+                        else:
+                            side = reg.group(0).split("d")[-1]
+                            side = "d"+side
 
 
                     if "basicdiceroll" in str(s).lower():
@@ -453,7 +460,6 @@ def charSheetRoll(content,message):
                         else:
                             crit.append("")
 
-                #todo make match format
                 sides = [side] * len(dicerolls)
                 rollResults = list(zip(sides,crit,dicerolls))
 

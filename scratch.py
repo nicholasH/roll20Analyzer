@@ -49,11 +49,3 @@ import analyze
 
 #todo add a way to excuded tags
 
-
-
-a = ['a','b','c']
-b = [1,2,3]
-v =["20"] * 3
-d =list(zip(v , a , b))
-
-print(d)
