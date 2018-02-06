@@ -438,6 +438,7 @@ def charSheetRoll(content,message):
 
                 if rollResults_Formula is None:
                     print(message["MessageID"])
+                    #may make continue
                     break
 
                 rollResults = rollResults_Formula[0]

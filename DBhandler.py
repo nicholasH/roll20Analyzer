@@ -212,6 +212,8 @@ def destroyDB():
 
 # adds a single message to the db
 # gets a dict with all message feilds it add it to the db
+#todo refactor my code so diffent messagetypes have diffent table
+#todo add a table for individual rolls
 def addMessage(messageDic: dict):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
