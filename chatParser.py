@@ -424,10 +424,6 @@ def getDiceRolls(contents):
     return rlist
 
 def charSheetRoll(content,message):
-    dicerolls = list()
-    dice = ""
-    roll = ""
-    crit = list()
     childContent = content.findChildren()
     for cc in childContent:
         ccClass = cc.attrs.get("class")
@@ -437,42 +433,54 @@ def charSheetRoll(content,message):
                 ccTitle = cc.attrs.get("title")
                 roll = cc.text
                 soup = BeautifulSoup(ccTitle, 'html.parser')
-                for s in soup.contents:
-                    test = str(s)
-                    if "rolling" in str(s).lower():
-                        dice = str(s).split("=")[0]
-                        reg = re.search("\d+d\d+",dice)
 
-                        if reg is None:
-                            print("unkown formula")
-                            print(message["MessageID"])
-                            #todo maybe may this break 
-                            return
-                        else:
-                            side = reg.group(0).split("d")[-1]
-                            side = "d"+side
+                rollResults_Formula = parseCharterSheetroll(soup)
 
+                if rollResults_Formula is None:
+                    print(message["MessageID"])
+                    break
 
-                    if "basicdiceroll" in str(s).lower():
-                        dicerolls.append(s.text)
-                        if len(s.attrs["class"]) >= 3:
-                            crit.append(s.attrs["class"][1])
-                        else:
-                            crit.append("")
-
-                sides = [side] * len(dicerolls)
-                rollResults = list(zip(sides,crit,dicerolls))
+                rollResults = rollResults_Formula[0]
+                formula = rollResults_Formula[1]
 
                 message[DBhandler.MessageType_field] = 'characterSheet'
                 message[DBhandler.RolledResultsList_field] = rollResults
-                message[DBhandler.RolledFormula_field] = dice
+                message[DBhandler.RolledFormula_field] = formula
                 message[DBhandler.Rolled_Field] = roll
                 message[DBhandler.Time_field] = static.tstamp
 
                 DBhandler.addtag(message[DBhandler.MessageID_field], None ,static.tstamp)
                 DBhandler.addMessage(message)
 
+def parseCharterSheetroll(soup):
+    dicerolls = list()
+    crit = list()
+    for s in soup.contents:
+        test = str(s)
+        if "rolling" in str(s).lower():
+            formula = str(s).split("=")[0]
+            reg = re.search("\d+d\d+", formula)
 
+            if reg is None:
+                print("unkown formula")
+                print(formula)
+                # todo maybe may this break
+                return None
+            else:
+                side = reg.group(0).split("d")[-1]
+                side = "d" + side
+
+        if "basicdiceroll" in str(s).lower():
+            dicerolls.append(s.text)
+            if len(s.attrs["class"]) >= 3:
+                crit.append(s.attrs["class"][1])
+            else:
+                crit.append("")
+
+    sides = [side] * len(dicerolls)
+    rollResults = list(zip(sides, crit, dicerolls))
+
+    return [rollResults,formula]
 
 def cancelParser():
     global cancel
