@@ -10,18 +10,28 @@ Message_table = 'Message'
 
 MessageID_field = "MessageID"
 MessageType_field = "MessageType"
-
-UserID_field = 'UserID'
 By_field = 'BY'
-
 Avatar_field = "Avatar"
-
 Time_field = "Time"
 TimeAddedToDB_field = "TimeAddedToDB"
 
+
+#rollResultTable
+RolledResults_table = "RollResult"
+
+UserID_field = 'UserID'
+totalRolled_Field = "Rolled"
 RolledFormula_field = "RolledFormula"
-RolledResultsList_field = "RolledResultsList"
-Rolled_Field = "Rolled"
+
+#diceTable
+Dice_table = "Dice"
+sides_field = "Sides"
+
+
+
+
+
+#RolledResultsList_field = "RolledResultsList"
 
 Text_Field = "Text"
 
@@ -39,7 +49,7 @@ columnName = [MessageID_field,
               TimeAddedToDB_field,
               RolledFormula_field,
               RolledResultsList_field,
-              Rolled_Field]
+              totalRolled_Field]
 
 # game Table
 GameData_table = 'gameData'
@@ -98,11 +108,31 @@ def createMessageTable():
                     TAD=TimeAddedToDB_field,
                     RF=RolledFormula_field,
                     RL=RolledResultsList_field,
-                    Roll=Rolled_Field
+                    Roll=totalRolled_Field
 
                     , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
     conn.close()
 
+def createRollMessageTable():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+
+    c.execute(
+        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
+            .format(tn=Message_table,
+                    MID=MessageID_field,
+                    MT=MessageType_field,
+                    AVA=Avatar_field,
+                    UI=UserID_field,
+                    By=By_field,
+                    TF=Time_field,
+                    TAD=TimeAddedToDB_field,
+                    RF=RolledFormula_field,
+                    RL=RolledResultsList_field,
+                    Roll=totalRolled_Field
+
+                    , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
+    conn.close()
 
 # creates the GameDataTable
 def createGameDataTable():
@@ -228,7 +258,7 @@ def addMessage(messageDic: dict):
             messageDic.get(TimeAddedToDB_field),
             messageDic.get(RolledFormula_field),
             pickle.dumps(messageDic.get(RolledResultsList_field)),
-            messageDic.get(Rolled_Field),
+            messageDic.get(totalRolled_Field),
         ))
     conn.commit()
     conn.close()

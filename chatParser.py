@@ -218,7 +218,7 @@ def addRollresult(datum):
     message[DBhandler.By_field] = static.by
     message[DBhandler.RolledResultsList_field] = dicerolls
     message[DBhandler.RolledFormula_field] = dice
-    message[DBhandler.Rolled_Field] = roll
+    message[DBhandler.totalRolled_Field] = roll
     message[DBhandler.Time_field] = static.tstamp
     message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
@@ -262,6 +262,7 @@ def addGeneral(datum):
 
         charSheetRoll(char, message)
     else:
+        #todo get rid of below code, why keep useless data
         message[DBhandler.MessageType_field] = 'general'
         message[DBhandler.MessageID_field] = messageID
         message[DBhandler.Avatar_field] = static.photo
@@ -439,7 +440,7 @@ def charSheetRoll(content,message):
                 if rollResults_Formula is None:
                     print(message["MessageID"])
                     #may make continue
-                    break
+                    continue
 
                 rollResults = rollResults_Formula[0]
                 formula = rollResults_Formula[1]
@@ -447,7 +448,7 @@ def charSheetRoll(content,message):
                 message[DBhandler.MessageType_field] = 'characterSheet'
                 message[DBhandler.RolledResultsList_field] = rollResults
                 message[DBhandler.RolledFormula_field] = formula
-                message[DBhandler.Rolled_Field] = roll
+                message[DBhandler.totalRolled_Field] = roll
                 message[DBhandler.Time_field] = static.tstamp
 
                 DBhandler.addtag(message[DBhandler.MessageID_field], None ,static.tstamp)
