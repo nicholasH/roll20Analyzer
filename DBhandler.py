@@ -15,41 +15,34 @@ Avatar_field = "Avatar"
 Time_field = "Time"
 TimeAddedToDB_field = "TimeAddedToDB"
 
-
-#rollResultTable
-RolledResults_table = "RollResult"
+#userIDTable
+UserTable= 'User'
 
 UserID_field = 'UserID'
-totalRolled_Field = "Rolled"
-RolledFormula_field = "RolledFormula"
+MessageID_field_UserTable = MessageID_field
+
+#FormulaTable
+Formula_table = 'Fourmula'
+
+Roll_Formula_field = 'RollFormula'
+TotalRoll_field = 'TotalRoll'
+Formula_ID_field ='FormulaID'
+MessageID_field_FormulaTable = MessageID_field
 
 #diceTable
 Dice_table = "Dice"
-sides_field = "Sides"
 
+Sides_field = "Sides"
+Roll_field = "Roll"
+Crit_field = 'Crit'
+Dice_Type_field = 'Dicetype'
+Dice_ID_field = 'DiceID'
 
+#dice formula Junction
+Dice_Formula_junction_table = 'Dice_Formula_JT'
 
-
-
-RolledResultsList_field = "RolledResultsList"
-
-Text_Field = "Text"
-
-integer_field_type = 'INTEGER'
-string_field_type = 'STRING'
-Date_field_type = "date"
-Tstamp_field = 'timestamp'
-
-columnName = [MessageID_field,
-              MessageType_field,
-              Avatar_field,
-              UserID_field,
-              By_field,
-              Time_field,
-              TimeAddedToDB_field,
-              RolledFormula_field,
-              RolledResultsList_field,
-              totalRolled_Field]
+Formula_ID_field_JT =Formula_ID_field
+Dice_ID_field_JT = Dice_ID_field
 
 # game Table
 GameData_table = 'gameData'
@@ -63,6 +56,7 @@ Tag_name_field = "TagName"
 
 # active_table
 tag_active_table = "tags_active"
+
 Tag_Active_name_field = Tag_name_field
 tag_type_field = "TagType"
 tag_data_field = "Data"
@@ -70,12 +64,15 @@ tag_self_feild = "Self"
 tag_Avatar_field = Avatar_field
 tag_Active_playerID_feild = UserID_field
 
-# tagName
-All_tags_table = 'AllTags'
-all_tags_tag_names_feild = Tag_Active_name_field
 
 
-global db
+integer_field_type = 'INTEGER'
+string_field_type = 'STRING'
+Date_field_type = "date"
+Tstamp_field = 'timestamp'
+
+
+
 db = None
 
 
@@ -83,10 +80,14 @@ db = None
 def createDB(name, url):
     setDB(name)
     createMessageTable()
+    createUserTable()
+    createFormulaTable()
+    createDiceTable()
+    createDiceFormulaTable()
     createGameDataTable()
     createTagTable()
     createActiveTageTable()
-    createAlltagsTable()
+
 
     setdata(name, url)
 
@@ -95,9 +96,8 @@ def createDB(name, url):
 def createMessageTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
+        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd})'
             .format(tn=Message_table,
                     MID=MessageID_field,
                     MT=MessageType_field,
@@ -105,34 +105,78 @@ def createMessageTable():
                     UI=UserID_field,
                     By=By_field,
                     TF=Time_field,
-                    TAD=TimeAddedToDB_field,
-                    RF=RolledFormula_field,
-                    RL=RolledResultsList_field,
-                    Roll=totalRolled_Field
+                    TAD=TimeAddedToDB_field
 
-                    , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
+                    , fts=string_field_type, ftd=Date_field_type, ftts=Tstamp_field))
     conn.close()
 
-def createRollMessageTable():
+def createUserTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
-            .format(tn=Message_table,
+        'CREATE TABLE {tn} ({MIDU} {fts}, FOREIGN KEY({MIDU}) REFERENCES {MTN}({MID}), {UID} {fts})'
+            .format(tn=UserTable,
                     MID=MessageID_field,
-                    MT=MessageType_field,
-                    AVA=Avatar_field,
-                    UI=UserID_field,
-                    By=By_field,
-                    TF=Time_field,
-                    TAD=TimeAddedToDB_field,
-                    RF=RolledFormula_field,
-                    RL=RolledResultsList_field,
-                    Roll=totalRolled_Field
-
-                    , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
+                    MIDU=MessageID_field_UserTable,
+                    MTN=Message_table,
+                    UID=UserID_field
+                    ,fts=string_field_type))
     conn.close()
+
+#creates the FormulaTable
+def createFormulaTable():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute(
+        'CREATE TABLE {tn} ({FID} {fti} auto_increment primary key, {MIDF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}),{TR} {fti}, {RF} {fts})'
+            .format(tn=Formula_table,
+
+                    FID=Formula_ID_field,
+                    MID=MessageID_field,
+                    MIDF=MessageID_field_FormulaTable,
+                    MTN=Message_table,
+                    TR=TotalRoll_field,
+                    RF=Roll_Formula_field
+
+                    ,fts=string_field_type,fti=integer_field_type))
+    conn.close()
+
+def createDiceTable():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute(
+        'CREATE TABLE {tn} ({DID} {fti} auto_increment primary key, {SD} {fti}, {CT} {fts}, {RL} {fts}, {DT} {fts})'
+            .format(tn=Formula_table,
+
+                    DID=Dice_ID_field,
+                    SD = Sides_field,
+                    CT = Crit_field,
+                    RL = Roll_field,
+                    DT = Dice_Type_field
+
+                    ,fts=string_field_type,fti=integer_field_type))
+    conn.close()
+
+
+
+def createDiceFormulaTable():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute(
+        'CREATE TABLE {tn} ({DID} {fti}, {FID} {fti}, FOREIGN KEY({DID}) REFERENCES {DTN}({DTID}), FOREIGN KEY({FID}) REFERENCES {FTN}({FTID}))'
+            .format(tn=Dice_Formula_junction_table,
+                    DTN=Dice_table,
+                    DTID=Dice_ID_field,
+                    FTN=Formula_table,
+                    FTID=Formula_ID_field,
+                    DID=Dice_ID_field_JT,
+                    FID = Formula_ID_field_JT
+
+                    ,fts=string_field_type,fti=integer_field_type))
+    conn.close()
+
+
+
 
 # creates the GameDataTable
 def createGameDataTable():
@@ -152,8 +196,10 @@ def createGameDataTable():
 def createTagTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "CREATE TABLE {tn} ({mf} {fts}, {tan} {fts})".format(
+    exe = "CREATE TABLE {tn} ({mf} {fts}, FOREIGN KEY({mf}) REFERENCES {MTN}({TMID}), {tan} {fts})".format(
         tn=Tag_table,
+        MTN=Message_table,
+        TMID=MessageID_field,
         mf=MessageID_tag_field,
         tan=Tag_name_field,
         fts=string_field_type

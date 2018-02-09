@@ -53,7 +53,7 @@ def addScrapParseToDB():
     # todo remove this login
     # Loging
     ######################################################################################
-    '''
+
     path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
@@ -83,7 +83,7 @@ def addScrapParseToDB():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    '''
+
     #######################################################################################
 
     try:
