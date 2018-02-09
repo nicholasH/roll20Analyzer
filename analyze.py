@@ -9,6 +9,8 @@ import re
 
 global playerStats  # PlayerId:dict() states
 playerStats = dict()
+global charSheetStats
+charSheetStats = dict()
 
 path = ""
 
@@ -29,17 +31,18 @@ def getPath():
 
 def analyze(offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
 
-    analyzeDB(DBhandler.getMessagesRoleresult())
+    analyzeDB(DBhandler.getMessagesRolls())
     return returnStats()
 
 
 def analyzeToday(offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
 
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
+
     analyzeDB(DBhandler.getRollresultDateTime(startToday))
     return returnStats()
 
@@ -47,7 +50,7 @@ def analyzeToday(offline):
 # Gets 1 Datetime and returns the messages of that date
 def analyzeDate(date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getRollresultDateTime(date))
     return returnStats()
 
@@ -55,7 +58,7 @@ def analyzeDate(date, offline):
 # Gets 2 datestimes and returns the messages between the dates
 def analyzeDateRange(date0, date1, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getRollresultDateTimeRange(date0, date1))
     return returnStats()
 
@@ -63,7 +66,7 @@ def analyzeDateRange(date0, date1, offline):
 # get a tag name and return the messages with the tags
 def analyzeByTag(tagName, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     DBhandler.printTags()
     analyzeDB(DBhandler.getMessagesWithTags(tagName))
     return returnStats()
@@ -71,7 +74,7 @@ def analyzeByTag(tagName, offline):
 
 def analyzeByTagToday(tagName, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getMessagesWithTagsBYDate(tagName, startToday))
     return returnStats()
@@ -79,14 +82,14 @@ def analyzeByTagToday(tagName, offline):
 
 def analyzeByTagDate(tagName, date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesWithTagsBYDate(tagName, date))
     return returnStats()
 
 
 def analyzeByTagDateRange(tagName, date0, date1, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesWithTagsBYDateRange(tagName, date0, date1))
     return returnStats()
 
@@ -94,14 +97,14 @@ def analyzeByTagDateRange(tagName, date0, date1, offline):
 # gets a players name and returns all the messages with that name
 def analyzeByName(name, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByName(name))
     return returnStats()
 
 
 def analyzeByNameToday(name, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getMessagesByNameByDate(name, startToday))
     return returnStats()
@@ -109,14 +112,14 @@ def analyzeByNameToday(name, offline):
 
 def analyzeByNameByDate(name, date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByNameByDate(name, date))
     return returnStats()
 
 
 def analyzeByNameByDateRange(name, dateA, dateB, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByNameByDateRange(name, dateA, dateB))
     return returnStats()
 
@@ -124,14 +127,14 @@ def analyzeByNameByDateRange(name, dateA, dateB, offline):
 #the list of tag name is for future feature
 def analyzeByTagAndName(name, tagNameList, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByTagAndName(tagNameList, name))
     return returnStats()
 
 
 def analyzeByTagAndNameToday(name, tagNameList, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     startToday = datetime(datetime.today().year, datetime.today().month, datetime.today().day)
     analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList, name, startToday))
     return returnStats()
@@ -139,14 +142,14 @@ def analyzeByTagAndNameToday(name, tagNameList, offline):
 
 def analyzeByTagAndNameByDate(name, tagNameList, date, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByTagAndNameByDate(tagNameList, name, date))
     return returnStats()
 
 
 def analyzeByTagAndNameByDateRange(name, tagNameList, dateA, dateB, offline):
     if not offline:
-        chatParser.addToDb()
+        chatParser.addScrapParseToDB()
     analyzeDB(DBhandler.getMessagesByTagAndNameByDateRange(tagNameList, name, dateA, dateB))
     return returnStats()
 
@@ -157,6 +160,20 @@ def getGivenPath():
 def returnStats():
     s = ""
     for player, values in playerStats.items():
+        # s = s + player
+        s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
+        s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
+        s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
+                                                                                  values["totCrtFail"],
+                                                                                  values["nat1"])) + "\n"
+        s = s + str(values["diceRolls"]) + "\n"
+        s = s + "highest roll " + str(values["highestRoll"]) + "\n"
+        s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
+        s = s + "points " + str(values["points"])
+        s = s + ('\n\n')
+
+    s = s + "Character Sheets: \n\n"
+    for char,values in charSheetStats.items():
         # s = s + player
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
         s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
@@ -190,7 +207,9 @@ def findWinner(exclude):
 
     stars = [highestCritsus,highestCritsus,highestNats,highestCritFail,highestNatOnes]
 
-    for player, values in playerStats.items():
+    allstats = {**playerStats, **charSheetStats}
+
+    for player, values in allstats.items():
         if hightroll[1] < values["highestRoll"]:
             if hightroll[1] == values["highestRoll"]:
                 if playerAHaveMoreRolls(hightroll[0], player):
@@ -234,24 +253,24 @@ def findWinner(exclude):
         if val[0] is None:
             val[0] = player
 
-    val = playerStats[hightroll[0]]
+    val = allstats[hightroll[0]]
     val["points"] += 10
-    playerStats[hightroll[0]] = val
+    allstats[hightroll[0]] = val
 
-    val = playerStats[highestCritsus[0]]
+    val = allstats[highestCritsus[0]]
     val["points"] += 10
-    playerStats[highestCritsus[0]] = val
+    allstats[highestCritsus[0]] = val
 
-    val = playerStats[highestNats[0]]
+    val = allstats[highestNats[0]]
     val["points"] += 10
-    playerStats[highestNats[0]] = val
+    allstats[highestNats[0]] = val
 
-    val = playerStats[highestCritFail[0]]
+    val = allstats[highestCritFail[0]]
     val["points"] += 10
-    playerStats[highestCritFail[0]] = val
+    allstats[highestCritFail[0]] = val
 
     scores = []
-    for player, values in playerStats.items():
+    for player, values in allstats.items():
         scores.append((values["names"], values["points"]))
 
     return sorted(scores, key=lambda score: score[1])
@@ -263,59 +282,94 @@ def playerAHaveMoreRolls(playerA, playerB):
     else:
         return sum(playerStats[playerA]["diceRolls"].values()) > sum(playerStats[playerB]["diceRolls"].values())
 
+
 #gets lists of messages and adds up each stat in set stat
 def analyzeDB(messages):
-    global playerStats
+    global playerStats,charSheetStats
     playerStats = dict()
-
+    charSheetStats = dict()
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0, "diceRolls": Counter(),
                  "topFormual": Counter(), "highestRoll": 0, "points": 0}
-
-        id = message["UserID"]
-        if id in playerStats:
-            stats = playerStats[id]
-        else:
-            playerStats[id] = stats
-
-        stats["names"].add(message["BY"])
 
         rolled = message["Rolled"]
         rollFomula = message["RolledFormula"]
         rollList = message["RolledResultsList"]
 
-        count = stats["diceRolls"]
-        stats["topFormual"][rollFomula] += 1
 
-        for roll in rollList:
-            m = re.search('d\d+', roll[0])
-            if m:
-                count[m.group(0)] += 1
+        if message["MessageType"] == "characterSheet":
+            id = message["BY"]
+            if id in charSheetStats:
+                stats = charSheetStats[id]
             else:
-                print("error at for roll in rollList ", message)
+                charSheetStats[id] = stats
 
-            if "critfail" in roll[0]:
-                if "d20" in roll[0]:
-                    stats["nat1"] += 1
-                    stats["totCrtFail"] += 1
+            count = stats["diceRolls"]
+            for roll in rollList:
+                side = roll[0]
+                crit = roll[1]
+                rollVal = roll[2]
 
+                count[side] += 1
+
+
+                if "critfail" in crit:
+                    if "d20" in side:
+                        stats["nat1"] += 1
+                        stats["totCrtFail"] += 1
+
+                    else:
+                        stats["totCrtFail"] += 1
+                elif "critsuccess" in crit:
+                    val = side[1:]
+
+                    stats["points"] = stats["points"] + int(val)
+                    if "d20" in side:
+                        stats["nat20"] += 1
+                        stats["totCrtSus"] += 1
+                    else:
+                        stats["totCrtSus"] += 1
+
+
+        else:
+            id = message["UserID"]
+            if id in playerStats:
+                stats = playerStats[id]
+            else:
+                playerStats[id] = stats
+
+            count = stats["diceRolls"]
+            for roll in rollList:
+                m = re.search('d\d+', roll[0])
+                if m:
+                    count[m.group(0)] += 1
                 else:
-                    stats["totCrtFail"] += 1
-            elif "critsuccess" in roll[0]:
-                if not isinstance(m, type(None)):
-                    val = int(m.group()[1:])
-                else:
-                    val = 0
                     print("error at for roll in rollList ", message)
 
-                stats["points"] = stats["points"] + val
-                if "d20" in roll[0]:
+                if "critfail" in roll[0]:
+                    if "d20" in roll[0]:
+                        stats["nat1"] += 1
+                        stats["totCrtFail"] += 1
 
-                    stats["nat20"] += 1
-                    stats["totCrtSus"] += 1
-                else:
-                    stats["totCrtSus"] += 1
+                    else:
+                        stats["totCrtFail"] += 1
+                elif "critsuccess" in roll[0]:
+                    if not isinstance(m, type(None)):
+                        val = int(m.group()[1:])
+                    else:
+                        val = 0
+                        print("error at for roll in rollList ", message)
 
+                    stats["points"] = stats["points"] + val
+                    if "d20" in roll[0]:
+
+                        stats["nat20"] += 1
+                        stats["totCrtSus"] += 1
+                    else:
+                        stats["totCrtSus"] += 1
+
+        stats["names"].add(message["BY"])
+        stats["topFormual"][rollFomula] += 1
         stats["diceRolls"] = count
 
         lastHigestRoll = stats.get("highestRoll")

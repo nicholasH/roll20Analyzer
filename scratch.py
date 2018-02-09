@@ -49,38 +49,3 @@ import analyze
 
 #todo add a way to excuded tags
 
-
-
-
-
-class SampleApp(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        self.button = ttk.Button(text="start", command=self.start)
-        self.button.pack()
-        self.progress = ttk.Progressbar(self, orient="horizontal",
-                                        length=200, mode="determinate")
-        self.progress.pack()
-
-
-    def start(self):
-        t1 = Thread(target=DBscratch.countToMax)
-        t1.start()
-        self.progress["value"] = DBscratch.x
-        self.maxbytes = DBscratch.maax
-        self.progress["maximum"] = DBscratch.maax
-
-        self.read_bytes()
-
-    def read_bytes(self):
-        self.bytes = DBscratch.x
-        self.progress["value"] = self.bytes
-        if self.bytes < self.maxbytes:
-            # read more bytes after 100 ms
-            self.after(100, self.read_bytes)
-
-
-
-app = SampleApp()
-app.mainloop()

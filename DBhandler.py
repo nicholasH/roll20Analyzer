@@ -2,7 +2,7 @@ import os
 import sqlite3
 from datetime import datetime, date, timedelta
 import pickle
-
+import errors
 import sys
 
 # messageTable
@@ -10,18 +10,28 @@ Message_table = 'Message'
 
 MessageID_field = "MessageID"
 MessageType_field = "MessageType"
-
-UserID_field = 'UserID'
 By_field = 'BY'
-
 Avatar_field = "Avatar"
-
 Time_field = "Time"
 TimeAddedToDB_field = "TimeAddedToDB"
 
+
+#rollResultTable
+RolledResults_table = "RollResult"
+
+UserID_field = 'UserID'
+totalRolled_Field = "Rolled"
 RolledFormula_field = "RolledFormula"
+
+#diceTable
+Dice_table = "Dice"
+sides_field = "Sides"
+
+
+
+
+
 RolledResultsList_field = "RolledResultsList"
-Rolled_Field = "Rolled"
 
 Text_Field = "Text"
 
@@ -32,13 +42,14 @@ Tstamp_field = 'timestamp'
 
 columnName = [MessageID_field,
               MessageType_field,
+              Avatar_field,
               UserID_field,
               By_field,
               Time_field,
               TimeAddedToDB_field,
               RolledFormula_field,
               RolledResultsList_field,
-              Rolled_Field]
+              totalRolled_Field]
 
 # game Table
 GameData_table = 'gameData'
@@ -56,6 +67,7 @@ Tag_Active_name_field = Tag_name_field
 tag_type_field = "TagType"
 tag_data_field = "Data"
 tag_self_feild = "Self"
+tag_Avatar_field = Avatar_field
 tag_Active_playerID_feild = UserID_field
 
 # tagName
@@ -81,30 +93,50 @@ def createDB(name, url):
 
 # creates the messageTable
 def createMessageTable():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
     c.execute(
-        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts},  {UI} {fts},{By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
+        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
             .format(tn=Message_table,
                     MID=MessageID_field,
                     MT=MessageType_field,
+                    AVA=Avatar_field,
                     UI=UserID_field,
                     By=By_field,
-
                     TF=Time_field,
                     TAD=TimeAddedToDB_field,
                     RF=RolledFormula_field,
                     RL=RolledResultsList_field,
-                    Roll=Rolled_Field
+                    Roll=totalRolled_Field
 
                     , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
     conn.close()
 
+def createRollMessageTable():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+
+    c.execute(
+        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd}, {RF} {fts}, {RL} {fts}, {Roll} {fts})'
+            .format(tn=Message_table,
+                    MID=MessageID_field,
+                    MT=MessageType_field,
+                    AVA=Avatar_field,
+                    UI=UserID_field,
+                    By=By_field,
+                    TF=Time_field,
+                    TAD=TimeAddedToDB_field,
+                    RF=RolledFormula_field,
+                    RL=RolledResultsList_field,
+                    Roll=totalRolled_Field
+
+                    , fts=string_field_type, fti=integer_field_type, ftd=Date_field_type, ftts=Tstamp_field))
+    conn.close()
 
 # creates the GameDataTable
 def createGameDataTable():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     exe = "CREATE TABLE {tn} ({n} {fts}, {url} {fts})".format(
         tn=GameData_table,
@@ -118,7 +150,7 @@ def createGameDataTable():
 
 # creates the Tag table
 def createTagTable():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     exe = "CREATE TABLE {tn} ({mf} {fts}, {tan} {fts})".format(
         tn=Tag_table,
@@ -132,14 +164,15 @@ def createTagTable():
 
 # creates the active tag table
 def createActiveTageTable():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "CREATE TABLE {tn} (id {fit} PRIMARY KEY,{ta} {fts}, {tt} {fts}, {td} {fts}, {slf} {fit}, {uf} {fts})".format(
+    exe = "CREATE TABLE {tn} (id {fit} PRIMARY KEY,{ta} {fts}, {tt} {fts}, {td} {fts}, {slf} {fit}, {ava} {fts}, {uf} {fts})".format(
         tn=tag_active_table,
         ta=Tag_Active_name_field,
         tt=tag_type_field,
         td=tag_data_field,
         slf=tag_self_feild,
+        ava=tag_Avatar_field,
         uf=tag_Active_playerID_feild,
 
         fit=integer_field_type,
@@ -151,7 +184,7 @@ def createActiveTageTable():
 
 # A table that conatans all tag names that has been used in the game
 def createAlltagsTable():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     exe = "CREATE TABLE {tn} ({ta} {fts} PRIMARY KEY)".format(
         tn=All_tags_table,
@@ -165,7 +198,7 @@ def createAlltagsTable():
 
 # sets the meta data of the game
 def setdata(name, url):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("INSERT INTO gameData VALUES (?,?)", (name, url))
     conn.commit()
@@ -188,12 +221,14 @@ def setDB(name):
 
 
 def getDBPath():
+    if db == "" or db == None:
+        raise errors.DBNotLoaded
     return db
 
 
 # Destroys the DB
 def destroyDB():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS ' + Message_table)
     c.execute('DROP TABLE IF EXISTS ' + GameData_table)
@@ -208,19 +243,20 @@ def destroyDB():
 # adds a single message to the db
 # gets a dict with all message feilds it add it to the db
 def addMessage(messageDic: dict):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute(
-        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?,?,?,?)", (
+        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?,?,?,?,?)", (
             messageDic.get(MessageID_field),
             messageDic.get(MessageType_field),
+            messageDic.get(Avatar_field),
             messageDic.get(UserID_field),
             messageDic.get(By_field),
             messageDic.get(Time_field),
             messageDic.get(TimeAddedToDB_field),
             messageDic.get(RolledFormula_field),
             pickle.dumps(messageDic.get(RolledResultsList_field)),
-            messageDic.get(Rolled_Field),
+            messageDic.get(totalRolled_Field),
         ))
     conn.commit()
     conn.close()
@@ -228,7 +264,7 @@ def addMessage(messageDic: dict):
 
 # Gets all the message in the DB and returns a list
 def getMessages():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
     conn.commit()
@@ -239,10 +275,10 @@ def getMessages():
 
 
 # returns a list of all rollresults
-def getMessagesRoleresult():
-    conn = sqlite3.connect(db)
+def getMessagesRolls():
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message WHERE MessageType='rollresult'")
+    c.execute("SELECT * FROM Message WHERE MessageType='rollresult' OR MessageType='characterSheet'")
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -262,7 +298,7 @@ def makeList(data):
 
 # prints the DB
 def printDB():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
     conn.commit()
@@ -274,7 +310,7 @@ def printDB():
 
 #pints all the tags that have ever been used in the DB
 def printDBAlltags():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM AllTags")
     conn.commit()
@@ -285,7 +321,7 @@ def printDBAlltags():
 
 #prints all the active tags in the DB
 def printDBActiveTags():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM tags_active")
     conn.commit()
@@ -297,7 +333,7 @@ def printDBActiveTags():
 
 # prints the Roleresults
 def printDBRoleresult():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Message WHERE MessageType='rollresult'")
     conn.commit()
@@ -309,7 +345,7 @@ def printDBRoleresult():
 
 #prints the gameData from the DB
 def printDBData():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM gameData")
     conn.commit()
@@ -321,7 +357,7 @@ def printDBData():
 
 #prints the tags table
 def printTags():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Tags")
     conn.commit()
@@ -333,7 +369,7 @@ def printTags():
 
 #get the url or the gamedata
 def getURL():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT url FROM gameData")
     conn.commit()
@@ -341,9 +377,19 @@ def getURL():
     conn.close()
     return url[0]
 
+def getGameNumber():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute("SELECT url FROM gameData")
+    conn.commit()
+    url = c.fetchone()
+    conn.close()
+    return str(url[0]).split("/")[-1]
+
+
 #get the name of the game
 def getGameName():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT name FROM gameData")
     conn.commit()
@@ -354,7 +400,7 @@ def getGameName():
 
 # gets the last message in the DB
 def getlastMessage():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("select count(*) from sqlite_master where type='table' and name='Message'")
     exist = c.fetchone()[0]
@@ -381,9 +427,9 @@ def getRollresultDateTime(dateTime):
 
 # get two date time objects and gets the range of them
 def getRollresultDateTimeRange(dateTimeA, dateTimeB):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='rollresult'".format(
+    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='rollresult' OR {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='characterSheet'".format(
         tn=Message_table,
         tf=Time_field,
         mt=MessageType_field,
@@ -398,7 +444,7 @@ def getRollresultDateTimeRange(dateTimeA, dateTimeB):
 
 # add a tag to alltags table
 def addAllTags(tagName):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('INSERT OR IGNORE INTO AllTags VALUES (?)', (tagName,))
     conn.commit()
@@ -407,7 +453,7 @@ def addAllTags(tagName):
 #gets a list of all tags that have been ever used
 def getAlltags():
     try:
-        conn = sqlite3.connect(db)
+        conn = sqlite3.connect(getDBPath())
     except(TypeError):
         return [""]
 
@@ -423,16 +469,17 @@ def getAlltags():
 
 # gets array of tagDetails and addeds the tag to the active tag table
 # tagArray is a list  that can inclued one - three items
-def addTagActive(tagName, tagType, tagDetails, self):
+def addTagActive(tagName, tagType, tagDetails,Avatar, self):
     addAllTags(tagName)
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute(
-        "INSERT INTO tags_active (TagName, TagType, Data, Self, UserID)VALUES (?,?,?,?,?)", (
+        "INSERT INTO tags_active (TagName, TagType, Data, Self,  Avatar, UserID)VALUES (?,?,?,?,?,?)", (
             tagName,
             tagType,
             pickle.dumps(tagDetails),
             int(self),
+            Avatar,
             ""
         ))
     conn.commit()
@@ -440,7 +487,7 @@ def addTagActive(tagName, tagType, tagDetails, self):
 
 #remove a activetag by tagname from the DB
 def removeActiveByNameAndTagType(tagName, tagType):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DELETE FROM tags_active WHERE TagName = (?) and TagType = (?)', (tagName, tagType))
     conn.commit()
@@ -448,7 +495,7 @@ def removeActiveByNameAndTagType(tagName, tagType):
 
 #remove the ActiveTag by index from the DB
 def removeActiveByIndex(index):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DELETE FROM tags_active WHERE id = (?)', (index,))
     conn.commit()
@@ -456,7 +503,7 @@ def removeActiveByIndex(index):
 
 #removes timed tags that are timed out from the DB
 def cleanActiveTime(time):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM tags_active WHERE TagType ='timed'")
     conn.commit()
@@ -468,7 +515,7 @@ def cleanActiveTime(time):
         if data[0] is "":
 
             data[0] = time
-            conn = sqlite3.connect(db)
+            conn = sqlite3.connect(getDBPath())
             c = conn.cursor()
             c.execute("UPDATE tags_active SET Data = (?) Where id = (?)", (pickle.dumps(data), row[0]))
             conn.commit()
@@ -486,7 +533,7 @@ def cleanActiveTime(time):
 
 #Remove single use tags from the DB
 def cleanActiveSingles():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DELETE FROM tags_active WHERE TagType = "single"')
     conn.commit()
@@ -495,7 +542,7 @@ def cleanActiveSingles():
 #todo make this return a list of strings
 #gets all the active tags from the DB
 def getActiveTagsNames():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT tagName FROM tags_active")
     conn.commit()
@@ -505,10 +552,11 @@ def getActiveTagsNames():
 
 #todo make this return a list of strings
 # this will clean the Db of old tags and update the self tags with the player id
+# if player ID is None returns only the game tag not the self tags
 #returns all the activeTags
 def getActiveTagsAndUpdate(playerID,time):
     cleanActiveTime(time)
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('UPDATE tags_active SET UserID = (?) WHERE UserID = "" AND self = 1', (playerID,))
     c.execute("SELECT tagName FROM tags_active WHERE UserID = (?) OR self = 0", (playerID,))
@@ -521,7 +569,7 @@ def getActiveTagsAndUpdate(playerID,time):
 #get messageID and playerID and adds all active tags to the DB and assosiates them with the MessageID
 def addtag(messageID, playerID,tstamp):
     tags = list(set(getActiveTagsAndUpdate(playerID,tstamp)))
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     for tag in tags:
         c.execute(
@@ -532,9 +580,11 @@ def addtag(messageID, playerID,tstamp):
     conn.commit()
     conn.close()
 
+
+
 #removes a Active tag by name
 def endtag(tagName):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DELETE FROM tags_active WHERE TagName = (?)', (tagName,))
     conn.commit()
@@ -542,7 +592,7 @@ def endtag(tagName):
 
 #removes all active tags
 def endAlltag():
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("DELETE FROM tags_active")
     conn.commit()
@@ -550,7 +600,7 @@ def endAlltag():
 
 #gets all the messages it a tags name
 def getMessagesWithTags(tagName):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT Message.* FROM Message "
               "JOIN Tags "
@@ -570,13 +620,13 @@ def getMessagesWithTagsBYDate(tagName,dateTime):
 
 
 def getMessagesWithTagsBYDateRange(tagName,dateTimeA,dateTimeB):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT Message.* FROM Message "
               "JOIN Tags "
               "ON Message.MessageID = Tags.MessageID "
               "WHERE Tags.TagName = ?"
-              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult'",(tagName,dateTimeA,dateTimeB))
+              "AND Time BETWEEN ? AND ?",(tagName,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
@@ -589,7 +639,7 @@ def getTagNamesByDate(dateTime):
     return getTagNamesByDateRange(dateA, dateB)
 
 def getTagNamesByDateRange(dateTimeA,dateTimeB):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT Tags.TagName FROM Tags "
               "JOIN Message "
@@ -603,11 +653,11 @@ def getTagNamesByDateRange(dateTimeA,dateTimeB):
 #returns all the names that have every been used
 def getAllNames():
     try:
-        conn = sqlite3.connect(db)
+        conn = sqlite3.connect(getDBPath())
     except(TypeError):
         return [""]
     c = conn.cursor()
-    c.execute('SELECT DISTINCT BY FROM Message WHERE MessageType="rollresult"')
+    c.execute('SELECT DISTINCT BY FROM Message WHERE MessageType="rollresult" OR MessageType="characterSheet"')
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -618,9 +668,9 @@ def getAllNames():
 
 #gets a name and returns all the message with the name
 def getMessagesByName(name):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message WHERE By = (?) AND MessageType ='rollresult'",(name,))
+    c.execute("SELECT * FROM Message WHERE By = (?) AND MessageType ='rollresult' OR By = (?) AND MessageType='characterSheet'",(name,name))
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -633,11 +683,14 @@ def getMessagesByNameByDate(name,dateTime):
     return getMessagesByNameByDateRange(name,dateA, dateB)
 
 def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Message "
-              "WHERE By = ?"
-              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult'",(name,dateTimeA,dateTimeB))
+              "WHERE By = ? "
+              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult' "
+              "OR By = ? "
+              "AND Time BETWEEN ? AND ? "
+              "AND MessageType='characterSheet'",(name,dateTimeA,dateTimeB,name,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
@@ -648,22 +701,21 @@ def getMessagesByTagAndName(tagNameList,name):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
-              "WHERE Message.by = ? AND MessageType ='rollresult'"
+              "WHERE (Message.by = ? AND MessageType ='rollresult' OR Message.by = ? AND MessageType ='characterSheet') "
     andTag = "And Tags.TagName = ? "
 
-    exeVar = [name]
+    exeVar = [name,name]
 
     for tag in tagNameList:
         exe = exe + andTag
         exeVar.append(tag)
 
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute(exe, exeVar)
     conn.commit()
     data = c.fetchall()
     conn.close()
-
     return makeList(data)
 
 def getMessagesByTagAndNameByDate(tagNameList,name,dateTime):
@@ -675,16 +727,16 @@ def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
-              "WHERE Time BETWEEN ? AND ? AND Message.by = ? AND MessageType ='rollresult'"
+              "WHERE Time BETWEEN ? AND ? AND Message.by = ? AND MessageType ='rollresult' OR Time BETWEEN ? AND ? AND Message.by = ? AND MessageType='characterSheet'"
     andTag = " AND Tags.TagName = ? "
 
-    exeVar = [dateTimeA,dateTimeB,name]
+    exeVar = [dateTimeA,dateTimeB,name,dateTimeA,dateTimeB,name]
 
     for tag in tagNameList:
         exe = exe + andTag
         exeVar.append(tag)
 
-    conn = sqlite3.connect(db)
+    conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute(exe, exeVar)
     conn.commit()
@@ -692,3 +744,18 @@ def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
     conn.close()
 
     return makeList(data)
+
+def getPlayerID():
+    setTurn = set()
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute('SELECT DISTINCT UserID FROM Message WHERE MessageType="rollresult"')
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+    listTurn = []
+    for d in data:
+        set.add(d[0])
+    return listTurn
+
+
