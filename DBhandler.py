@@ -31,7 +31,7 @@ sides_field = "Sides"
 
 
 
-#RolledResultsList_field = "RolledResultsList"
+RolledResultsList_field = "RolledResultsList"
 
 Text_Field = "Text"
 
