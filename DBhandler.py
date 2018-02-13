@@ -96,65 +96,70 @@ def createDB(name, url):
 def createMessageTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute(
-        'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd})'
-            .format(tn=Message_table,
-                    MID=MessageID_field,
-                    MT=MessageType_field,
-                    AVA=Avatar_field,
-                    UI=UserID_field,
-                    By=By_field,
-                    TF=Time_field,
-                    TAD=TimeAddedToDB_field
+    exe = 'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd})'\
+        .format(tn=Message_table,
+                MID=MessageID_field,
+                MT=MessageType_field,
+                AVA=Avatar_field,
+                UI=UserID_field,
+                By=By_field,
+                TF=Time_field,
+                TAD=TimeAddedToDB_field
 
-                    , fts=string_field_type, ftd=Date_field_type, ftts=Tstamp_field))
-    conn.close()
+                , fts=string_field_type, ftd=Date_field_type, ftts=Tstamp_field)
+
+
+    c.execute(exe)
 
 def createUserTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute(
-        'CREATE TABLE {tn} ({MIDU} {fts}, FOREIGN KEY({MIDU}) REFERENCES {MTN}({MID}), {UID} {fts})'
-            .format(tn=UserTable,
-                    MID=MessageID_field,
-                    MIDU=MessageID_field_UserTable,
-                    MTN=Message_table,
-                    UID=UserID_field
-                    ,fts=string_field_type))
+    exe ='CREATE TABLE {tn} ({MIDU} {fts}, {UID} {fts}, FOREIGN KEY({MIDU}) REFERENCES {MTN}({MID}))'\
+        .format(
+            tn=UserTable,
+            MID=MessageID_field,
+            MIDU=MessageID_field_UserTable,
+            MTN=Message_table,
+            UID=UserID_field
+            ,fts=string_field_type)
+    c.execute(exe)
+
     conn.close()
 
 #creates the FormulaTable
 def createFormulaTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute(
-        'CREATE TABLE {tn} ({FID} {fti} auto_increment primary key, {MIDF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}),{TR} {fti}, {RF} {fts})'
-            .format(tn=Formula_table,
 
-                    FID=Formula_ID_field,
-                    MID=MessageID_field,
-                    MIDF=MessageID_field_FormulaTable,
-                    MTN=Message_table,
-                    TR=TotalRoll_field,
-                    RF=Roll_Formula_field
+    exe = 'CREATE TABLE {tn} ({FID} {fti} auto_increment primary key, {MIDF} {fts}, {TR} {fti}, {RF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}))'\
+        .format(tn=Formula_table,
 
-                    ,fts=string_field_type,fti=integer_field_type))
+            FID=Formula_ID_field,
+            MID=MessageID_field,
+            MIDF=MessageID_field_FormulaTable,
+            MTN=Message_table,
+            TR=TotalRoll_field,
+            RF=Roll_Formula_field
+
+            , fts=string_field_type, fti=integer_field_type)
+    c.execute(exe)
+
     conn.close()
 
 def createDiceTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute(
-        'CREATE TABLE {tn} ({DID} {fti} auto_increment primary key, {SD} {fti}, {CT} {fts}, {RL} {fts}, {DT} {fts})'
-            .format(tn=Formula_table,
+    exe ='CREATE TABLE {tn} ({DID} {fti} auto_increment primary key, {SD} {fti}, {CT} {fts}, {RL} {fts}, {DT} {fts})'\
+        .format(tn=Dice_table,
 
-                    DID=Dice_ID_field,
-                    SD = Sides_field,
-                    CT = Crit_field,
-                    RL = Roll_field,
-                    DT = Dice_Type_field
+            DID=Dice_ID_field,
+            SD = Sides_field,
+            CT = Crit_field,
+            RL = Roll_field,
+            DT = Dice_Type_field
 
-                    ,fts=string_field_type,fti=integer_field_type))
+            ,fts=string_field_type,fti=integer_field_type)
+    c.execute(exe)
     conn.close()
 
 
@@ -162,17 +167,18 @@ def createDiceTable():
 def createDiceFormulaTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute(
-        'CREATE TABLE {tn} ({DID} {fti}, {FID} {fti}, FOREIGN KEY({DID}) REFERENCES {DTN}({DTID}), FOREIGN KEY({FID}) REFERENCES {FTN}({FTID}))'
-            .format(tn=Dice_Formula_junction_table,
-                    DTN=Dice_table,
-                    DTID=Dice_ID_field,
-                    FTN=Formula_table,
-                    FTID=Formula_ID_field,
-                    DID=Dice_ID_field_JT,
-                    FID = Formula_ID_field_JT
+    exe ='CREATE TABLE {tn} ({DID} {fti}, {FID} {fti}, FOREIGN KEY({DID}) REFERENCES {DTN}({DTID}), FOREIGN KEY({FID}) REFERENCES {FTN}({FTID}))'\
+        .format(tn=Dice_Formula_junction_table,
 
-                    ,fts=string_field_type,fti=integer_field_type))
+                DTN=Dice_table,
+                DTID=Dice_ID_field,
+                FTN=Formula_table,
+                FTID=Formula_ID_field,
+                DID=Dice_ID_field_JT,
+                FID = Formula_ID_field_JT
+
+                ,fts=string_field_type,fti=integer_field_type)
+    c.execute(exe)
     conn.close()
 
 
@@ -196,7 +202,7 @@ def createGameDataTable():
 def createTagTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "CREATE TABLE {tn} ({mf} {fts}, FOREIGN KEY({mf}) REFERENCES {MTN}({TMID}), {tan} {fts})".format(
+    exe = "CREATE TABLE {tn} ({mf} {fts}, {tan} {fts}, FOREIGN KEY({mf}) REFERENCES {MTN}({TMID}))".format(
         tn=Tag_table,
         MTN=Message_table,
         TMID=MessageID_field,

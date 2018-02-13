@@ -63,6 +63,10 @@ def printDB2():
 
     conn.close()
 
+def cDB():
+
+    DBhandler.createDB("name","https://app.roll20.net/campaigns/chatarchive/1644807")
+
 
 global x
 x = 0
@@ -78,6 +82,8 @@ def countToMax():
 
 
 
+
+cDB()
 
 """
 #dis()
