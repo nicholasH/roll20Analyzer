@@ -96,12 +96,12 @@ def createDB(name, url):
 def createMessageTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = 'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {UI} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd})'\
+    exe = 'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd})'\
         .format(tn=Message_table,
+
                 MID=MessageID_field,
                 MT=MessageType_field,
                 AVA=Avatar_field,
-                UI=UserID_field,
                 By=By_field,
                 TF=Time_field,
                 TAD=TimeAddedToDB_field
@@ -234,19 +234,6 @@ def createActiveTageTable():
     conn.close()
 
 
-# A table that conatans all tag names that has been used in the game
-def createAlltagsTable():
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-    exe = "CREATE TABLE {tn} ({ta} {fts} PRIMARY KEY)".format(
-        tn=All_tags_table,
-        ta=Tag_Active_name_field,
-
-        fts=string_field_type
-    )
-    c.execute(exe)
-    conn.close()
-
 
 # sets the meta data of the game
 def setdata(name, url):
@@ -283,10 +270,13 @@ def destroyDB():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS ' + Message_table)
+    c.execute('DROP TABLE IF EXISTS ' + UserTable)
+    c.execute('DROP TABLE IF EXISTS ' + Formula_table)
+    c.execute('DROP TABLE IF EXISTS ' + Dice_table)
+    c.execute('DROP TABLE IF EXISTS ' + Dice_Formula_junction_table)
     c.execute('DROP TABLE IF EXISTS ' + GameData_table)
-    c.execute('DROP TABLE IF EXISTS ' + tag_active_table)
     c.execute('DROP TABLE IF EXISTS ' + Tag_table)
-    c.execute('DROP TABLE IF EXISTS ' + All_tags_table)
+    c.execute('DROP TABLE IF EXISTS ' + tag_active_table)
 
     conn.commit()
     conn.close()
@@ -294,24 +284,118 @@ def destroyDB():
 
 # adds a single message to the db
 # gets a dict with all message feilds it add it to the db
-def addMessage(messageDic: dict):
+def addToMessageTable(messageID,messageType,avatar,by,time):
+    dateAddToDb = datetime.now()
+
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute(
-        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?,?,?,?,?)", (
-            messageDic.get(MessageID_field),
-            messageDic.get(MessageType_field),
-            messageDic.get(Avatar_field),
-            messageDic.get(UserID_field),
-            messageDic.get(By_field),
-            messageDic.get(Time_field),
-            messageDic.get(TimeAddedToDB_field),
-            messageDic.get(RolledFormula_field),
-            pickle.dumps(messageDic.get(RolledResultsList_field)),
-            messageDic.get(totalRolled_Field),
+        "INSERT OR IGNORE INTO Message VALUES (?,?,?,?,?,?)", (
+            messageID,
+            messageType,
+            avatar,
+            by,
+            time,
+            dateAddToDb
         ))
     conn.commit()
     conn.close()
+
+
+def addToUserIDTable(messageID,userID):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT OR IGNORE INTO "+UserTable +" VALUES (?,?)"
+    c.execute(exe, (messageID,userID))
+    conn.commit()
+    conn.close()
+
+def addToFormulaTable(messageID,totalRoll,rollFormula):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT OR IGNORE INTO "+Formula_table+" VALUES (?,?,?)"
+    c.execute(exe, (messageID,totalRoll,rollFormula))
+    conn.commit()
+    formulaID = c.lastrowid
+    conn.close()
+
+    return formulaID
+
+def addToDiceTable(side,crit,roll,diceType):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT OR IGNORE INTO "+Dice_table+" VALUES (?,?,?,?)"
+    c.execute(exe, (side,crit,roll,diceType))
+    conn.commit()
+    diceID = c.lastrowid
+    conn.close()
+
+    return diceID
+
+def addToDiceFormulaJunkTable(diceID,formulaID):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT OR IGNORE INTO " +Dice_Formula_junction_table + " VALUES (?,?)"
+    c.execute(exe, (diceID, formulaID))
+    conn.commit()
+    conn.close()
+
+# gets array of tagDetails and addeds the tag to the active tag table
+# tagArray is a list  that can inclued one - three items
+def addtoTagActiveTable(tagName, tagType, tagDetails,Avatar, self):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute(
+        "INSERT INTO tags_active (TagName, TagType, Data, Self,  Avatar, UserID)VALUES (?,?,?,?,?,?)", (
+            tagName,
+            tagType,
+            pickle.dumps(tagDetails),
+            int(self),
+            Avatar,
+            ""
+        ))
+    conn.commit()
+    conn.close()
+
+#get messageID and playerID and adds all active tags to the DB and assosiates them with the MessageID
+def addtag(messageID, playerID,tstamp):
+    tags = list(set(getActiveTagsAndUpdate(playerID,tstamp)))
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    for tag in tags:
+        c.execute(
+            "INSERT INTO Tags VALUES (?,?)", (
+                messageID,
+                tag[0],
+            ))
+    conn.commit()
+    conn.close()
+
+
+def addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,formula,roll,time):
+
+    addToMessageTable(messageID,messageType,avatar,by,time)
+    addToUserIDTable(messageID,playerID)
+    addFormulaAndDice(messageID,roll,formula,dicerolls)
+
+    addtag(messageID, playerID,time)
+
+
+def addCharacterSheet():
+    pass
+
+def addFormulaAndDice(messageID,totalRoll,rollFormula,dicerolls):
+    formulaID = addToFormulaTable(messageID,totalRoll,rollFormula)
+
+
+    for dice in dicerolls:
+        side = dice[0]
+        crit = dice[1]
+        roll = dice[2]
+        type = dice[3]
+
+        diceID = addToDiceTable(side,crit,roll,type)
+        addToDiceFormulaJunkTable(formulaID, diceID)
 
 
 # Gets all the message in the DB and returns a list
@@ -341,9 +425,7 @@ def makeList(data):
     listTurn = list()
 
     for datum in data:
-        dic = dict(zip(columnName, datum))
-        dic[RolledResultsList_field] = pickle.loads(dic[RolledResultsList_field])
-        listTurn.append(dic)
+        listTurn.append(datum)
 
     return listTurn
 
@@ -494,48 +576,7 @@ def getRollresultDateTimeRange(dateTimeA, dateTimeB):
     return makeList(data)
 
 
-# add a tag to alltags table
-def addAllTags(tagName):
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-    c.execute('INSERT OR IGNORE INTO AllTags VALUES (?)', (tagName,))
-    conn.commit()
-    conn.close()
 
-#gets a list of all tags that have been ever used
-def getAlltags():
-    try:
-        conn = sqlite3.connect(getDBPath())
-    except(TypeError):
-        return [""]
-
-    c = conn.cursor()
-    c.execute('SELECT * FROM AllTags')
-    conn.commit()
-    data = c.fetchall()
-    conn.close()
-    listTurn = []
-    for d in data:
-        listTurn.append(d[0])
-    return listTurn
-
-# gets array of tagDetails and addeds the tag to the active tag table
-# tagArray is a list  that can inclued one - three items
-def addTagActive(tagName, tagType, tagDetails,Avatar, self):
-    addAllTags(tagName)
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-    c.execute(
-        "INSERT INTO tags_active (TagName, TagType, Data, Self,  Avatar, UserID)VALUES (?,?,?,?,?,?)", (
-            tagName,
-            tagType,
-            pickle.dumps(tagDetails),
-            int(self),
-            Avatar,
-            ""
-        ))
-    conn.commit()
-    conn.close()
 
 #remove a activetag by tagname from the DB
 def removeActiveByNameAndTagType(tagName, tagType):
@@ -617,21 +658,6 @@ def getActiveTagsAndUpdate(playerID,time):
     conn.close()
     cleanActiveSingles()
     return rows
-
-#get messageID and playerID and adds all active tags to the DB and assosiates them with the MessageID
-def addtag(messageID, playerID,tstamp):
-    tags = list(set(getActiveTagsAndUpdate(playerID,tstamp)))
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-    for tag in tags:
-        c.execute(
-            "INSERT INTO Tags VALUES (?,?)", (
-                messageID,
-                tag[0],
-            ))
-    conn.commit()
-    conn.close()
-
 
 
 #removes a Active tag by name

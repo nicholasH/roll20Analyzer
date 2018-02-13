@@ -183,13 +183,11 @@ def addToDb(chatContent):
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID
 def addRollresult(datum):
-    message = dict.fromkeys(DBhandler.columnName, "")
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
     dicerolls = ""
-    dice = ""
+    fromula = ""
     roll = ""
-    dateAddToDb = datetime.now()
 
     for content in datum.contents:
         if isinstance(content, Tag):
@@ -207,23 +205,16 @@ def addRollresult(datum):
                     if "formattedformula" in s:
                         dicerolls = getDiceRolls(content.findChildren())
                     else:
-                        dice = content.text.strip()
+                        fromula = content.text.strip()
                 elif "rolled" in s:
                     roll = content.text.strip()
 
-    message[DBhandler.MessageType_field] = 'rollresult'
-    message[DBhandler.MessageID_field] = messageID
-    message[DBhandler.Avatar_field] = static.photo
-    message[DBhandler.UserID_field] = playerID
-    message[DBhandler.By_field] = static.by
-    message[DBhandler.RolledResultsList_field] = dicerolls
-    message[DBhandler.RolledFormula_field] = dice
-    message[DBhandler.totalRolled_Field] = roll
-    message[DBhandler.Time_field] = static.tstamp
-    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+    messageType = 'rollresult'
+    avatar = static.photo
+    by = static.by
+    time = static.tstamp
 
-    DBhandler.addtag(messageID, playerID,static.tstamp)
-    DBhandler.addMessage(message)
+    DBhandler.addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,fromula,roll,time)
 
 
 # find a way to get the roll data
@@ -412,15 +403,25 @@ def addTime(timeString):
             print("Error Time " + timeString)
             static.tstamp = None
 
+#todo make this return [side,crit,roll,type]
 def getDiceRolls(contents):
     rlist = list()
     for c in contents:
         s = c.attrs.get("class")
         if not isinstance(s, type(None)):
             if any("diceroll" in t for t in s):
-                dice = ' '.join(s)
+                for con in s:
+
+
+
+                    if "crit" in con:
+                        crit = con
+                    elif re.match("[a-zA-Z_]\d+",con) is not None:
+                        type = re.search("[a-zA-Z_]",con)
+                        side = re.search("\d+",con)
                 roll = c.text
-                rlist.append([dice, roll])
+
+                rlist.append([side,crit,roll,type])
 
     return rlist
 
