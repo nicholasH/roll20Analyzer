@@ -131,7 +131,7 @@ def createFormulaTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
-    exe = 'CREATE TABLE {tn} ({FID} {fti} auto_increment primary key, {MIDF} {fts}, {TR} {fti}, {RF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}))'\
+    exe = 'CREATE TABLE {tn} ({FID} {fti} primary key AUTOINCREMENT, {MIDF} {fts}, {TR} {fti}, {RF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}))'\
         .format(tn=Formula_table,
 
             FID=Formula_ID_field,
@@ -149,7 +149,7 @@ def createFormulaTable():
 def createDiceTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe ='CREATE TABLE {tn} ({DID} {fti} auto_increment primary key, {SD} {fti}, {CT} {fts}, {RL} {fts}, {DT} {fts})'\
+    exe ='CREATE TABLE {tn} ({DID} {fti} primary key AUTOINCREMENT, {SD} {fti}, {CT} {fts}, {RL} {fts}, {DT} {fts})'\
         .format(tn=Dice_table,
 
             DID=Dice_ID_field,
@@ -301,11 +301,21 @@ def addToMessageTable(messageID,messageType,avatar,by,time):
     conn.commit()
     conn.close()
 
+def addManyToMessageTable(allmessage):
+    dateAddToDb = datetime.now()
+
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT OR IGNORE INTO Message ( "+MessageID_field+","+MessageType_field+","+Avatar_field+","+By_field+","+Time_field+" ) VALUES (?,?,?,?,?)"
+    c.executemany(exe,allmessage)
+    conn.commit()
+    conn.close()
+
 
 def addToUserIDTable(messageID,userID):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT OR IGNORE INTO "+UserTable +" VALUES (?,?)"
+    exe = "INSERT INTO "+UserTable +" VALUES (?,?)"
     c.execute(exe, (messageID,userID))
     conn.commit()
     conn.close()
@@ -313,7 +323,7 @@ def addToUserIDTable(messageID,userID):
 def addToFormulaTable(messageID,totalRoll,rollFormula):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT OR IGNORE INTO "+Formula_table+" VALUES (?,?,?)"
+    exe = "INSERT INTO "+Formula_table+"( "+MessageID_field_FormulaTable+", "+TotalRoll_field+", "+Roll_Formula_field+") VALUES (?,?,?)"
     c.execute(exe, (messageID,totalRoll,rollFormula))
     conn.commit()
     formulaID = c.lastrowid
@@ -324,7 +334,7 @@ def addToFormulaTable(messageID,totalRoll,rollFormula):
 def addToDiceTable(side,crit,roll,diceType):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT OR IGNORE INTO "+Dice_table+" VALUES (?,?,?,?)"
+    exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+", "+Dice_Type_field+") VALUES (?,?,?,?)"
     c.execute(exe, (side,crit,roll,diceType))
     conn.commit()
     diceID = c.lastrowid
@@ -332,11 +342,40 @@ def addToDiceTable(side,crit,roll,diceType):
 
     return diceID
 
+
+def addManyToDiceTable(diceList):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
+    A_ID = c.fetchone()[0]
+
+    exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+", "+Dice_Type_field+") VALUES (?,?,?,?)"
+    c.executemany(exe, diceList)
+    conn.commit()
+    c.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
+    B_ID = c.fetchone()[0]
+    conn.close()
+
+    if A_ID is None:
+        A_ID = 1
+    else:
+        A_ID = A_ID +1
+
+    return [A_ID,B_ID]
+
 def addToDiceFormulaJunkTable(diceID,formulaID):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT OR IGNORE INTO " +Dice_Formula_junction_table + " VALUES (?,?)"
+    exe = "INSERT INTO " +Dice_Formula_junction_table + " VALUES (?,?)"
     c.execute(exe, (diceID, formulaID))
+    conn.commit()
+    conn.close()
+
+def addManyToDiceFormulaJunkTable(diceFormula):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT INTO " +Dice_Formula_junction_table + " VALUES (?,?)"
+    c.executemany(exe, diceFormula)
     conn.commit()
     conn.close()
 
@@ -371,7 +410,7 @@ def addtag(messageID, playerID,tstamp):
     conn.commit()
     conn.close()
 
-
+#todo add tags
 def addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,formula,roll,time):
 
     addToMessageTable(messageID,messageType,avatar,by,time)
@@ -380,22 +419,21 @@ def addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,formula,rol
 
     addtag(messageID, playerID,time)
 
-
-def addCharacterSheet():
+def addCharacterSheet(messageID,messageType,avatar,by,dicerolls,formula,roll,time):
     pass
 
 def addFormulaAndDice(messageID,totalRoll,rollFormula,dicerolls):
     formulaID = addToFormulaTable(messageID,totalRoll,rollFormula)
+    diceIDRang = addManyToDiceTable(dicerolls)
+
+    rang = list(range(diceIDRang[0], diceIDRang[1]+1))
+    FIDList = [formulaID] * len(rang)
+
+    DiceFormula = zip(FIDList,rang)
+    addManyToDiceFormulaJunkTable(DiceFormula)
 
 
-    for dice in dicerolls:
-        side = dice[0]
-        crit = dice[1]
-        roll = dice[2]
-        type = dice[3]
 
-        diceID = addToDiceTable(side,crit,roll,type)
-        addToDiceFormulaJunkTable(formulaID, diceID)
 
 
 # Gets all the message in the DB and returns a list

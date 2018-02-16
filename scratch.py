@@ -8,9 +8,7 @@ from tkinter.ttk import Combobox
 import time
 
 import DBhandler
-import DBscratch
 import analyze
-
 "^"
 #the word after the ^ is the tag name. A tag like this will only work the the next roll
 "^tag"
@@ -49,3 +47,5 @@ import analyze
 
 #todo add a way to excuded tags
 
+rl = list(range(10,10+1))
+print(rl)
