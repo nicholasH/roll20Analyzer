@@ -302,8 +302,6 @@ def addToMessageTable(messageID,messageType,avatar,by,time):
     conn.close()
 
 def addManyToMessageTable(allmessage):
-    dateAddToDb = datetime.now()
-
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     exe = "INSERT OR IGNORE INTO Message ( "+MessageID_field+","+MessageType_field+","+Avatar_field+","+By_field+","+Time_field+" ) VALUES (?,?,?,?,?)"
@@ -311,12 +309,19 @@ def addManyToMessageTable(allmessage):
     conn.commit()
     conn.close()
 
-
 def addToUserIDTable(messageID,userID):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     exe = "INSERT INTO "+UserTable +" VALUES (?,?)"
     c.execute(exe, (messageID,userID))
+    conn.commit()
+    conn.close()
+
+def addManyToUserIDTable(allusers):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "INSERT INTO "+UserTable +" VALUES (?,?)"
+    c.executemany(exe, allusers)
     conn.commit()
     conn.close()
 
@@ -330,6 +335,27 @@ def addToFormulaTable(messageID,totalRoll,rollFormula):
     conn.close()
 
     return formulaID
+
+def addManytoFormulaTable(allformula):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
+    A_ID = c.fetchone()[0]
+    exe = "INSERT INTO "+Formula_table+"( "+MessageID_field_FormulaTable+", "+TotalRoll_field+", "+Roll_Formula_field+") VALUES (?,?,?)"
+    c.executemany(exe, allformula)
+
+    c.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
+    B_ID = c.fetchone()[0]
+    conn.commit()
+    conn.close()
+
+
+    if A_ID is None:
+        A_ID = 1
+    else:
+        A_ID = A_ID +1
+
+    return [A_ID,B_ID]
 
 def addToDiceTable(side,crit,roll,diceType):
     conn = sqlite3.connect(getDBPath())
@@ -432,6 +458,21 @@ def addFormulaAndDice(messageID,totalRoll,rollFormula,dicerolls):
     DiceFormula = zip(FIDList,rang)
     addManyToDiceFormulaJunkTable(DiceFormula)
 
+def addManyFormulaAndDice(allformulaAndDice):
+    allformulas , alldices = zip(*allformulaAndDice)
+
+    formulaIDRandge = addManytoFormulaTable(allformulas)
+    diceRanges = list()
+    for dice in alldices:
+        diceRanges.append(addManyToDiceTable(dice))
+
+    x = 0
+    for formID in range(formulaIDRandge[0],formulaIDRandge[1]):
+        fIDs = formID * len(diceRanges)
+        formulaIDAndDiceIDS = zip(fIDs,diceRanges[x])
+        addManyToDiceFormulaJunkTable(formulaIDAndDiceIDS)
+        x += 1
+
 
 
 
@@ -473,6 +514,18 @@ def printDB():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Message")
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+def printUserTable():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "SELECT * FROM " + UserTable
+    c.execute(exe)
     conn.commit()
     rows = c.fetchall()
     for row in rows:

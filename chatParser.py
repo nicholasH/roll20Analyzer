@@ -153,14 +153,25 @@ def updatePhoto(content):
             last = p.rfind("/")
             static.photo = p[:last]
 
-allmessage = list()
 
+allMessage = list()
+allUserID = list()
+allFormulaDice = list()
+allTags =list()
+
+
+def appendTags(messageID, playerID,tstamp):
+    tagsNames = DBhandler.getActiveTagsAndUpdate(playerID,tstamp)
+
+    for name in tagsNames:
+        allTags.append((messageID,name))
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
     global current,cancel
     static.timeStamp = ""
     x =1
+
     for c in chatContent:
         if(not cancel):
             current = x
@@ -182,8 +193,14 @@ def addToDb(chatContent):
         else:
             print("chatPar has been canceled")
             return
-    DBhandler.addManyToMessageTable(allmessage)
-    DBhandler.printDB()
+    DBhandler.addManyToMessageTable(allMessage)
+    DBhandler.addManyToUserIDTable(allUserID)
+    DBhandler.addManyFormulaAndDice(allFormulaDice)
+
+    DBhandler.printUserTable()
+
+
+    #DBhandler.addManytoTagTable(allTags)
 
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID
@@ -219,7 +236,10 @@ def addRollresult(datum):
     by = static.by
     time = static.tstamp
 
-    allmessage.append((messageID,messageType,avatar,by,time))
+    allMessage.append((messageID,messageType,avatar,by,time))
+    allUserID.append((messageID,playerID))
+    allFormulaDice.append([(messageID,fromula,roll),dicerolls])
+    appendTags(messageID,playerID,time)
 
     #DBhandler.addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,fromula,roll,time)
 
@@ -463,6 +483,9 @@ def parseCharterSheetroll(soup):
     rollResults = list(zip(sides, crit, dicerolls,diceTypes))
 
     return [rollResults,formula]
+
+
+
 
 def cancelParser():
     global cancel
