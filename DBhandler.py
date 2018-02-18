@@ -13,7 +13,6 @@ MessageType_field = "MessageType"
 By_field = 'BY'
 Avatar_field = "Avatar"
 Time_field = "Time"
-TimeAddedToDB_field = "TimeAddedToDB"
 
 #userIDTable
 UserTable= 'User'
@@ -35,14 +34,13 @@ Dice_table = "Dice"
 Sides_field = "Sides"
 Roll_field = "Roll"
 Crit_field = 'Crit'
-Dice_Type_field = 'Dicetype'
 Dice_ID_field = 'DiceID'
 
 #dice formula Junction
 Dice_Formula_junction_table = 'Dice_Formula_JT'
 
-Formula_ID_field_JT =Formula_ID_field
-Dice_ID_field_JT = Dice_ID_field
+Formula_ID_field_JT =Formula_ID_field+"_JT"
+Dice_ID_field_JT = Dice_ID_field+"_JT"
 
 # game Table
 GameData_table = 'gameData'
@@ -96,15 +94,14 @@ def createDB(name, url):
 def createMessageTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = 'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {By} {fts}, {TF} {ftts}, {TAD} {ftd})'\
+    exe = 'CREATE TABLE {tn} ({MID} {fts} PRIMARY KEY, {MT} {fts}, {AVA} {fts}, {By} {fts}, {TF} {ftts})'\
         .format(tn=Message_table,
 
                 MID=MessageID_field,
                 MT=MessageType_field,
                 AVA=Avatar_field,
                 By=By_field,
-                TF=Time_field,
-                TAD=TimeAddedToDB_field
+                TF=Time_field
 
                 , fts=string_field_type, ftd=Date_field_type, ftts=Tstamp_field)
 
@@ -131,7 +128,7 @@ def createFormulaTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
 
-    exe = 'CREATE TABLE {tn} ({FID} {fti} primary key AUTOINCREMENT, {MIDF} {fts}, {TR} {fti}, {RF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}))'\
+    exe = 'CREATE TABLE {tn} ({FID} {fti} primary key AUTOINCREMENT, {MIDF} {fts},{TR} {fti}, {RF} {fts}, FOREIGN KEY({MIDF}) REFERENCES {MTN}({MID}))'\
         .format(tn=Formula_table,
 
             FID=Formula_ID_field,
@@ -149,14 +146,13 @@ def createFormulaTable():
 def createDiceTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe ='CREATE TABLE {tn} ({DID} {fti} primary key AUTOINCREMENT, {SD} {fti}, {CT} {fts}, {RL} {fts}, {DT} {fts})'\
+    exe ='CREATE TABLE {tn} ({DID} {fti} primary key AUTOINCREMENT, {SD} {fti}, {CT} {fts}, {RL} {fts})'\
         .format(tn=Dice_table,
 
             DID=Dice_ID_field,
             SD = Sides_field,
             CT = Crit_field,
-            RL = Roll_field,
-            DT = Dice_Type_field
+            RL = Roll_field
 
             ,fts=string_field_type,fti=integer_field_type)
     c.execute(exe)
@@ -167,7 +163,7 @@ def createDiceTable():
 def createDiceFormulaTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe ='CREATE TABLE {tn} ({DID} {fti}, {FID} {fti}, FOREIGN KEY({DID}) REFERENCES {DTN}({DTID}), FOREIGN KEY({FID}) REFERENCES {FTN}({FTID}))'\
+    exe ='CREATE TABLE {tn} ({FID} {fti}, {DID} {fti}, FOREIGN KEY({DID}) REFERENCES {DTN}({DTID}), FOREIGN KEY({FID}) REFERENCES {FTN}({FTID}))'\
         .format(tn=Dice_Formula_junction_table,
 
                 DTN=Dice_table,
@@ -341,7 +337,7 @@ def addManytoFormulaTable(allformula):
     c = conn.cursor()
     c.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
     A_ID = c.fetchone()[0]
-    exe = "INSERT INTO "+Formula_table+"( "+MessageID_field_FormulaTable+", "+TotalRoll_field+", "+Roll_Formula_field+") VALUES (?,?,?)"
+    exe = "INSERT INTO "+Formula_table+"( "+MessageID_field_FormulaTable+", "+Roll_Formula_field+", "+TotalRoll_field+") VALUES (?,?,?)"
     c.executemany(exe, allformula)
 
     c.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
@@ -360,7 +356,7 @@ def addManytoFormulaTable(allformula):
 def addToDiceTable(side,crit,roll,diceType):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+", "+Dice_Type_field+") VALUES (?,?,?,?)"
+    exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+") VALUES (?,?,?)"
     c.execute(exe, (side,crit,roll,diceType))
     conn.commit()
     diceID = c.lastrowid
@@ -375,7 +371,7 @@ def addManyToDiceTable(diceList):
     c.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
     A_ID = c.fetchone()[0]
 
-    exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+", "+Dice_Type_field+") VALUES (?,?,?,?)"
+    exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+") VALUES (?,?,?)"
     c.executemany(exe, diceList)
     conn.commit()
     c.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
@@ -436,6 +432,13 @@ def addtag(messageID, playerID,tstamp):
     conn.commit()
     conn.close()
 
+def addManyToTag(allTags):
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.executemany("INSERT INTO Tags VALUES (?,?)",allTags)
+    conn.commit()
+    conn.close()
+
 #todo add tags
 def addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,formula,roll,time):
 
@@ -468,8 +471,9 @@ def addManyFormulaAndDice(allformulaAndDice):
 
     x = 0
     for formID in range(formulaIDRandge[0],formulaIDRandge[1]):
-        fIDs = formID * len(diceRanges)
-        formulaIDAndDiceIDS = zip(fIDs,diceRanges[x])
+        dices = list(range(diceRanges[x][0],diceRanges[x][1]+1))
+        fIDs = [formID] * len(dices)
+        formulaIDAndDiceIDS = list(zip(fIDs,dices))
         addManyToDiceFormulaJunkTable(formulaIDAndDiceIDS)
         x += 1
 
@@ -481,7 +485,13 @@ def addManyFormulaAndDice(allformulaAndDice):
 def getMessages():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message")
+    c.execute("SELECT * FROM Message "
+              "join Fourmula "
+              "on (Fourmula.MessageID = Message.MessageID) "
+              "join Dice_Formula_JT "
+              "on (Dice_Formula_JT.FormulaID_JT = Fourmula.FormulaID) "
+              "Join Dice on "
+              "(Dice.DiceID = Dice_Formula_JT.DiceID_JT)")
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -494,6 +504,20 @@ def getMessagesRolls():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute("SELECT * FROM Message WHERE MessageType='rollresult' OR MessageType='characterSheet'")
+    conn.commit()
+    data = c.fetchall()
+    conn.close()
+    return makeList(data)
+
+
+def getAllTags():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "SELECT DISTINCT {TN} FROM {TT}".format(
+        TT = Tag_table,
+        TN = Tag_name_field
+    )
+    c.execute(exe)
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -525,6 +549,52 @@ def printUserTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     exe = "SELECT * FROM " + UserTable
+    c.execute(exe)
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+def printFormulaAndDiceJT():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "SELECT * FROM {JT}".format(
+        FT =Formula_table,
+        DT =Dice_table,
+        FTID= Formula_ID_field,
+        DTID= Dice_ID_field,
+        JT=Dice_Formula_junction_table,
+        DJID=Dice_ID_field_JT,
+        FJID=Formula_ID_field_JT
+    )
+    print(exe)
+    c.execute(exe)
+    conn.commit()
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+
+    conn.close()
+
+def printFormulaAndDice():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    exe = "SELECT * " \
+          "FROM {JT} " \
+          "JOIN {FT} " \
+          "ON ({JT}.{FJID} = {FT}.{FTID}) " \
+          "JOIN {DT} " \
+          "ON ({JT}.{DJID} = {DT}.{DTID})".format(
+        FT =Formula_table,
+        DT =Dice_table,
+        FTID= Formula_ID_field,
+        DTID= Dice_ID_field,
+        JT=Dice_Formula_junction_table,
+        DJID=Dice_ID_field_JT,
+        FJID=Formula_ID_field_JT
+    )
     c.execute(exe)
     conn.commit()
     rows = c.fetchall()
@@ -826,7 +896,7 @@ def getAllNames():
     except(TypeError):
         return [""]
     c = conn.cursor()
-    c.execute('SELECT DISTINCT BY FROM Message WHERE MessageType="rollresult" OR MessageType="characterSheet"')
+    c.execute('SELECT DISTINCT BY FROM Message')
     conn.commit()
     data = c.fetchall()
     conn.close()

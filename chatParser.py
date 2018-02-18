@@ -164,6 +164,7 @@ def appendTags(messageID, playerID,tstamp):
     tagsNames = DBhandler.getActiveTagsAndUpdate(playerID,tstamp)
 
     for name in tagsNames:
+        name = name[0]
         allTags.append((messageID,name))
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
@@ -182,10 +183,10 @@ def addToDb(chatContent):
             if "rollresult" in s:
                 addRollresult(c)
             elif "general" in s:
-                #addGeneral(c)
+                addGeneral(c)
                 pass
             elif "emote" in s:
-                #addEmote(c)
+                addEmote(c)
                 pass
             else:
                 print("unknown message type: ", c)
@@ -196,11 +197,7 @@ def addToDb(chatContent):
     DBhandler.addManyToMessageTable(allMessage)
     DBhandler.addManyToUserIDTable(allUserID)
     DBhandler.addManyFormulaAndDice(allFormulaDice)
-
-    DBhandler.printUserTable()
-
-
-    #DBhandler.addManytoTagTable(allTags)
+    DBhandler.addManyToTag(allTags)
 
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID
@@ -241,7 +238,6 @@ def addRollresult(datum):
     allFormulaDice.append([(messageID,fromula,roll),dicerolls])
     appendTags(messageID,playerID,time)
 
-    #DBhandler.addRollResult(messageID,messageType,avatar,playerID,by,dicerolls,fromula,roll,time)
 
 
 # find a way to get the roll data
@@ -269,7 +265,14 @@ def addGeneral(datum):
 
 
     if charSheet:
-        charSheetRoll(char, messageID,static.photo,static.by,static.tstamp)
+
+        messageType = 'characterSheet'
+        avatar = static.photo
+        by = static.by
+        time = static.tstamp
+
+        allMessage.append((messageID, messageType, avatar, by, time))
+        charSheetRoll(char, messageID,static.photo)
     else:
         pass
 
@@ -406,7 +409,6 @@ def addTime(timeString):
             print("Error Time " + timeString)
             static.tstamp = None
 
-#todo make this return [side,crit,roll,type]
 def getDiceRolls(contents):
     rlist = list()
     for c in contents:
@@ -415,20 +417,24 @@ def getDiceRolls(contents):
             if any("diceroll" in t for t in s):
                 side=""
                 crit=""
-                dicetype=""
+
                 for con in s:
                     if "crit" in con:
                         crit = con
                     elif re.match("[a-zA-Z_]\d+",con) is not None:
-                        dicetype = con[0]
                         side = con[1:]
-                roll = c.text
-                print(roll,side,crit)
-                rlist.append((side,crit,roll,dicetype))
+                findRoll = re.search("\d+", c.text)
+
+                if findRoll is not None:
+                    roll = findRoll.group(0)
+                else:
+                    roll =c.text
+
+                rlist.append((side,crit,roll))
 
     return rlist
 
-def charSheetRoll(content, messageID,avatar,by,time):
+def charSheetRoll(content, messageID,time):
     childContent = content.findChildren()
     for cc in childContent:
         ccClass = cc.attrs.get("class")
@@ -448,10 +454,10 @@ def charSheetRoll(content, messageID,avatar,by,time):
                 dicerolls = rollResults_Formula[0]
                 formula = rollResults_Formula[1]
 
-                messageType = 'characterSheet'
 
-                DBhandler.addtag(messageID, None ,time)
-                DBhandler.addCharacterSheet(messageID,messageType,avatar,by,dicerolls,formula,roll,time)
+                allFormulaDice.append([(messageID, formula, roll), dicerolls])
+                appendTags(messageID, None, time)
+
 
 def parseCharterSheetroll(soup):
     dicerolls = list()
@@ -468,7 +474,6 @@ def parseCharterSheetroll(soup):
                 return None
             else:
                 con = reg.group(0)
-                diceType = con[0]
                 side = con[1:]
 
         if "basicdiceroll" in str(s).lower():
@@ -479,8 +484,7 @@ def parseCharterSheetroll(soup):
                 crit.append("")
 
     sides = [side] * len(dicerolls)
-    diceTypes = [diceType] * len(dicerolls)
-    rollResults = list(zip(sides, crit, dicerolls,diceTypes))
+    rollResults = list(zip(sides, crit, dicerolls))
 
     return [rollResults,formula]
 

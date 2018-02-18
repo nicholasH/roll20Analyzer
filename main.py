@@ -427,7 +427,7 @@ class mainPage(tk.Frame):
         self.text_box.config(state="disable")
 
     def updateMenus(self):
-        taglist = DBhandler.getAlltags()
+        taglist = DBhandler.getAllTags()
         self.tag_combo['values'] = taglist
         nameList = DBhandler.getAllNames()
         self.name_combo['values'] = nameList

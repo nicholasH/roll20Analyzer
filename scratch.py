@@ -47,5 +47,9 @@ import analyze
 
 #todo add a way to excuded tags
 
+
+
+
+
 rl = list(range(10,10+1))
 print(rl)

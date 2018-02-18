@@ -33,7 +33,7 @@ def analyze(offline):
     if not offline:
         chatParser.addScrapParseToDB()
 
-    analyzeDB(DBhandler.getMessagesRolls())
+    analyzeDB(DBhandler.getMessages())
     return returnStats()
 
 
