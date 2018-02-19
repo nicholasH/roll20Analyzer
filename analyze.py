@@ -33,7 +33,7 @@ def analyze(offline):
     if not offline:
         chatParser.addScrapParseToDB()
 
-    analyzeDB(DBhandler.getMessages())
+    analyzeDB(DBhandler.getMessagesRolls())
     return returnStats()
 
 
@@ -288,91 +288,64 @@ def analyzeDB(messages):
     global playerStats,charSheetStats
     playerStats = dict()
     charSheetStats = dict()
+    oldFormulaID = ""
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0, "diceRolls": Counter(),
                  "topFormual": Counter(), "highestRoll": 0, "points": 0}
 
-        rolled = message["Rolled"]
-        rollFomula = message["RolledFormula"]
-        rollList = message["RolledResultsList"]
+        messageID = message["MessageID"]
+        messageType = message["MessageType"]
+        by = message["BY"]
 
+        userID = message["UserID"]
 
-        if message["MessageType"] == "characterSheet":
-            id = message["BY"]
-            if id in charSheetStats:
-                stats = charSheetStats[id]
+        formulaID = message["FormulaID"]
+        formula = message["RollFormula"]
+        TotalRoll = message["TotalRoll"]
+
+        side = message["Sides"]
+        crit = message["Crit"]
+        roll = message["Roll"]
+
+        if messageType == "characterSheet":
+            if by in charSheetStats:
+                stats = charSheetStats[by]
             else:
-                charSheetStats[id] = stats
-
-            count = stats["diceRolls"]
-            for roll in rollList:
-                side = roll[0]
-                crit = roll[1]
-                rollVal = roll[2]
-
-                count[side] += 1
-
-
-                if "critfail" in crit:
-                    if "d20" in side:
-                        stats["nat1"] += 1
-                        stats["totCrtFail"] += 1
-
-                    else:
-                        stats["totCrtFail"] += 1
-                elif "critsuccess" in crit:
-                    val = side[1:]
-
-                    stats["points"] = stats["points"] + int(val)
-                    if "d20" in side:
-                        stats["nat20"] += 1
-                        stats["totCrtSus"] += 1
-                    else:
-                        stats["totCrtSus"] += 1
-
-
+                charSheetStats[by] = stats
+            stats["names"].add(message["BY"])
         else:
-            id = message["UserID"]
-            if id in playerStats:
-                stats = playerStats[id]
+            if userID in playerStats:
+                stats = playerStats[userID]
             else:
-                playerStats[id] = stats
+                playerStats[userID] = stats
+            stats["names"].add(message["BY"])
 
-            count = stats["diceRolls"]
-            for roll in rollList:
-                m = re.search('d\d+', roll[0])
-                if m:
-                    count[m.group(0)] += 1
-                else:
-                    print("error at for roll in rollList ", message)
+        count = stats["diceRolls"]
+        count[side] += 1
 
-                if "critfail" in roll[0]:
-                    if "d20" in roll[0]:
-                        stats["nat1"] += 1
-                        stats["totCrtFail"] += 1
+        if "critfail" in crit:
+            if 20 == side:
+                stats["nat1"] += 1
+                stats["totCrtFail"] += 1
 
-                    else:
-                        stats["totCrtFail"] += 1
-                elif "critsuccess" in roll[0]:
-                    if not isinstance(m, type(None)):
-                        val = int(m.group()[1:])
-                    else:
-                        val = 0
-                        print("error at for roll in rollList ", message)
+            else:
+                stats["totCrtFail"] += 1
+        elif "critsuccess" in crit:
+            val = side
 
-                    stats["points"] = stats["points"] + val
-                    if "d20" in roll[0]:
+            stats["points"] = stats["points"] + int(val)
+            if 20 == side:
+                stats["nat20"] += 1
+                stats["totCrtSus"] += 1
+            else:
+                stats["totCrtSus"] += 1
 
-                        stats["nat20"] += 1
-                        stats["totCrtSus"] += 1
-                    else:
-                        stats["totCrtSus"] += 1
+        if not oldFormulaID == formulaID:
+            stats["topFormual"][formula] += 1
 
-        stats["names"].add(message["BY"])
-        stats["topFormual"][rollFomula] += 1
         stats["diceRolls"] = count
 
         lastHigestRoll = stats.get("highestRoll")
-        if not isinstance(rolled, str):
-            if (rolled > lastHigestRoll):
-                stats["highestRoll"] = rolled
+        if not isinstance(TotalRoll, str):
+            if (TotalRoll > lastHigestRoll):
+                stats["highestRoll"] = TotalRoll

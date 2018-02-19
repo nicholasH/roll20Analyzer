@@ -15,7 +15,7 @@ Avatar_field = "Avatar"
 Time_field = "Time"
 
 #userIDTable
-UserTable= 'User'
+User_table= 'User'
 
 UserID_field = 'UserID'
 MessageID_field_UserTable = MessageID_field
@@ -113,7 +113,7 @@ def createUserTable():
     c = conn.cursor()
     exe ='CREATE TABLE {tn} ({MIDU} {fts}, {UID} {fts}, FOREIGN KEY({MIDU}) REFERENCES {MTN}({MID}))'\
         .format(
-            tn=UserTable,
+            tn=User_table,
             MID=MessageID_field,
             MIDU=MessageID_field_UserTable,
             MTN=Message_table,
@@ -229,6 +229,7 @@ def createActiveTageTable():
     c.execute(exe)
     conn.close()
 
+################################################################################################################################
 
 
 # sets the meta data of the game
@@ -266,7 +267,7 @@ def destroyDB():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS ' + Message_table)
-    c.execute('DROP TABLE IF EXISTS ' + UserTable)
+    c.execute('DROP TABLE IF EXISTS ' + User_table)
     c.execute('DROP TABLE IF EXISTS ' + Formula_table)
     c.execute('DROP TABLE IF EXISTS ' + Dice_table)
     c.execute('DROP TABLE IF EXISTS ' + Dice_Formula_junction_table)
@@ -276,8 +277,8 @@ def destroyDB():
 
     conn.commit()
     conn.close()
-
-
+#ADD
+########################################################################################################################
 # adds a single message to the db
 # gets a dict with all message feilds it add it to the db
 def addToMessageTable(messageID,messageType,avatar,by,time):
@@ -308,7 +309,7 @@ def addManyToMessageTable(allmessage):
 def addToUserIDTable(messageID,userID):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT INTO "+UserTable +" VALUES (?,?)"
+    exe = "INSERT INTO " + User_table + " VALUES (?,?)"
     c.execute(exe, (messageID,userID))
     conn.commit()
     conn.close()
@@ -316,7 +317,7 @@ def addToUserIDTable(messageID,userID):
 def addManyToUserIDTable(allusers):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "INSERT INTO "+UserTable +" VALUES (?,?)"
+    exe = "INSERT INTO " + User_table + " VALUES (?,?)"
     c.executemany(exe, allusers)
     conn.commit()
     conn.close()
@@ -477,21 +478,14 @@ def addManyFormulaAndDice(allformulaAndDice):
         addManyToDiceFormulaJunkTable(formulaIDAndDiceIDS)
         x += 1
 
-
-
-
+#Get
+#######################################################################################################################
 
 # Gets all the message in the DB and returns a list
 def getMessages():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message "
-              "join Fourmula "
-              "on (Fourmula.MessageID = Message.MessageID) "
-              "join Dice_Formula_JT "
-              "on (Dice_Formula_JT.FormulaID_JT = Fourmula.FormulaID) "
-              "Join Dice on "
-              "(Dice.DiceID = Dice_Formula_JT.DiceID_JT)")
+    c.execute("SELECT * FROM Message")
     conn.commit()
     data = c.fetchall()
     conn.close()
@@ -503,11 +497,42 @@ def getMessages():
 def getMessagesRolls():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message WHERE MessageType='rollresult' OR MessageType='characterSheet'")
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) ".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field
+
+    )
+    c.execute(exe)
     conn.commit()
     data = c.fetchall()
     conn.close()
-    return makeList(data)
+    return makeDiceList(data)
 
 
 def getAllTags():
@@ -532,6 +557,14 @@ def makeList(data):
 
     return listTurn
 
+def makeDiceList(data):
+    diceColumnName = [MessageID_field,MessageType_field,By_field,UserID_field,Formula_ID_field,Roll_Formula_field,TotalRoll_field,Sides_field,Crit_field,Roll_field]
+
+    listTurn = list()
+    for datum in data:
+        dic = dict(zip(diceColumnName, datum))
+        listTurn.append(dic)
+    return listTurn
 
 # prints the DB
 def printDB():
@@ -548,7 +581,7 @@ def printDB():
 def printUserTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "SELECT * FROM " + UserTable
+    exe = "SELECT * FROM " + User_table
     c.execute(exe)
     conn.commit()
     rows = c.fetchall()
