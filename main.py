@@ -478,38 +478,65 @@ class newDB:
 
 
 class cancel(tk.Tk):
+    dotNum = 1
+    dot = "."
+    loadingDot = dot * dotNum
+
     def __init__(self, parent):
         tk.Tk.__init__(self)
         self.destroy()
         top = self.top = tk.Toplevel(parent)
 
-        name_lable = tk.Label(top, text="Your game is being analyzed this may take a few minutes")
+        self.pleaseWaitMessage = tk.StringVar()
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes")
+        self.statMessage = tk.StringVar()
+        self.statMessage.set("Starting")
+
+        self.name_lable = tk.Label(top, textvariable=self.pleaseWaitMessage)
+        self.name_lable.config(width=45,anchor="w")
+        self.stat_lable = tk.Label(top, textvariable=self.statMessage)
+
 
         cancel_btn = tk.Button(top, text="cancel", command=self.cancelAnalysis)
 
         self.progress = ttk.Progressbar(self.top, orient="horizontal", length=200, mode="determinate")
 
-        name_lable.pack()
+        self.name_lable.pack()
+        self.stat_lable.pack()
         self.progress.pack()
         cancel_btn.pack()
         self.loading()
 
+    #todo think about adding loading for dice and formula
     def loading(self):
+
         self.progress["value"] = chatParser.current
         self.maxMessages = chatParser.size
         self.progress["maximum"] = chatParser.size
         self.message = chatParser.current
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes" + self.loadingDot)
+        self.statMessage.set(chatParser.status)
 
         self.progress["value"] = self.message
-        if self.message < self.maxMessages:
+        if not chatParser.status == "DONE":
+            if self.dotNum > 4:
+                self.dotNum = 1
+            else:
+                self.dotNum += 1
             self.after(100, self.loading)
-        elif (self.message == self.maxMessages):
+            self.loadingDot = self.dot * self.dotNum
+
+            if chatParser.status == "Adding messages data to DB":
+                self.progress.pack_forget()
+
+        elif (chatParser.status == "DONE"):
             self.top.destroy()
 
     def cancelAnalysis(self):
         chatParser.cancelParser()
         self.top.destroy()
 
+#todo add newer loading
 class importCancel(tk.Tk):
     def __init__(self, parent):
         tk.Tk.__init__(self)

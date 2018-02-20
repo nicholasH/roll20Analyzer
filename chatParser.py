@@ -15,9 +15,10 @@ import DBhandler
 global stamped
 stamped = False
 
-global size,current,cancel
+global size,current,cancel,status
 current = 0
 size = 1
+status = "Starting"
 
 cancel = False
 
@@ -34,9 +35,9 @@ def addScrapParseToDB():
     # DBhandler.createDB()
     # todo remove above code
 
-
-
     URL = 'https://app.roll20.net/sessions/new'
+    global status
+    status = "Getting chat archive"
 
     gameURL = DBhandler.getURL()
 
@@ -169,9 +170,11 @@ def appendTags(messageID, playerID,tstamp):
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
-    global current,cancel
+    global current,size,cancel,status
     static.timeStamp = ""
     x =1
+    status = "Parsing data"
+
 
     for c in chatContent:
         if(not cancel):
@@ -194,10 +197,22 @@ def addToDb(chatContent):
         else:
             print("chatPar has been canceled")
             return
+
+
+    status = "Adding messages data to DB"
+    print(status)
     DBhandler.addManyToMessageTable(allMessage)
+    status = "Adding user data to DB"
+    print(status)
     DBhandler.addManyToUserIDTable(allUserID)
+    status = "Adding Formula and Dice data to DB"
+    print(status)
     DBhandler.addManyFormulaAndDice(allFormulaDice)
+    status = "Adding tags data to DB"
+    print(status)
     DBhandler.addManyToTag(allTags)
+    status = "DONE"
+
 
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID
