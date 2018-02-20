@@ -509,6 +509,7 @@ class cancel(tk.Tk):
         self.loading()
 
     #todo think about adding loading for dice and formula
+    #todo make a better way to remove progress bar
     def loading(self):
 
         self.progress["value"] = chatParser.current
@@ -527,7 +528,7 @@ class cancel(tk.Tk):
             self.after(100, self.loading)
             self.loadingDot = self.dot * self.dotNum
 
-            if chatParser.status == "Adding messages data to DB":
+            if "Adding" in chatParser.status:
                 self.progress.pack_forget()
 
         elif (chatParser.status == "DONE"):

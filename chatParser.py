@@ -22,11 +22,22 @@ status = "Starting"
 
 cancel = False
 
+allMessage = list()
+allUserID = list()
+allFormulaDice = list()
+allTags =list()
+
+
 def resetGlobal():
-    global size,current,cancel
+    global size,current,cancel,status
+    status = "Starting"
     current = 0
     size = 1
     cancel = False
+    allMessage.clear()
+    allUserID.clear()
+    allFormulaDice.clear()
+    allTags.clear()
 
 
 def addScrapParseToDB():
@@ -155,10 +166,6 @@ def updatePhoto(content):
             static.photo = p[:last]
 
 
-allMessage = list()
-allUserID = list()
-allFormulaDice = list()
-allTags =list()
 
 
 def appendTags(messageID, playerID,tstamp):

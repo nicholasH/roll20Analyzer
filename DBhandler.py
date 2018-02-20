@@ -463,6 +463,8 @@ def addFormulaAndDice(messageID,totalRoll,rollFormula,dicerolls):
     addManyToDiceFormulaJunkTable(DiceFormula)
 
 def addManyFormulaAndDice(allformulaAndDice):
+    if len(allformulaAndDice) == 0:
+        return
     allformulas , alldices = zip(*allformulaAndDice)
 
     formulaIDRandge = addManytoFormulaTable(allformulas)
