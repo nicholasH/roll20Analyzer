@@ -478,9 +478,7 @@ class newDB:
 
 
 class cancel(tk.Tk):
-    dotNum = 1
-    dot = "."
-    loadingDot = dot * dotNum
+
 
     def __init__(self, parent):
         tk.Tk.__init__(self)
@@ -496,6 +494,9 @@ class cancel(tk.Tk):
         self.name_lable.config(width=45,anchor="w")
         self.stat_lable = tk.Label(top, textvariable=self.statMessage)
 
+        self.dotNum = 1
+        self.dot = "."
+        self.loadingDot = self.dot * self.dotNum
 
         cancel_btn = tk.Button(top, text="cancel", command=self.cancelAnalysis)
 
