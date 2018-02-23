@@ -333,18 +333,15 @@ def addToFormulaTable(messageID,totalRoll,rollFormula):
 
     return formulaID
 
-def addManytoFormulaTable(allformula):
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-    c.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
-    A_ID = c.fetchone()[0]
+def addManytoFormulaTable(cursor,allformula):
+    cursor.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
+    A_ID = cursor.fetchone()[0]
     exe = "INSERT INTO "+Formula_table+"( "+MessageID_field_FormulaTable+", "+Roll_Formula_field+", "+TotalRoll_field+") VALUES (?,?,?)"
-    c.executemany(exe, allformula)
+    cursor.executemany(exe, allformula)
 
-    c.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
-    B_ID = c.fetchone()[0]
-    conn.commit()
-    conn.close()
+    cursor.execute("SELECT max("+Formula_ID_field+") FROM "+Formula_table)
+    B_ID = cursor.fetchone()[0]
+
 
 
     if A_ID is None:
@@ -366,18 +363,14 @@ def addToDiceTable(side,crit,roll,diceType):
     return diceID
 
 
-def addManyToDiceTable(diceList):
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
-    c.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
-    A_ID = c.fetchone()[0]
+def addManyToDiceTable(cursor,diceList):
+    cursor.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
+    A_ID = cursor.fetchone()[0]
 
     exe = "INSERT INTO "+Dice_table+"( "+Sides_field+", "+Crit_field+", "+Roll_field+") VALUES (?,?,?)"
-    c.executemany(exe, diceList)
-    conn.commit()
-    c.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
-    B_ID = c.fetchone()[0]
-    conn.close()
+    cursor.executemany(exe, diceList)
+    cursor.execute("SELECT max("+Dice_ID_field+") FROM "+Dice_table)
+    B_ID = cursor.fetchone()[0]
 
     if A_ID is None:
         A_ID = 1
@@ -394,13 +387,11 @@ def addToDiceFormulaJunkTable(diceID,formulaID):
     conn.commit()
     conn.close()
 
-def addManyToDiceFormulaJunkTable(diceFormula):
-    conn = sqlite3.connect(getDBPath())
-    c = conn.cursor()
+def addManyToDiceFormulaJunkTable(cursor,diceFormula):
+
     exe = "INSERT INTO " +Dice_Formula_junction_table + " VALUES (?,?)"
-    c.executemany(exe, diceFormula)
-    conn.commit()
-    conn.close()
+    cursor.executemany(exe, diceFormula)
+
 
 # gets array of tagDetails and addeds the tag to the active tag table
 # tagArray is a list  that can inclued one - three items
@@ -460,6 +451,7 @@ def addFormulaAndDice(messageID,totalRoll,rollFormula,dicerolls):
     FIDList = [formulaID] * len(rang)
 
     DiceFormula = zip(FIDList,rang)
+
     addManyToDiceFormulaJunkTable(DiceFormula)
 
 def addManyFormulaAndDice(allformulaAndDice):
@@ -467,18 +459,24 @@ def addManyFormulaAndDice(allformulaAndDice):
         return
     allformulas , alldices = zip(*allformulaAndDice)
 
-    formulaIDRandge = addManytoFormulaTable(allformulas)
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+
+    formulaIDRandge = addManytoFormulaTable(c,allformulas)
+
     diceRanges = list()
     for dice in alldices:
-        diceRanges.append(addManyToDiceTable(dice))
+        diceRanges.append(addManyToDiceTable(c,dice))
 
     x = 0
-    for formID in range(formulaIDRandge[0],formulaIDRandge[1]):
+    for formID in range(formulaIDRandge[0],formulaIDRandge[1]+1):
         dices = list(range(diceRanges[x][0],diceRanges[x][1]+1))
         fIDs = [formID] * len(dices)
         formulaIDAndDiceIDS = list(zip(fIDs,dices))
-        addManyToDiceFormulaJunkTable(formulaIDAndDiceIDS)
+        addManyToDiceFormulaJunkTable(c,formulaIDAndDiceIDS)
         x += 1
+    conn.commit()
+    conn.close()
 
 #Get
 #######################################################################################################################

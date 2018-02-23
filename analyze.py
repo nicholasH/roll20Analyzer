@@ -30,10 +30,18 @@ def getPath():
 
 
 def analyze(offline):
+    start = datetime.now()
+    print("start-",start)
     if not offline:
         chatParser.addScrapParseToDB()
 
     analyzeDB(DBhandler.getMessagesRolls())
+    end = datetime.now()
+    print("End-",end)
+
+    c = end - start
+    print("delta-",c.seconds)
+
     return returnStats()
 
 
@@ -294,6 +302,7 @@ def analyzeDB(messages):
                  "topFormual": Counter(), "highestRoll": 0, "points": 0}
 
         messageID = message["MessageID"]
+        #print('analyze-',messageID)
         messageType = message["MessageType"]
         by = message["BY"]
 
@@ -333,7 +342,13 @@ def analyzeDB(messages):
         elif "critsuccess" in crit:
             val = side
 
-            stats["points"] = stats["points"] + int(val)
+            #table rolls don't have sides so they return empty strings
+            if not str(val).isdigit():
+                val = 0
+            else:
+                val = int(val)
+
+            stats["points"] = stats["points"] + val
             if 20 == side:
                 stats["nat20"] += 1
                 stats["totCrtSus"] += 1

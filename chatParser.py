@@ -294,7 +294,7 @@ def addGeneral(datum):
         time = static.tstamp
 
         allMessage.append((messageID, messageType, avatar, by, time))
-        charSheetRoll(char, messageID,static.photo)
+        charSheetRoll(char, messageID,time)
     else:
         pass
 

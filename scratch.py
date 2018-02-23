@@ -50,6 +50,4 @@ import analyze
 
 
 
-dot = "."
-n = 40
-print(dot * n)
+print(list(range(5,6)))
