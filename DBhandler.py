@@ -493,7 +493,7 @@ def getMessages():
     return makeList(data)
 
 
-# returns a list of all rollresults
+# returns a list of all dice and formula
 def getMessagesRolls():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
@@ -528,6 +528,7 @@ def getMessagesRolls():
         DID = Dice_ID_field
 
     )
+    print(exe)
     c.execute(exe)
     conn.commit()
     data = c.fetchall()
@@ -757,17 +758,46 @@ def getRollresultDateTime(dateTime):
 def getRollresultDateTimeRange(dateTimeA, dateTimeB):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "SELECT * FROM {tn} WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='rollresult' OR {tf} BETWEEN \"{DA}\" AND \"{DB}\" AND {mt}='characterSheet'".format(
-        tn=Message_table,
-        tf=Time_field,
-        mt=MessageType_field,
-        DA=dateTimeA,
-        DB=dateTimeB)
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "WHERE {tf} BETWEEN \"{DA}\" AND \"{DB}\"".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+        tf = Time_field,
+        DA = dateTimeA,
+        DB =dateTimeB
+    )
+    print(exe)
 
     c.execute(exe)
     data = c.fetchall()
     c.close()
-    return makeList(data)
+    return makeDiceList(data)
 
 
 
