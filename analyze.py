@@ -174,11 +174,15 @@ def returnStats():
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + str(values["diceRolls"]) + "\n"
+        s = s + "dice counter" + str(values["diceRolls"]) + "\n"
+        s = s + "dice avg" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
+
+
 
     s = s + "Character Sheets: \n\n"
     for char,values in charSheetStats.items():
@@ -188,7 +192,9 @@ def returnStats():
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + str(values["diceRolls"]) + "\n"
+        s = s + "dice counter" + str(values["diceRolls"]) + "\n"
+        s = s + "dice avg" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + "points " + str(values["points"])
@@ -283,6 +289,13 @@ def findWinner(exclude):
 
     return sorted(scores, key=lambda score: score[1])
 
+def getAvg(count,total):
+    keys =count.keys()
+    redic = dict()
+    for key in keys:
+        redic[key] = round(total[key]/count[key],3)
+    return  redic
+
 #get 2 players and finds if player A has more rolls
 def playerAHaveMoreRolls(playerA, playerB):
     if playerA == None:
@@ -299,10 +312,10 @@ def analyzeDB(messages):
     oldFormulaID = ""
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0, "diceRolls": Counter(),
-                 "topFormual": Counter(), "highestRoll": 0, "points": 0}
+                 "topFormual": Counter(), "highestRoll": 0,"diceAvgs":Counter(), "points": 0}
 
         messageID = message["MessageID"]
-        #print('analyze-',messageID)
+        print('analyze-',messageID)
         messageType = message["MessageType"]
         by = message["BY"]
 
@@ -331,6 +344,13 @@ def analyzeDB(messages):
 
         count = stats["diceRolls"]
         count[side] += 1
+
+        print(side)
+        print(roll)
+        total = stats["diceAvgs"]
+        if not isinstance(roll,str):
+            total[side] += roll
+
 
         if "critfail" in crit:
             if 20 == side:

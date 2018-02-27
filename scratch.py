@@ -9,6 +9,7 @@ import time
 
 import DBhandler
 import analyze
+from collections import Counter
 "^"
 #the word after the ^ is the tag name. A tag like this will only work the the next roll
 "^tag"
@@ -48,6 +49,10 @@ import analyze
 #todo add a way to excuded tags
 
 
+count = Counter()
 
+count["test"] =+1
+
+print(0/4)
 
 print(list(range(5,6)))
