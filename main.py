@@ -62,7 +62,6 @@ about = 'Programed by:Nicholas Hoover\n' \
 
 
 
-
 class app(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -75,9 +74,9 @@ class app(tk.Tk):
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.new)
+        filemenu.add_command(label="Open", command=self.loadDB)
         filemenu.add_command(label="Import", command=self.importChat)
         filemenu.add_command(label="continue", command=self.continueImport)
-        filemenu.add_command(label="Open", command=self.loadDB)
         filemenu.add_command(label="About", command=self.about)
 
         filemenu.add_separator()
@@ -172,6 +171,14 @@ class app(tk.Tk):
 
     def updatDBLable(self):
         message = "Game Name: " + DBhandler.getGameName() + "| URL: " + DBhandler.getURL()
+        if DBhandler.getURL() == "offline":
+            self.frame.offline.set(1)
+            self.frame.offline_checkBox['state'] = "disabled"
+        else:
+            self.frame.offline.set(0)
+            self.frame.offline_checkBox['state'] = "normal"
+
+
         self.currentDB_string.set(message)
 
     def loadDB(self):
@@ -203,7 +210,7 @@ class mainPage(tk.Frame):
         textBoxFrame = tk.Frame(self)
 
         self.offline = tk.IntVar()
-        offline_checkBox = tk.Checkbutton(uiFrame, text="Offline?", variable=self.offline)
+        self.offline_checkBox = tk.Checkbutton(uiFrame, text="Offline?", variable=self.offline)
 
         dayString1 = tk.StringVar()
         dayString1.trace("w", lambda name, index, mode, dayString=dayString1: limitSizeDay(dayString, 2))
@@ -261,26 +268,44 @@ class mainPage(tk.Frame):
         self.name_combo.current(0)
 
         uiFrame.pack()
-        offline_checkBox.pack(side="left")
+        self.offline_checkBox.pack(side="left")
+        self.offline_checkBox.lift()
         run_all_btn.pack(side="left")
+        run_all_btn.lift()
         today_btn.pack(side="left")
+        today_btn.lift()
+
         run_by_date_btn.pack(side="left")
+        run_by_date_btn.lift()
         day1_lable.pack(side="left")
+        day1_lable.pack()
         self.month_entry1.pack(side="left")
+        self.month_entry1.lift()
         fSlash1.pack(side="left")
+        fSlash1.lift()
         self.day_entry1.pack(side="left")
+        self.day_entry1.lift()
         fSlash2.pack(side="left")
+        fSlash1.lift()
         self.year_entry1.pack(side="left")
+        self.year_entry1.lift()
         showbox.pack(side="left")
+        showbox.lift()
         day2_lable.pack(side="left")
+        day2_lable.lift()
         # line above must be at the end of the pack
 
         searchFrame.pack()
+        searchFrame.lift()
         self.tag_combo.pack(side="left")
+        self.tag_combo.lift()
         tagSearch.pack(side="left")
+        tagSearch.lift()
 
         self.name_combo.pack(side="left")
+        self.name_combo.lift()
         nameSearch.pack(side="left")
+        nameSearch.lift()
 
         textBoxFrame.pack(fill="both", expand=True)
         self.text_box.pack(fill="both", expand=True)
@@ -478,8 +503,6 @@ class newDB:
 
 
 class cancel(tk.Tk):
-
-
     def __init__(self, parent):
         tk.Tk.__init__(self)
         self.destroy()
@@ -511,7 +534,6 @@ class cancel(tk.Tk):
     #todo think about adding loading for dice and formula
     #todo make a better way to remove progress bar
     def loading(self):
-
         self.progress["value"] = chatParser.current
         self.maxMessages = chatParser.size
         self.progress["maximum"] = chatParser.size
@@ -545,13 +567,25 @@ class importCancel(tk.Tk):
         self.destroy()
         top = self.top = tk.Toplevel(parent)
 
-        name_lable = tk.Label(top, text="Your game is being imported this may take a few minutes")
+        self.pleaseWaitMessage = tk.StringVar()
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes")
+        self.statMessage = tk.StringVar()
+        self.statMessage.set("Starting")
+
+        self.name_lable = tk.Label(top, textvariable=self.pleaseWaitMessage)
+        self.name_lable.config(width=45,anchor="w")
+        self.stat_lable = tk.Label(top, textvariable=self.statMessage)
+
+        self.dotNum = 1
+        self.dot = "."
+        self.loadingDot = self.dot * self.dotNum
 
         cancel_btn = tk.Button(top, text="cancel", command=self.cancelImport)
 
         self.progress = ttk.Progressbar(self.top, orient="horizontal", length=200, mode="determinate")
 
-        name_lable.pack()
+        self.name_lable.pack()
+        self.stat_lable.pack()
         self.progress.pack()
         cancel_btn.pack()
         self.loading()
@@ -561,11 +595,22 @@ class importCancel(tk.Tk):
         self.maxMessages = chatParser.size
         self.progress["maximum"] = chatParser.size
         self.message = chatParser.current
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes" + self.loadingDot)
+        self.statMessage.set(chatParser.status)
 
         self.progress["value"] = self.message
-        if self.message < self.maxMessages:
+        if not chatParser.status == "DONE":
+            if self.dotNum > 4:
+                self.dotNum = 1
+            else:
+                self.dotNum += 1
             self.after(100, self.loading)
-        elif (self.message == self.maxMessages):
+            self.loadingDot = self.dot * self.dotNum
+
+            if "Adding" in chatParser.status:
+                self.progress.pack_forget()
+
+        elif (chatParser.status == "DONE"):
             self.top.destroy()
 
     def cancelImport(self):

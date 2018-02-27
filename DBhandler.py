@@ -904,15 +904,48 @@ def endAlltag():
 def getMessagesWithTags(tagName):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT Message.* FROM Message "
-              "JOIN Tags "
-              "ON Message.MessageID = Tags.MessageID "
-              "WHERE Tags.TagName = (?)",(tagName,))
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "JOIN {TT} " \
+          "ON ({TT}.{MID} = {MT}.{MID})" \
+          "WHERE {Tname} = (?)".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+        TT = Tag_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+        Tname = Tag_name_field
+
+    )
+    c.execute(exe,(tagName,))
     conn.commit()
     data = c.fetchall()
     conn.close()
 
-    return makeList(data)
+    return makeDiceList(data)
 
 def getMessagesWithTagsBYDate(tagName,dateTime):
     dateA = dateTime
@@ -924,15 +957,50 @@ def getMessagesWithTagsBYDate(tagName,dateTime):
 def getMessagesWithTagsBYDateRange(tagName,dateTimeA,dateTimeB):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT Message.* FROM Message "
-              "JOIN Tags "
-              "ON Message.MessageID = Tags.MessageID "
-              "WHERE Tags.TagName = ?"
-              "AND Time BETWEEN ? AND ?",(tagName,dateTimeA,dateTimeB))
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "JOIN {TT} " \
+          "ON ({TT}.{MID} = {MT}.{MID})" \
+          "WHERE {Tname} = (?) " \
+          "AND {Time} BETWEEN ? AND ?".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+        TT = Tag_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+        Tname = Tag_name_field,
+        Time = Time_field
+
+    )
+
+    c.execute(exe,(tagName,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
-    return makeList(data)
+    return makeDiceList(data)
 
 #get date and return a tagnames from that date
 def getTagNamesByDate(dateTime):
@@ -972,12 +1040,45 @@ def getAllNames():
 def getMessagesByName(name):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message WHERE By = (?) AND MessageType ='rollresult' OR By = (?) AND MessageType='characterSheet'",(name,name))
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "WHERE {BY} = (?) ".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+        TT = Tag_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+    )
+
+    c.execute(exe,(name,))
     conn.commit()
     data = c.fetchall()
     conn.close()
 
-    return makeList(data)
+    return makeDiceList(data)
 
 def getMessagesByNameByDate(name,dateTime):
     dateA = dateTime
@@ -987,26 +1088,88 @@ def getMessagesByNameByDate(name,dateTime):
 def getMessagesByNameByDateRange(name,dateTimeA,dateTimeB):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM Message "
-              "WHERE By = ? "
-              "AND Time BETWEEN ? AND ? AND MessageType ='rollresult' "
-              "OR By = ? "
-              "AND Time BETWEEN ? AND ? "
-              "AND MessageType='characterSheet'",(name,dateTimeA,dateTimeB,name,dateTimeA,dateTimeB))
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "WHERE {BY} = (?) " \
+          "AND {TIME} BETWEEN ? AND ?".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+        TT = Tag_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+        TIME = Time_field
+    )
+
+    c.execute(exe,(name,dateTimeA,dateTimeB))
     conn.commit()
     data = c.fetchall()
     c.close()
-    return makeList(data)
+    return makeDiceList(data)
 
 #get a taglist and a character name and returns all messages that have all of them
 def getMessagesByTagAndName(tagNameList,name):
-    exe = "SELECT Message.* FROM Message "\
-              "JOIN Tags "\
-              "ON Message.MessageID = Tags.MessageID "\
-              "WHERE (Message.by = ? AND MessageType ='rollresult' OR Message.by = ? AND MessageType ='characterSheet') "
+
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "JOIN {TT} " \
+          "ON ({TT}.{MID} = {MT}.{MID}) " \
+          "WHERE {BY} = (?) ".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+        TT = Tag_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+        TIME = Time_field
+    )
     andTag = "And Tags.TagName = ? "
 
-    exeVar = [name,name]
+    exeVar = [name]
 
     for tag in tagNameList:
         exe = exe + andTag
@@ -1018,7 +1181,7 @@ def getMessagesByTagAndName(tagNameList,name):
     conn.commit()
     data = c.fetchall()
     conn.close()
-    return makeList(data)
+    return makeDiceList(data)
 
 def getMessagesByTagAndNameByDate(tagNameList,name,dateTime):
     dateA = dateTime
@@ -1026,6 +1189,43 @@ def getMessagesByTagAndNameByDate(tagNameList,name,dateTime):
     return getMessagesByTagAndNameByDateRange(tagNameList,name,dateA, dateB)
 
 def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
+    exe = "SELECT {MT}.{MID}, {Type}, {BY} ,{UID},{FT}.{FID},{RF},{TotR},{Side},{Crit},{Roll} " \
+          "FROM {MT} " \
+          "LEFT JOIN {UT} " \
+          "ON ({UT}.{MID} = {MT}.{MID}) " \
+          "JOIN {FT} " \
+          "ON ({FT}.{MID} = {MT}.{MID}) " \
+          "JOIN {DFJT} " \
+          "ON ({DFJT}.{FIDJ} = {FT}.{FID}) " \
+          "JOIN {DT} " \
+          "ON ({DT}.{DID} = {DFJT}.{DIDJ}) " \
+          "JOIN {TT} " \
+          "ON ({TT}.{MID} = {MT}.{MID}) " \
+          "WHERE {TIME} BETWEEN ? AND ? " \
+          "AND {BY} = (?) ".format(
+        MT= Message_table,
+        FT=Formula_table,
+        UT = User_table,
+        DT = Dice_table,
+        DFJT = Dice_Formula_junction_table,
+        TT = Tag_table,
+
+        MID = MessageID_field,
+        BY = By_field,
+        Type = MessageType_field,
+        UID = UserID_field,
+        RF = Roll_Formula_field,
+        TotR = TotalRoll_field,
+        Side = Sides_field,
+        Crit = Crit_field,
+        Roll = Roll_field,
+        FID = Formula_ID_field,
+        DIDJ = Dice_ID_field_JT,
+        FIDJ = Formula_ID_field_JT,
+        DID = Dice_ID_field,
+        TIME = Time_field
+    )
+
     exe = "SELECT Message.* FROM Message "\
               "JOIN Tags "\
               "ON Message.MessageID = Tags.MessageID "\
@@ -1045,7 +1245,7 @@ def getMessagesByTagAndNameByDateRange(tagNameList,name,dateTimeA,dateTimeB):
     data = c.fetchall()
     conn.close()
 
-    return makeList(data)
+    return makeDiceList(data)
 
 def getPlayerID():
     setTurn = set()
