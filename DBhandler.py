@@ -5,6 +5,8 @@ import pickle
 import errors
 import sys
 
+DBVersion = "1.1"
+
 # messageTable
 Message_table = 'Message'
 
@@ -46,6 +48,7 @@ Dice_ID_field_JT = Dice_ID_field+"_JT"
 GameData_table = 'gameData'
 GameName_feild = 'name'
 GameUrl_feild = 'url'
+DBVersion_feild = "DBVersion"
 
 # tag table
 Tag_table = "Tags"
@@ -184,10 +187,11 @@ def createDiceFormulaTable():
 def createGameDataTable():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "CREATE TABLE {tn} ({n} {fts}, {url} {fts})".format(
+    exe = "CREATE TABLE {tn} ({n} {fts}, {url} {fts} , {vn} {fts})".format(
         tn=GameData_table,
         n=GameName_feild,
         url=GameUrl_feild,
+        vn=DBVersion_feild,
         fts=string_field_type
     )
     c.execute(exe)
@@ -236,7 +240,7 @@ def createActiveTageTable():
 def setdata(name, url):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("INSERT INTO gameData VALUES (?,?)", (name, url))
+    c.execute("INSERT INTO gameData VALUES (?,?,?)", (name, url,DBVersion))
     conn.commit()
     conn.close()
 

@@ -11,6 +11,7 @@ from tkinter import messagebox
 from threading import Thread
 import errors
 import chatParser
+import configparser
 
 about = 'Programed by:Nicholas Hoover\n' \
         '\n' \
@@ -77,6 +78,7 @@ class app(tk.Tk):
         filemenu.add_command(label="Open", command=self.loadDB)
         filemenu.add_command(label="Import", command=self.importChat)
         filemenu.add_command(label="continue", command=self.continueImport)
+        filemenu.add_command(label = "setting", command= self.setting)
         filemenu.add_command(label="About", command=self.about)
 
         filemenu.add_separator()
@@ -168,6 +170,11 @@ class app(tk.Tk):
 
     def about(self):
         self.frame.updateText(about)
+
+    def setting(self):
+        d = setting(self)
+        d.top.grab_set()
+        self.wait_window(d.top)
 
     def updatDBLable(self):
         message = "Game Name: " + DBhandler.getGameName() + "| URL: " + DBhandler.getURL()
@@ -499,6 +506,44 @@ class newDB:
 
     def cancel(self):
         self.top.destroy()
+
+class setting:
+    def __init__(self, parent):
+        top = self.top = tk.Toplevel(parent)
+        self.p = parent
+
+        name_lable = tk.Label(top, text="Remember User Name")
+        self.username_entry = tk.Entry(top)
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        user = config['login']['user']
+
+
+        ok_btn = tk.Button(top, text="apply", command=self.apply)
+        cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
+
+        self.username_entry.insert(0,user)
+
+        name_lable.pack()
+        self.username_entry.pack(padx=5)
+        ok_btn.pack(pady=5)
+        cancel_btn.pack()
+
+    def apply(self):
+        print("value is", self.username_entry.get())
+
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        config.set('login', 'user', self.username_entry.get())
+
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
+
+        self.top.destroy()
+
+    def cancel(self):
+        self.top.destroy()
+
 
 
 

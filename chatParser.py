@@ -8,6 +8,7 @@ from bs4.element import NavigableString, Tag
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException, TimeoutException
 import selenium.webdriver.support.ui as ui
+import configparser
 
 import DBhandler
 
@@ -50,6 +51,11 @@ def addScrapParseToDB():
     global status
     status = "Getting chat archive"
 
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    user = config['login']['user']
+
     gameURL = DBhandler.getURL()
 
     chromeDriver = os.path.join(sys.path[0], "chromedriver.exe")
@@ -65,7 +71,7 @@ def addScrapParseToDB():
     # todo remove this login
     # Loging
     ######################################################################################
-
+    '''
     path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
@@ -95,8 +101,15 @@ def addScrapParseToDB():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-
+    '''
     #######################################################################################
+    usernameElements = browser.find_elements_by_name("email")
+    for e in usernameElements:
+        try:
+            e.send_keys(user)
+        except ElementNotVisibleException:
+            print()
+
 
     try:
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
