@@ -170,12 +170,11 @@ def returnStats():
     for player, values in playerStats.items():
         # s = s + player
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
-        s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
+        s = s + "Total Number of Rolls: " + str(sum(values["diceRolls"].values())) + "\n"
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + "dice counter" + str(values["diceRolls"]) + "\n"
-        s = s + "dice avg" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+        s = s + "dice counter" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
 
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
@@ -186,14 +185,14 @@ def returnStats():
 
     s = s + "Character Sheets: \n\n"
     for char,values in charSheetStats.items():
-        # s = s + player
+
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
         s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + "dice counter" + str(values["diceRolls"]) + "\n"
-        s = s + "dice avg" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+        s = s + "dice counterg" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+
 
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
@@ -291,10 +290,23 @@ def findWinner(exclude):
 
 def getAvg(count,total):
     keys =count.keys()
-    redic = dict()
+    listTurn = list()
     for key in keys:
-        redic[key] = round(total[key]/count[key],3)
-    return  redic
+        side = key
+        c = count[key]
+        avg = round(total[key]/count[key],3)
+
+        s = "d{side}( tot: {total}, avg:{avg}) ".format(
+            side = side,
+            total = c,
+            avg= avg
+        )
+        listTurn.append(s)
+
+
+
+    return  listTurn
+
 
 #get 2 players and finds if player A has more rolls
 def playerAHaveMoreRolls(playerA, playerB):
