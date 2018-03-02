@@ -23,10 +23,19 @@ status = "Starting"
 
 cancel = False
 
+#[Name, type, data, selfBoolen]
+activeTags = list()
+
+
+
+
 allMessage = list()
 allUserID = list()
 allFormulaDice = list()
 allTags =list()
+
+
+
 
 
 def resetGlobal():
@@ -180,7 +189,6 @@ def updatePhoto(content):
 
 
 
-
 def appendTags(messageID, playerID,tstamp):
     tagsNames = DBhandler.getActiveTagsAndUpdate(playerID,tstamp)
 
@@ -188,12 +196,37 @@ def appendTags(messageID, playerID,tstamp):
         name = name[0]
         allTags.append((messageID,name))
 
+#todo may not update activeTag list with proper data
+# removes timed tags that are timed out from the DB
+def cleanActiveTime(time):
+    index = 0
+    for act in activeTags:
+        if act[1] is "timed":
+            data = act[2]
+
+            if data[0] is "":
+                data[0] = time
+                act[2] = data[0]
+
+            timeToStop = ""
+            if data[2] == "m":
+                timeToStop = data[0] + timedelta(minutes=int(data[1]))
+            elif data[2] == "h":
+                timeToStop = data[0] + timedelta(hours=int(data[1]))
+
+            if time > timeToStop:
+                activeTags.remove(index)
+        index += 1
+
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
     global current,size,cancel,status
     static.timeStamp = ""
     x =1
     status = "Parsing data"
+
+    activeTags.clear()
+    activeTags.extend(DBhandler.getActiveTags())
 
 
     for c in chatContent:
