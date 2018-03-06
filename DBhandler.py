@@ -281,6 +281,13 @@ def destroyDB():
     conn.commit()
     conn.close()
 
+def clearActive():
+    conn = sqlite3.connect(getDBPath())
+    c = conn.cursor()
+    c.execute('DELETE FROM ' + tag_active_table)
+    conn.commit()
+    conn.close()
+
 
 # ADD
 ########################################################################################################################
@@ -347,11 +354,10 @@ def addManyToDiceFormulaJunkTable(cursor, diceFormula):
     exe = "INSERT INTO " + Dice_Formula_junction_table + " VALUES (?,?)"
     cursor.executemany(exe, diceFormula)
 
-
 # todo take this out of DB to ChatParser
 # gets array of tagDetails and addeds the tag to the active tag table
 # tagArray is a list  that can inclued one - three items
-def addtoTagActiveTable(tagName, tagType, tagDetails, Avatar, self):
+def addtoTagActiveTable(userID, tagName, tagType, tagDetails, Avatar, self):
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
     c.execute(
@@ -361,7 +367,7 @@ def addtoTagActiveTable(tagName, tagType, tagDetails, Avatar, self):
             pickle.dumps(tagDetails),
             int(self),
             Avatar,
-            ""
+            userID
         ))
     conn.commit()
     conn.close()
@@ -391,6 +397,8 @@ def addManyToTag(allTags):
     c.executemany("INSERT INTO Tags VALUES (?,?)", allTags)
     conn.commit()
     conn.close()
+
+
 
 
 def addManyFormulaAndDice(allformulaAndDice):
@@ -512,6 +520,8 @@ def makeDiceList(data):
         dic = dict(zip(diceColumnName, datum))
         listTurn.append(dic)
     return listTurn
+
+def
 
 
 # get the url or the gamedata
@@ -690,11 +700,11 @@ def getActiveTagsNames():
 def getActiveTags():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT * FROM tags_active")
+    c.execute("SELECT (TagName, TagType, Data, Self,  Avatar, UserID) FROM tags_active")
     conn.commit()
     rows = c.fetchall()
     conn.close()
-    return makeList(rows)
+    return makeActiveList(rows)
 
 
 # todo make this return a list of strings

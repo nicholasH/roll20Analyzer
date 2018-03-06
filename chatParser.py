@@ -242,6 +242,11 @@ def endTags(tagName):
             activeTags.remove(index)
             index += 1
 
+def addActive():
+    DBhandler.clearActive()
+    for act in activeTags:
+        DBhandler.addtoTagActiveTable(act[0],act[1],act[2],act[3],act[4],act[5])
+
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
@@ -276,7 +281,7 @@ def addToDb(chatContent):
             print("chatPar has been canceled")
             return
 
-
+    addActive()
     status = "Adding messages data to DB"
     print(status)
     DBhandler.addManyToMessageTable(allMessage)

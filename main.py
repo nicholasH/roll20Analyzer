@@ -488,7 +488,7 @@ class newDB:
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
         # todo take out this line of code
-        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/3050594")
+        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1644807")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)
@@ -605,7 +605,6 @@ class cancel(tk.Tk):
         chatParser.cancelParser()
         self.top.destroy()
 
-#todo add newer loading
 class importCancel(tk.Tk):
     def __init__(self, parent):
         tk.Tk.__init__(self)
