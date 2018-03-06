@@ -327,7 +327,7 @@ def analyzeDB(messages):
                  "topFormual": Counter(), "highestRoll": 0,"diceAvgs":Counter(), "points": 0}
 
         messageID = message["MessageID"]
-        print('analyze-',messageID)
+        #print('analyze-',messageID)
         messageType = message["MessageType"]
         by = message["BY"]
 
@@ -357,8 +357,7 @@ def analyzeDB(messages):
         count = stats["diceRolls"]
         count[side] += 1
 
-        print(side)
-        print(roll)
+
         total = stats["diceAvgs"]
         if not isinstance(roll,str):
             total[side] += roll

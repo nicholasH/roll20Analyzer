@@ -80,7 +80,7 @@ def addScrapParseToDB():
     # todo remove this login
     # Loging
     ######################################################################################
-    '''
+    #'''
     path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
@@ -110,16 +110,18 @@ def addScrapParseToDB():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    '''
+    #'''
     #######################################################################################
+    '''
     usernameElements = browser.find_elements_by_name("email")
     for e in usernameElements:
         try:
             e.send_keys(user)
         except ElementNotVisibleException:
             print()
+    '''
 
-
+    #######################################################################################
     try:
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
@@ -190,19 +192,22 @@ def updatePhoto(content):
 
 
 def appendTags(messageID, playerID,tstamp):
-    tagsNames = DBhandler.getActiveTagsAndUpdate(playerID,tstamp)
-
+    cleanActiveTimeUpdateUser(tstamp,playerID)
+    tagsNames = activeTags
     for name in tagsNames:
-        name = name[0]
+        name = name[1]
         allTags.append((messageID,name))
+
+    cleanSingle()
+
 
 #todo may not update activeTag list with proper data
 # removes timed tags that are timed out from the DB
-def cleanActiveTime(time):
+def cleanActiveTimeUpdateUser(time,user):
     index = 0
     for act in activeTags:
-        if act[1] is "timed":
-            data = act[2]
+        if act[2] is "timed":
+            data = act[3]
 
             if data[0] is "":
                 data[0] = time
@@ -215,8 +220,28 @@ def cleanActiveTime(time):
                 timeToStop = data[0] + timedelta(hours=int(data[1]))
 
             if time > timeToStop:
-                activeTags.remove(index)
+                del activeTags[index]
+        if act[0] is "":
+            act[0] = user
+
         index += 1
+
+def cleanSingle():
+    index = 0
+    for act in activeTags:
+        if act[2] is "single":
+            del activeTags[index]
+        index += 1
+
+
+
+def endTags(tagName):
+    index = 0
+    for act in activeTags:
+        if act[2] is tagName:
+            activeTags.remove(index)
+            index += 1
+
 
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
@@ -234,7 +259,7 @@ def addToDb(chatContent):
             current = x
             test = c.attrs.get("data-messageid")
             print(test)
-            #print(DBhandler.getActiveTagsNames())
+            print(activeTags)
             s = c["class"]
             if "rollresult" in s:
                 addRollresult(c)
@@ -300,6 +325,7 @@ def addRollresult(datum):
     avatar = static.photo
     by = static.by
     time = static.tstamp
+
 
     allMessage.append((messageID,messageType,avatar,by,time))
     allUserID.append((messageID,playerID))
@@ -371,13 +397,14 @@ def addEmote(datum):
 
     if m is not None:
         tagData = m.group().split("-")
-
+        userID =""
         if len(tagData) == 1:
             tagName = tagData[0].replace("^", "").strip()
             tagType = "single"
             tagDetails = [static.tstamp]
             self = False
-            DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails, static.photo, self)
+
+            activeTags.append([userID,tagName,tagType,tagDetails,static.photo,self])
 
         elif len(tagData) == 2:
             td = tagData[1].lower()
@@ -390,24 +417,26 @@ def addEmote(datum):
                 timeType = td[-1:]
                 tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
-                DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
 
             elif "end" in td:
                 if 'endall' in td:
-                    DBhandler.endAlltag()
+                    activeTags.clear()
+
                 else:
-                    DBhandler.endtag(tagName)
+                    endTags(tagName)
+
             elif "self" in td:
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
             else:
                 print("bad tag: ", m.group())
@@ -427,26 +456,26 @@ def addEmote(datum):
                 timeType = td[-1:]
                 tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
-                DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
 
             elif "end" in td:
                 if 'endall' in td:
-                    DBhandler.endAlltag()
+                    activeTags.clear()
                 else:
-                    DBhandler.endtag(tagName)
+                    endTags(tagName)
 
 
             else:
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addtoTagActiveTable(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
 
 # adds time tstamp to the static class

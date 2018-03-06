@@ -66,6 +66,7 @@ totElam = 0
 totsf = 0
 totps = 0
 
+"""
 for r in range(0,roll):
     eldam1 = random.randint(1,10)
     eldam2 = random.randint(1,10)
@@ -93,4 +94,15 @@ for r in range(0,roll):
 print(totElam/roll)
 print(totsf/roll)
 print(totps/roll)
+"""
+
+tests = [0,1,2,3,4,5,6,7,8,9,10]
+index = 0
+
+for test in tests:
+    if test == 3:
+        tests.remove(index)
+    print(index,test)
+    index +=1
+print(tests)
 
