@@ -509,6 +509,12 @@ def makeList(data):
 
     return listTurn
 
+def makeActiveList(data):
+    listTurn = list()
+    for datum in data:
+        listTurn.append([datum[0],datum[1],datum[2],datum[3],datum[4],datum[5]])
+    return listTurn
+
 
 # Make a list of dictionary and return it
 def makeDiceList(data):
@@ -521,7 +527,7 @@ def makeDiceList(data):
         listTurn.append(dic)
     return listTurn
 
-def
+
 
 
 # get the url or the gamedata
@@ -700,7 +706,7 @@ def getActiveTagsNames():
 def getActiveTags():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT (TagName, TagType, Data, Self,  Avatar, UserID) FROM tags_active")
+    c.execute("SELECT UserID, TagName, TagType, Data, Self, Avatar FROM tags_active")
     conn.commit()
     rows = c.fetchall()
     conn.close()
