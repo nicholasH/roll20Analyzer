@@ -238,8 +238,8 @@ def cleanSingle():
 def endTags(tagName):
     index = 0
     for act in activeTags:
-        if act[2] is tagName:
-            activeTags.remove(index)
+        if act[1] == tagName:
+            del activeTags[index]
             index += 1
 
 def addActive():

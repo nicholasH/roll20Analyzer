@@ -512,7 +512,7 @@ def makeList(data):
 def makeActiveList(data):
     listTurn = list()
     for datum in data:
-        listTurn.append([datum[0],datum[1],datum[2],datum[3],datum[4],datum[5]])
+        listTurn.append([datum[0],datum[1],datum[2],pickle.loads(datum[3]),datum[4],datum[5]])
     return listTurn
 
 
@@ -706,7 +706,7 @@ def getActiveTagsNames():
 def getActiveTags():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    c.execute("SELECT UserID, TagName, TagType, Data, Self, Avatar FROM tags_active")
+    c.execute("SELECT UserID, TagName, TagType, Data, Avatar, Self FROM tags_active")
     conn.commit()
     rows = c.fetchall()
     conn.close()
