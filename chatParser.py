@@ -8,6 +8,7 @@ from bs4.element import NavigableString, Tag
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException, TimeoutException
 import selenium.webdriver.support.ui as ui
+import configparser
 
 import DBhandler
 
@@ -15,17 +16,38 @@ import DBhandler
 global stamped
 stamped = False
 
-global size,current,cancel
+global size,current,cancel,status
 current = 0
 size = 1
+status = "Starting"
 
 cancel = False
 
+#[Name, type, data, selfBoolen]
+activeTags = list()
+
+
+
+
+allMessage = list()
+allUserID = list()
+allFormulaDice = list()
+allTags =list()
+
+
+
+
+
 def resetGlobal():
-    global size,current,cancel
+    global size,current,cancel,status
+    status = "Starting"
     current = 0
     size = 1
     cancel = False
+    allMessage.clear()
+    allUserID.clear()
+    allFormulaDice.clear()
+    allTags.clear()
 
 
 def addScrapParseToDB():
@@ -34,9 +56,14 @@ def addScrapParseToDB():
     # DBhandler.createDB()
     # todo remove above code
 
-
-
     URL = 'https://app.roll20.net/sessions/new'
+    global status
+    status = "Getting chat archive"
+
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    user = config['login']['user']
 
     gameURL = DBhandler.getURL()
 
@@ -85,7 +112,16 @@ def addScrapParseToDB():
     browser.find_element_by_class_name("calltoaction").click()
     '''
     #######################################################################################
+    #'''
+    usernameElements = browser.find_elements_by_name("email")
+    for e in usernameElements:
+        try:
+            e.send_keys(user)
+        except ElementNotVisibleException:
+            print()
+    #'''
 
+    #######################################################################################
     try:
         results = wait.until(lambda driver: driver.find_elements_by_class_name('loggedin'))
 
@@ -155,24 +191,87 @@ def updatePhoto(content):
 
 
 
+def appendTags(messageID, playerID,tstamp):
+    cleanActiveTimeUpdateUser(tstamp,playerID)
+    tagsNames = activeTags
+    for name in tagsNames:
+        name = name[1]
+        allTags.append((messageID,name))
+
+    cleanSingle()
+
+
+# removes timed tags that are timed out from the DB
+def cleanActiveTimeUpdateUser(time,user):
+    index = 0
+    for act in activeTags:
+        if act[2] is "timed":
+            data = act[3]
+
+            if data[0] == "":
+                data[0] = time
+
+            timeToStop = ""
+            if data[2] == "m":
+                timeToStop = data[0] + timedelta(minutes=int(data[1]))
+            elif data[2] == "h":
+                timeToStop = data[0] + timedelta(hours=int(data[1]))
+
+            if time > timeToStop:
+                del activeTags[index]
+        if act[0] is "":
+            act[0] = user
+
+        index += 1
+
+def cleanSingle():
+    index = 0
+    for act in activeTags:
+        if act[2] is "single":
+            del activeTags[index]
+        index += 1
+
+
+
+def endTags(tagName):
+    index = 0
+    for act in activeTags:
+        if act[1] == tagName:
+            del activeTags[index]
+            index += 1
+
+def addActive():
+    DBhandler.clearActive()
+    for act in activeTags:
+        DBhandler.addtoTagActiveTable(act[0],act[1],act[2],act[3],act[4],act[5])
+
+
 #roll20 has 3 types of messages this sorts them and adds them to the db
 def addToDb(chatContent):
-    global current,cancel
+    global current,size,cancel,status
     static.timeStamp = ""
     x =1
+    status = "Parsing data"
+
+    activeTags.clear()
+    activeTags.extend(DBhandler.getActiveTags())
+
+
     for c in chatContent:
         if(not cancel):
             current = x
             test = c.attrs.get("data-messageid")
             print(test)
-            #print(DBhandler.getActiveTagsNames())
+            print(activeTags)
             s = c["class"]
             if "rollresult" in s:
                 addRollresult(c)
             elif "general" in s:
                 addGeneral(c)
+                pass
             elif "emote" in s:
                 addEmote(c)
+                pass
             else:
                 print("unknown message type: ", c)
             x += 1
@@ -180,16 +279,30 @@ def addToDb(chatContent):
             print("chatPar has been canceled")
             return
 
+    addActive()
+    status = "Adding messages data to DB"
+    print(status)
+    DBhandler.addManyToMessageTable(allMessage)
+    status = "Adding user data to DB"
+    print(status)
+    DBhandler.addManyToUserIDTable(allUserID)
+    status = "Adding Formula and Dice data to DB"
+    print(status)
+    DBhandler.addManyFormulaAndDice(allFormulaDice)
+    status = "Adding tags data to DB"
+    print(status)
+    DBhandler.addManyToTag(allTags)
+    status = "DONE"
+
+
 #adds the rollresults messages to the DB
 #Also links active tags to the message ID
 def addRollresult(datum):
-    message = dict.fromkeys(DBhandler.columnName, "")
     playerID = datum.attrs.get("data-playerid")
     messageID = datum.attrs.get("data-messageid")
     dicerolls = ""
-    dice = ""
+    fromula = ""
     roll = ""
-    dateAddToDb = datetime.now()
 
     for content in datum.contents:
         if isinstance(content, Tag):
@@ -207,23 +320,21 @@ def addRollresult(datum):
                     if "formattedformula" in s:
                         dicerolls = getDiceRolls(content.findChildren())
                     else:
-                        dice = content.text.strip()
+                        fromula = content.text.strip()
                 elif "rolled" in s:
                     roll = content.text.strip()
 
-    message[DBhandler.MessageType_field] = 'rollresult'
-    message[DBhandler.MessageID_field] = messageID
-    message[DBhandler.Avatar_field] = static.photo
-    message[DBhandler.UserID_field] = playerID
-    message[DBhandler.By_field] = static.by
-    message[DBhandler.RolledResultsList_field] = dicerolls
-    message[DBhandler.RolledFormula_field] = dice
-    message[DBhandler.totalRolled_Field] = roll
-    message[DBhandler.Time_field] = static.tstamp
-    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+    messageType = 'rollresult'
+    avatar = static.photo
+    by = static.by
+    time = static.tstamp
 
-    DBhandler.addtag(messageID, playerID,static.tstamp)
-    DBhandler.addMessage(message)
+
+    allMessage.append((messageID,messageType,avatar,by,time))
+    allUserID.append((messageID,playerID))
+    allFormulaDice.append([(messageID,fromula,roll),dicerolls])
+    appendTags(messageID,playerID,time)
+
 
 
 # find a way to get the roll data
@@ -231,9 +342,7 @@ def addRollresult(datum):
 # stores MessageID, by, time, timeadd to DB
 # todo consider adding message text to the databace. right now the info stored is limited
 def addGeneral(datum):
-    message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
-    dateAddToDb = datetime.now()
     charSheet = False
     for content in datum.contents:
         if isinstance(content, Tag):
@@ -253,24 +362,17 @@ def addGeneral(datum):
 
 
     if charSheet:
-        message[DBhandler.MessageID_field] = messageID
-        message[DBhandler.Avatar_field] = static.photo
-        message[DBhandler.By_field] = static.by
-        message[DBhandler.Time_field] = static.tstamp
-        message[DBhandler.TimeAddedToDB_field] = dateAddToDb
 
+        messageType = 'characterSheet'
+        avatar = static.photo
+        by = static.by
+        time = static.tstamp
 
-        charSheetRoll(char, message)
+        allMessage.append((messageID, messageType, avatar, by, time))
+        charSheetRoll(char, messageID,time)
     else:
-        #todo get rid of below code, why keep useless data
-        message[DBhandler.MessageType_field] = 'general'
-        message[DBhandler.MessageID_field] = messageID
-        message[DBhandler.Avatar_field] = static.photo
-        message[DBhandler.By_field] = static.by
-        message[DBhandler.Time_field] = static.tstamp
-        message[DBhandler.TimeAddedToDB_field] = dateAddToDb
+        pass
 
-        DBhandler.addMessage(message)
 
 
 # adds emote to the database
@@ -285,9 +387,7 @@ def addEmote(datum):
                 if "avatar" in s:
                     updatePhoto(content)
 
-    message = dict.fromkeys(DBhandler.columnName, "")
     messageID = datum.attrs.get("data-messageid")
-    dateAddToDb = datetime.now()
 
     emote = datum.text.lower()
     if "#ts" in emote:
@@ -300,13 +400,14 @@ def addEmote(datum):
 
     if m is not None:
         tagData = m.group().split("-")
-
+        userID =""
         if len(tagData) == 1:
             tagName = tagData[0].replace("^", "").strip()
             tagType = "single"
             tagDetails = [static.tstamp]
             self = False
-            DBhandler.addTagActive(tagName, tagType, tagDetails, static.photo, self)
+
+            activeTags.append([userID,tagName,tagType,tagDetails,static.photo,self])
 
         elif len(tagData) == 2:
             td = tagData[1].lower()
@@ -319,24 +420,26 @@ def addEmote(datum):
                 timeType = td[-1:]
                 tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
-                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
 
             elif "end" in td:
                 if 'endall' in td:
-                    DBhandler.endAlltag()
+                    activeTags.clear()
+
                 else:
-                    DBhandler.endtag(tagName)
+                    endTags(tagName)
+
             elif "self" in td:
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
             else:
                 print("bad tag: ", m.group())
@@ -356,32 +459,26 @@ def addEmote(datum):
                 timeType = td[-1:]
                 tagDetails = ["", timeNum, timeType]#[startTime,Number of hours/min,hours or min]#startTime is time of the next roll
                 tagType = "timed"
-                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
             elif "start" in td:
                 tagType = "indefinite"
                 tagDetails = [static.tstamp]
-                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
 
             elif "end" in td:
                 if 'endall' in td:
-                    DBhandler.endAlltag()
+                    activeTags.clear()
                 else:
-                    DBhandler.endtag(tagName)
+                    endTags(tagName)
 
 
             else:
                 tagType = "single"
                 tagDetails = [static.tstamp]
                 self = False
-                DBhandler.addTagActive(tagName, tagType, tagDetails,static.photo, self)
-
-    message[DBhandler.MessageType_field] = 'emote'
-    message[DBhandler.MessageID_field] = messageID
-    message[DBhandler.TimeAddedToDB_field] = dateAddToDb
-
-    DBhandler.addMessage(message)
+                activeTags.append([userID, tagName, tagType, tagDetails, static.photo, self])
 
 
 # adds time tstamp to the static class
@@ -418,13 +515,26 @@ def getDiceRolls(contents):
         s = c.attrs.get("class")
         if not isinstance(s, type(None)):
             if any("diceroll" in t for t in s):
-                dice = ' '.join(s)
-                roll = c.text
-                rlist.append([dice, roll])
+                side=""
+                crit=""
+
+                for con in s:
+                    if "crit" in con:
+                        crit = con
+                    elif re.match("[a-zA-Z_]\d+",con) is not None:
+                        side = con[1:]
+                findRoll = re.search("\d+", c.text)
+
+                if findRoll is not None:
+                    roll = findRoll.group(0)
+                else:
+                    roll =c.text
+
+                rlist.append((side,crit,roll))
 
     return rlist
 
-def charSheetRoll(content,message):
+def charSheetRoll(content, messageID,time):
     childContent = content.findChildren()
     for cc in childContent:
         ccClass = cc.attrs.get("class")
@@ -438,21 +548,16 @@ def charSheetRoll(content,message):
                 rollResults_Formula = parseCharterSheetroll(soup)
 
                 if rollResults_Formula is None:
-                    print(message["MessageID"])
-                    #may make continue
+                    print(messageID)
                     continue
 
-                rollResults = rollResults_Formula[0]
+                dicerolls = rollResults_Formula[0]
                 formula = rollResults_Formula[1]
 
-                message[DBhandler.MessageType_field] = 'characterSheet'
-                message[DBhandler.RolledResultsList_field] = rollResults
-                message[DBhandler.RolledFormula_field] = formula
-                message[DBhandler.totalRolled_Field] = roll
-                message[DBhandler.Time_field] = static.tstamp
 
-                DBhandler.addtag(message[DBhandler.MessageID_field], None ,static.tstamp)
-                DBhandler.addMessage(message)
+                allFormulaDice.append([(messageID, formula, roll), dicerolls])
+                appendTags(messageID, None, time)
+
 
 def parseCharterSheetroll(soup):
     dicerolls = list()
@@ -461,15 +566,15 @@ def parseCharterSheetroll(soup):
         test = str(s)
         if "rolling" in str(s).lower():
             formula = str(s).split("=")[0]
-            reg = re.search("\d+d\d+", formula)
+            reg = re.search("[a-zA-Z_]\d+", formula)
 
             if reg is None:
                 print("unkown formula")
                 print(formula)
                 return None
             else:
-                side = reg.group(0).split("d")[-1]
-                side = "d" + side
+                con = reg.group(0)
+                side = con[1:]
 
         if "basicdiceroll" in str(s).lower():
             dicerolls.append(s.text)
@@ -482,6 +587,9 @@ def parseCharterSheetroll(soup):
     rollResults = list(zip(sides, crit, dicerolls))
 
     return [rollResults,formula]
+
+
+
 
 def cancelParser():
     global cancel

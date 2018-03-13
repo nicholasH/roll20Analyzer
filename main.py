@@ -11,55 +11,7 @@ from tkinter import messagebox
 from threading import Thread
 import errors
 import chatParser
-
-about = 'Programed by:Nicholas Hoover\n' \
-        '\n' \
-        'How to analyse new game:\n' \
-        'From the file Drop down menu click new\n' \
-        'Input the name of the game(anything you want to save it as)\n' \
-        'Input the archive url, it should look something like https://app.roll20.net/campaigns/chatarchive/9999999\n' \
-        'The 9999999 is the game ID\n' \
-        'Pressing any of the buttons run all, run today, and run by date will open a browser to the roll20 login page\n' \
-        'login to you account and the program will start grabbing you data and start analysing\n' \
-        'checking the offline? check box will make it so the program won\'t grab new data from roll20 \n' \
-        '\n' \
-        'How to add tags to my game:\n' \
-        'There are 3 types of tag single Tags, timed tags, and indefinite tags\n' \
-        'Tags must be typed into the roll20 chat as the game is played as an emote\n' \
-        'The tag name must be a single word\n' \
-        'The tag Name must have a ^ before the name as in ^tagName' \
-        'Single tags only tag then next roll with given tag\n' \
-        'example:\n' \
-        '/em ^swordAtk (This will make the next roll be tagged with SwordAtk)\n\n' \
-        'Time tags will tag everything with the tag for the number of min/hours given\n' \
-        'example:\n' \
-        '/em ^wizTower -5h (All rolls for the next 5 hours will be tagged with wizTower)\n' \
-        '/em ^darkCave -30m (All rolls for the next 30 min will be tagged with darkCave)\n\n' \
-        'Indefinite tags will everything with the tag until told to stop\n' \
-        'example /em ^underDark -start (All rolls will be tagged with underDark until told to spop)\n\n' \
-        'all of these tags can be given the self modifier to make the only apply to the next person who rolls\n' \
-        'example:\n' \
-        '/em ^wizTower -5h -self (All roll by the next person who rolls will be tagged with wizTower for the next 5 hours)\n' \
-        '/em ^dawfFort -start -self (All roll by the next person who rolls will be tagged with dawfFort until told to stop)\n' \
-        'The above examples can be the can also be written like this /em ^wizTower -self -5h or /em ^dawfFort -self -start\n\n' \
-        'Ending tags\n' \
-        'there are 2 way to end a tag the -end and -endall\n' \
-        '-end will stop all indefinite or timed tag early with the tag name given\n' \
-        'any player a can end any tag, having a self modifier does not stop another player from ending a tag\n' \
-        'example:\n' \
-        '/em ^wizTower -end\n' \
-        '/em ^underDark -end\n' \
-        '-endall will stop all tags\n' \
-        'example:\n' \
-        '/em ^end -endall (This will end all current active tags)\n' \
-        '\n' \
-        'scoring:\n' \
-        'Players get points for each crit success they get \n' \
-        'example if player rolls a 8 on a d8 they get 8 points added to their total score\n' \
-        'player also get bounce points if they have most of something\n' \
-        'The player who get the most Nat20, CritSus, nat1, and critfails get 10 points\n' \
-        'The player with the highest roll also gets 10 points'
-
+import configparser
 
 
 
@@ -75,9 +27,10 @@ class app(tk.Tk):
         menubar = tk.Menu(self)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.new)
+        filemenu.add_command(label="Open", command=self.loadDB)
         filemenu.add_command(label="Import", command=self.importChat)
         filemenu.add_command(label="continue", command=self.continueImport)
-        filemenu.add_command(label="Open", command=self.loadDB)
+        filemenu.add_command(label = "setting", command= self.setting)
         filemenu.add_command(label="About", command=self.about)
 
         filemenu.add_separator()
@@ -150,7 +103,6 @@ class app(tk.Tk):
             db = os.path.join(os.sys.path[0], "data", "dataBase", name +".db")
             DBhandler.loadDB(db)
         else:
-            #todo test if this works
             location = "offline"
             print("value is", name, location)
             DBhandler.createDB(name, location)
@@ -168,10 +120,26 @@ class app(tk.Tk):
         chatParser.addParseToDB(self.filename)
 
     def about(self):
+        with open(os.path.join(os.sys.path[0], "about.txt")) as aboutPage:
+            about = aboutPage.read()
+
         self.frame.updateText(about)
+
+    def setting(self):
+        d = setting(self)
+        d.top.grab_set()
+        self.wait_window(d.top)
 
     def updatDBLable(self):
         message = "Game Name: " + DBhandler.getGameName() + "| URL: " + DBhandler.getURL()
+        if DBhandler.getURL() == "offline":
+            self.frame.offline.set(1)
+            self.frame.offline_checkBox['state'] = "disabled"
+        else:
+            self.frame.offline.set(0)
+            self.frame.offline_checkBox['state'] = "normal"
+
+
         self.currentDB_string.set(message)
 
     def loadDB(self):
@@ -203,7 +171,7 @@ class mainPage(tk.Frame):
         textBoxFrame = tk.Frame(self)
 
         self.offline = tk.IntVar()
-        offline_checkBox = tk.Checkbutton(uiFrame, text="Offline?", variable=self.offline)
+        self.offline_checkBox = tk.Checkbutton(uiFrame, text="Offline?", variable=self.offline)
 
         dayString1 = tk.StringVar()
         dayString1.trace("w", lambda name, index, mode, dayString=dayString1: limitSizeDay(dayString, 2))
@@ -261,26 +229,44 @@ class mainPage(tk.Frame):
         self.name_combo.current(0)
 
         uiFrame.pack()
-        offline_checkBox.pack(side="left")
+        self.offline_checkBox.pack(side="left")
+        self.offline_checkBox.lift()
         run_all_btn.pack(side="left")
+        run_all_btn.lift()
         today_btn.pack(side="left")
+        today_btn.lift()
+
         run_by_date_btn.pack(side="left")
+        run_by_date_btn.lift()
         day1_lable.pack(side="left")
+        day1_lable.pack()
         self.month_entry1.pack(side="left")
+        self.month_entry1.lift()
         fSlash1.pack(side="left")
+        fSlash1.lift()
         self.day_entry1.pack(side="left")
+        self.day_entry1.lift()
         fSlash2.pack(side="left")
+        fSlash1.lift()
         self.year_entry1.pack(side="left")
+        self.year_entry1.lift()
         showbox.pack(side="left")
+        showbox.lift()
         day2_lable.pack(side="left")
+        day2_lable.lift()
         # line above must be at the end of the pack
 
         searchFrame.pack()
+        searchFrame.lift()
         self.tag_combo.pack(side="left")
+        self.tag_combo.lift()
         tagSearch.pack(side="left")
+        tagSearch.lift()
 
         self.name_combo.pack(side="left")
+        self.name_combo.lift()
         nameSearch.pack(side="left")
+        nameSearch.lift()
 
         textBoxFrame.pack(fill="both", expand=True)
         self.text_box.pack(fill="both", expand=True)
@@ -427,7 +413,7 @@ class mainPage(tk.Frame):
         self.text_box.config(state="disable")
 
     def updateMenus(self):
-        taglist = DBhandler.getAlltags()
+        taglist = DBhandler.getAllTags()
         self.tag_combo['values'] = taglist
         nameList = DBhandler.getAllNames()
         self.name_combo['values'] = nameList
@@ -456,7 +442,7 @@ class newDB:
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
         # todo take out this line of code
-        self.url_entry.insert(0, "")
+        #self.url_entry.insert(0, "")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)
@@ -475,6 +461,44 @@ class newDB:
     def cancel(self):
         self.top.destroy()
 
+class setting:
+    def __init__(self, parent):
+        top = self.top = tk.Toplevel(parent)
+        self.p = parent
+
+        name_lable = tk.Label(top, text="Remember User Name")
+        self.username_entry = tk.Entry(top)
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        user = config['login']['user']
+
+
+        ok_btn = tk.Button(top, text="apply", command=self.apply)
+        cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
+
+        self.username_entry.insert(0,user)
+
+        name_lable.pack()
+        self.username_entry.pack(padx=5)
+        ok_btn.pack(pady=5)
+        cancel_btn.pack()
+
+    def apply(self):
+        print("value is", self.username_entry.get())
+
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        config.set('login', 'user', self.username_entry.get())
+
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
+
+        self.top.destroy()
+
+    def cancel(self):
+        self.top.destroy()
+
+
 
 
 class cancel(tk.Tk):
@@ -483,13 +507,25 @@ class cancel(tk.Tk):
         self.destroy()
         top = self.top = tk.Toplevel(parent)
 
-        name_lable = tk.Label(top, text="Your game is being analyzed this may take a few minutes")
+        self.pleaseWaitMessage = tk.StringVar()
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes")
+        self.statMessage = tk.StringVar()
+        self.statMessage.set("Starting")
+
+        self.name_lable = tk.Label(top, textvariable=self.pleaseWaitMessage)
+        self.name_lable.config(width=45,anchor="w")
+        self.stat_lable = tk.Label(top, textvariable=self.statMessage)
+
+        self.dotNum = 1
+        self.dot = "."
+        self.loadingDot = self.dot * self.dotNum
 
         cancel_btn = tk.Button(top, text="cancel", command=self.cancelAnalysis)
 
         self.progress = ttk.Progressbar(self.top, orient="horizontal", length=200, mode="determinate")
 
-        name_lable.pack()
+        self.name_lable.pack()
+        self.stat_lable.pack()
         self.progress.pack()
         cancel_btn.pack()
         self.loading()
@@ -499,11 +535,22 @@ class cancel(tk.Tk):
         self.maxMessages = chatParser.size
         self.progress["maximum"] = chatParser.size
         self.message = chatParser.current
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes" + self.loadingDot)
+        self.statMessage.set(chatParser.status)
 
         self.progress["value"] = self.message
-        if self.message < self.maxMessages:
+        if not chatParser.status == "DONE":
+            if self.dotNum > 4:
+                self.dotNum = 1
+            else:
+                self.dotNum += 1
             self.after(100, self.loading)
-        elif (self.message == self.maxMessages):
+            self.loadingDot = self.dot * self.dotNum
+
+            if "Adding" in chatParser.status:
+                self.progress.pack_forget()
+
+        elif (chatParser.status == "DONE"):
             self.top.destroy()
 
     def cancelAnalysis(self):
@@ -516,13 +563,25 @@ class importCancel(tk.Tk):
         self.destroy()
         top = self.top = tk.Toplevel(parent)
 
-        name_lable = tk.Label(top, text="Your game is being imported this may take a few minutes")
+        self.pleaseWaitMessage = tk.StringVar()
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes")
+        self.statMessage = tk.StringVar()
+        self.statMessage.set("Starting")
+
+        self.name_lable = tk.Label(top, textvariable=self.pleaseWaitMessage)
+        self.name_lable.config(width=45,anchor="w")
+        self.stat_lable = tk.Label(top, textvariable=self.statMessage)
+
+        self.dotNum = 1
+        self.dot = "."
+        self.loadingDot = self.dot * self.dotNum
 
         cancel_btn = tk.Button(top, text="cancel", command=self.cancelImport)
 
         self.progress = ttk.Progressbar(self.top, orient="horizontal", length=200, mode="determinate")
 
-        name_lable.pack()
+        self.name_lable.pack()
+        self.stat_lable.pack()
         self.progress.pack()
         cancel_btn.pack()
         self.loading()
@@ -532,11 +591,22 @@ class importCancel(tk.Tk):
         self.maxMessages = chatParser.size
         self.progress["maximum"] = chatParser.size
         self.message = chatParser.current
+        self.pleaseWaitMessage.set("Your game is being analyzed this may take a few minutes" + self.loadingDot)
+        self.statMessage.set(chatParser.status)
 
         self.progress["value"] = self.message
-        if self.message < self.maxMessages:
+        if not chatParser.status == "DONE":
+            if self.dotNum > 4:
+                self.dotNum = 1
+            else:
+                self.dotNum += 1
             self.after(100, self.loading)
-        elif (self.message == self.maxMessages):
+            self.loadingDot = self.dot * self.dotNum
+
+            if "Adding" in chatParser.status:
+                self.progress.pack_forget()
+
+        elif (chatParser.status == "DONE"):
             self.top.destroy()
 
     def cancelImport(self):

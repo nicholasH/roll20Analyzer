@@ -30,10 +30,18 @@ def getPath():
 
 
 def analyze(offline):
+    start = datetime.now()
+    print("start-",start)
     if not offline:
         chatParser.addScrapParseToDB()
 
     analyzeDB(DBhandler.getMessagesRolls())
+    end = datetime.now()
+    print("End-",end)
+
+    c = end - start
+    print("delta-",c.seconds)
+
     return returnStats()
 
 
@@ -162,25 +170,30 @@ def returnStats():
     for player, values in playerStats.items():
         # s = s + player
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
-        s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
+        s = s + "Total Number of Rolls: " + str(sum(values["diceRolls"].values())) + "\n"
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + str(values["diceRolls"]) + "\n"
+        s = s + "dice counter" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
 
+
+
     s = s + "Character Sheets: \n\n"
     for char,values in charSheetStats.items():
-        # s = s + player
+
         s = s + str(values["names"]) + " " + str(len(values["names"])) + "\n"
         s = s + "Total Number of Rolls " + str(sum(values["diceRolls"].values())) + "\n"
         s = s + str("Crit success: {}, Nat20: {}, Crit fail: {}, Nat1: {}".format(values["totCrtSus"], values["nat20"],
                                                                                   values["totCrtFail"],
                                                                                   values["nat1"])) + "\n"
-        s = s + str(values["diceRolls"]) + "\n"
+        s = s + "dice counterg" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
+
+
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
         s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + "points " + str(values["points"])
@@ -275,6 +288,26 @@ def findWinner(exclude):
 
     return sorted(scores, key=lambda score: score[1])
 
+def getAvg(count,total):
+    keys =count.keys()
+    listTurn = list()
+    for key in keys:
+        side = key
+        c = count[key]
+        avg = round(total[key]/count[key],3)
+
+        s = "d{side}( tot: {total}, avg:{avg}) ".format(
+            side = side,
+            total = c,
+            avg= avg
+        )
+        listTurn.append(s)
+
+
+
+    return  listTurn
+
+
 #get 2 players and finds if player A has more rolls
 def playerAHaveMoreRolls(playerA, playerB):
     if playerA == None:
@@ -288,91 +321,77 @@ def analyzeDB(messages):
     global playerStats,charSheetStats
     playerStats = dict()
     charSheetStats = dict()
+    oldFormulaID = ""
     for message in messages:
         stats = {"names": set(), "totCrtSus": 0, "totCrtFail": 0, "nat20": 0, "nat1": 0, "diceRolls": Counter(),
-                 "topFormual": Counter(), "highestRoll": 0, "points": 0}
+                 "topFormual": Counter(), "highestRoll": 0,"diceAvgs":Counter(), "points": 0}
 
-        rolled = message["Rolled"]
-        rollFomula = message["RolledFormula"]
-        rollList = message["RolledResultsList"]
+        messageID = message["MessageID"]
+        #print('analyze-',messageID)
+        messageType = message["MessageType"]
+        by = message["BY"]
 
+        userID = message["UserID"]
 
-        if message["MessageType"] == "characterSheet":
-            id = message["BY"]
-            if id in charSheetStats:
-                stats = charSheetStats[id]
+        formulaID = message["FormulaID"]
+        formula = message["RollFormula"]
+        TotalRoll = message["TotalRoll"]
+
+        side = message["Sides"]
+        crit = message["Crit"]
+        roll = message["Roll"]
+
+        if messageType == "characterSheet":
+            if by in charSheetStats:
+                stats = charSheetStats[by]
             else:
-                charSheetStats[id] = stats
-
-            count = stats["diceRolls"]
-            for roll in rollList:
-                side = roll[0]
-                crit = roll[1]
-                rollVal = roll[2]
-
-                count[side] += 1
-
-
-                if "critfail" in crit:
-                    if "d20" in side:
-                        stats["nat1"] += 1
-                        stats["totCrtFail"] += 1
-
-                    else:
-                        stats["totCrtFail"] += 1
-                elif "critsuccess" in crit:
-                    val = side[1:]
-
-                    stats["points"] = stats["points"] + int(val)
-                    if "d20" in side:
-                        stats["nat20"] += 1
-                        stats["totCrtSus"] += 1
-                    else:
-                        stats["totCrtSus"] += 1
-
-
+                charSheetStats[by] = stats
+            stats["names"].add(message["BY"])
         else:
-            id = message["UserID"]
-            if id in playerStats:
-                stats = playerStats[id]
+            if userID in playerStats:
+                stats = playerStats[userID]
             else:
-                playerStats[id] = stats
+                playerStats[userID] = stats
+            stats["names"].add(message["BY"])
 
-            count = stats["diceRolls"]
-            for roll in rollList:
-                m = re.search('d\d+', roll[0])
-                if m:
-                    count[m.group(0)] += 1
-                else:
-                    print("error at for roll in rollList ", message)
+        count = stats["diceRolls"]
+        count[side] += 1
 
-                if "critfail" in roll[0]:
-                    if "d20" in roll[0]:
-                        stats["nat1"] += 1
-                        stats["totCrtFail"] += 1
 
-                    else:
-                        stats["totCrtFail"] += 1
-                elif "critsuccess" in roll[0]:
-                    if not isinstance(m, type(None)):
-                        val = int(m.group()[1:])
-                    else:
-                        val = 0
-                        print("error at for roll in rollList ", message)
+        total = stats["diceAvgs"]
+        if not isinstance(roll,str):
+            total[side] += roll
 
-                    stats["points"] = stats["points"] + val
-                    if "d20" in roll[0]:
 
-                        stats["nat20"] += 1
-                        stats["totCrtSus"] += 1
-                    else:
-                        stats["totCrtSus"] += 1
+        if "critfail" in crit:
+            if 20 == side:
+                stats["nat1"] += 1
+                stats["totCrtFail"] += 1
 
-        stats["names"].add(message["BY"])
-        stats["topFormual"][rollFomula] += 1
+            else:
+                stats["totCrtFail"] += 1
+        elif "critsuccess" in crit:
+            val = side
+
+            #table rolls don't have sides so they return empty strings
+            if not str(val).isdigit():
+                val = 0
+            else:
+                val = int(val)
+
+            stats["points"] = stats["points"] + val
+            if 20 == side:
+                stats["nat20"] += 1
+                stats["totCrtSus"] += 1
+            else:
+                stats["totCrtSus"] += 1
+
+        if not oldFormulaID == formulaID:
+            stats["topFormual"][formula] += 1
+
         stats["diceRolls"] = count
 
         lastHigestRoll = stats.get("highestRoll")
-        if not isinstance(rolled, str):
-            if (rolled > lastHigestRoll):
-                stats["highestRoll"] = rolled
+        if not isinstance(TotalRoll, str):
+            if (TotalRoll > lastHigestRoll):
+                stats["highestRoll"] = TotalRoll

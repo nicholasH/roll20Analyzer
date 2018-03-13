@@ -8,8 +8,9 @@ from tkinter.ttk import Combobox
 import time
 
 import DBhandler
-import DBscratch
 import analyze
+from collections import Counter
+import random
 
 "^"
 #the word after the ^ is the tag name. A tag like this will only work the the next roll
@@ -49,3 +50,52 @@ import analyze
 
 #todo add a way to excuded tags
 
+
+count = Counter()
+
+count["test"] =+1
+
+print(0/4)
+
+print(list(range(5,6)))
+
+
+roll = 10000000
+t=0
+totElam = 0
+totsf = 0
+totps = 0
+
+"""
+for r in range(0,roll):
+    eldam1 = random.randint(1,10)
+    eldam2 = random.randint(1,10)
+    eldam3 = random.randint(1,10)
+
+    eldam = eldam1 + eldam2 + eldam3 + 5
+    totElam = totElam + eldam
+
+    sf1 = random.randint(1,8)
+    sf2 = random.randint(1,8)
+    sf3 = random.randint(1,8)
+
+    sf = sf1 + sf2 + sf3 + 4
+    totsf = totsf + sf
+
+
+    ps1 = random.randint(1,12)
+    ps2 = random.randint(1,12)
+    ps3 = random.randint(1,12)
+
+    ps = ps1 + ps2 + ps3
+    totps = totps + ps
+
+
+print(totElam/roll)
+print(totsf/roll)
+print(totps/roll)
+"""
+
+
+for r in reversed(range(10,100)):
+    print(r)

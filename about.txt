@@ -1,0 +1,60 @@
+Programed by:Nicholas Hoover
+
+How to analyse new game:
+    From the file drop down menu click new
+    Input the name of the game(anything you want to save it as)
+    Input the archive url, it should look something like https://app.roll20.net/campaigns/chatarchive/9999999
+    The 9999999 is the game ID
+    Pressing any of the buttons run all, run today, and run by date will open a browser to the roll20 login page
+    login to you account and the program will start grabbing you data and start analysing
+    checking the offline? check box will make it so the program won't grab new data from roll20
+
+How to import a new game from a html file:
+    From the file drop down menu click import
+    Select the html file of the chatlog you want to analyse
+    The program will start to analyse the file
+    Pressing any of the buttons run all, run today, and run by date will show results
+    To continue a import re-save the html file of the chatlog under the same name as it was before
+    From the file drop down menu click continue
+    Select the html file of the chatlog you want to analyse
+
+How to add tags to my game:
+    There are 3 types of tag single Tags, timed tags, and indefinite tags
+    Tags must be typed into the roll20 chat as the game is played as an emote
+    The tag name must be a single word
+    The tag Name must have a ^ before the name as in ^tagNameSingle tags only tag then next roll with given tag
+    example:
+        /em ^swordAtk (This will make the next roll be tagged with SwordAtk)
+
+    Time tags will tag everything with the tag for the number of min/hours given
+    example:
+        /em ^wizTower -5h (All rolls for the next 5 hours will be tagged with wizTower)
+        /em ^darkCave -30m (All rolls for the next 30 min will be tagged with darkCave)
+
+    Indefinite tags will everything with the tag until told to stop
+    example:
+    /em ^underDark -start (All rolls will be tagged with underDark until told to spop)
+
+    all of these tags can be given the self modifier to make the only apply to the next person who rolls
+    example:
+        /em ^wizTower -5h -self (All roll by the next person who rolls will be tagged with wizTower for the next 5 hours)
+        /em ^dawfFort -start -self (All roll by the next person who rolls will be tagged with dawfFort until told to stop)
+    The above examples can be the can also be written like this /em ^wizTower -self -5h or /em ^dawfFort -self -start
+
+    Ending tags
+    there are 2 way to end a tag the -end and -endall
+    -end will stop all indefinite or timed tag early with the tag name given
+    any player a can end any tag, having a self modifier does not stop another player from ending a tag
+    example:
+        /em ^wizTower -end
+        /em ^underDark -end
+    -endall will stop all tags
+    example:
+        /em ^end -endall (This will end all current active tags)
+
+Scoring:
+    Players get points for each crit success they get
+    example if player rolls a 8 on a d8 they get 8 points added to their total score
+    player also get bounce points if they have most of something
+    The player who get the most Nat20, CritSus, nat1, and critfails get 10 points
+    The player with the highest roll also gets 10 points
