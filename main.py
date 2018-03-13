@@ -13,54 +13,6 @@ import errors
 import chatParser
 import configparser
 
-about = 'Programed by:Nicholas Hoover\n' \
-        '\n' \
-        'How to analyse new game:\n' \
-        'From the file Drop down menu click new\n' \
-        'Input the name of the game(anything you want to save it as)\n' \
-        'Input the archive url, it should look something like https://app.roll20.net/campaigns/chatarchive/9999999\n' \
-        'The 9999999 is the game ID\n' \
-        'Pressing any of the buttons run all, run today, and run by date will open a browser to the roll20 login page\n' \
-        'login to you account and the program will start grabbing you data and start analysing\n' \
-        'checking the offline? check box will make it so the program won\'t grab new data from roll20 \n' \
-        '\n' \
-        'How to add tags to my game:\n' \
-        'There are 3 types of tag single Tags, timed tags, and indefinite tags\n' \
-        'Tags must be typed into the roll20 chat as the game is played as an emote\n' \
-        'The tag name must be a single word\n' \
-        'The tag Name must have a ^ before the name as in ^tagName' \
-        'Single tags only tag then next roll with given tag\n' \
-        'example:\n' \
-        '/em ^swordAtk (This will make the next roll be tagged with SwordAtk)\n\n' \
-        'Time tags will tag everything with the tag for the number of min/hours given\n' \
-        'example:\n' \
-        '/em ^wizTower -5h (All rolls for the next 5 hours will be tagged with wizTower)\n' \
-        '/em ^darkCave -30m (All rolls for the next 30 min will be tagged with darkCave)\n\n' \
-        'Indefinite tags will everything with the tag until told to stop\n' \
-        'example /em ^underDark -start (All rolls will be tagged with underDark until told to spop)\n\n' \
-        'all of these tags can be given the self modifier to make the only apply to the next person who rolls\n' \
-        'example:\n' \
-        '/em ^wizTower -5h -self (All roll by the next person who rolls will be tagged with wizTower for the next 5 hours)\n' \
-        '/em ^dawfFort -start -self (All roll by the next person who rolls will be tagged with dawfFort until told to stop)\n' \
-        'The above examples can be the can also be written like this /em ^wizTower -self -5h or /em ^dawfFort -self -start\n\n' \
-        'Ending tags\n' \
-        'there are 2 way to end a tag the -end and -endall\n' \
-        '-end will stop all indefinite or timed tag early with the tag name given\n' \
-        'any player a can end any tag, having a self modifier does not stop another player from ending a tag\n' \
-        'example:\n' \
-        '/em ^wizTower -end\n' \
-        '/em ^underDark -end\n' \
-        '-endall will stop all tags\n' \
-        'example:\n' \
-        '/em ^end -endall (This will end all current active tags)\n' \
-        '\n' \
-        'scoring:\n' \
-        'Players get points for each crit success they get \n' \
-        'example if player rolls a 8 on a d8 they get 8 points added to their total score\n' \
-        'player also get bounce points if they have most of something\n' \
-        'The player who get the most Nat20, CritSus, nat1, and critfails get 10 points\n' \
-        'The player with the highest roll also gets 10 points'
-
 
 
 class app(tk.Tk):
@@ -151,7 +103,6 @@ class app(tk.Tk):
             db = os.path.join(os.sys.path[0], "data", "dataBase", name +".db")
             DBhandler.loadDB(db)
         else:
-            #todo test if this works
             location = "offline"
             print("value is", name, location)
             DBhandler.createDB(name, location)
@@ -169,6 +120,9 @@ class app(tk.Tk):
         chatParser.addParseToDB(self.filename)
 
     def about(self):
+        with open(os.path.join(os.sys.path[0], "about.txt")) as aboutPage:
+            about = aboutPage.read()
+
         self.frame.updateText(about)
 
     def setting(self):
@@ -488,7 +442,7 @@ class newDB:
         ok_btn = tk.Button(top, text="OK", command=self.ok)
         cancel_btn = tk.Button(top, text="cancel", command=self.cancel)
         # todo take out this line of code
-        self.url_entry.insert(0, "https://app.roll20.net/campaigns/chatarchive/1644807")
+        #self.url_entry.insert(0, "")
 
         name_lable.pack()
         self.name_entry.pack(padx=5)
@@ -576,8 +530,6 @@ class cancel(tk.Tk):
         cancel_btn.pack()
         self.loading()
 
-    #todo think about adding loading for dice and formula
-    #todo make a better way to remove progress bar
     def loading(self):
         self.progress["value"] = chatParser.current
         self.maxMessages = chatParser.size

@@ -96,13 +96,6 @@ print(totsf/roll)
 print(totps/roll)
 """
 
-tests = [0,1,2,3,4,5,6,7,8,9,10]
-index = 0
 
-for test in tests:
-    if test == 3:
-        tests.remove(index)
-    print(index,test)
-    index +=1
-print(tests)
-
+for r in reversed(range(10,100)):
+    print(r)

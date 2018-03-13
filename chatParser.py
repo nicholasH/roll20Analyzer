@@ -80,7 +80,7 @@ def addScrapParseToDB():
     # todo remove this login
     # Loging
     ######################################################################################
-    #'''
+    '''
     path = os.path.join(sys.path[0], "config.txt")
 
     f = open(path)
@@ -110,16 +110,16 @@ def addScrapParseToDB():
             print()
 
     browser.find_element_by_class_name("calltoaction").click()
-    #'''
-    #######################################################################################
     '''
+    #######################################################################################
+    #'''
     usernameElements = browser.find_elements_by_name("email")
     for e in usernameElements:
         try:
             e.send_keys(user)
         except ElementNotVisibleException:
             print()
-    '''
+    #'''
 
     #######################################################################################
     try:
@@ -201,7 +201,6 @@ def appendTags(messageID, playerID,tstamp):
     cleanSingle()
 
 
-#todo may not update activeTag list with proper data
 # removes timed tags that are timed out from the DB
 def cleanActiveTimeUpdateUser(time,user):
     index = 0

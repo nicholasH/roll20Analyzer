@@ -354,7 +354,6 @@ def addManyToDiceFormulaJunkTable(cursor, diceFormula):
     exe = "INSERT INTO " + Dice_Formula_junction_table + " VALUES (?,?)"
     cursor.executemany(exe, diceFormula)
 
-# todo take this out of DB to ChatParser
 # gets array of tagDetails and addeds the tag to the active tag table
 # tagArray is a list  that can inclued one - three items
 def addtoTagActiveTable(userID, tagName, tagType, tagDetails, Avatar, self):
@@ -374,7 +373,6 @@ def addtoTagActiveTable(userID, tagName, tagType, tagDetails, Avatar, self):
 
 
 # todo make a add many for Active Tags
-
 # get messageID and playerID and adds all active tags to the DB and assosiates them with the MessageID
 def addtag(messageID, playerID, tstamp):
     tags = list(set(getActiveTagsAndUpdate(playerID, tstamp)))
@@ -489,7 +487,8 @@ def getMessagesRolls():
 def getAllTags():
     conn = sqlite3.connect(getDBPath())
     c = conn.cursor()
-    exe = "SELECT DISTINCT {TN} FROM {TT}".format(
+    exe = "SELECT DISTINCT {TN} FROM {TT} " \
+          "ORDER BY {TN}".format(
         TT=Tag_table,
         TN=Tag_name_field
     )
@@ -878,7 +877,12 @@ def getAllNames():
     except(TypeError):
         return [""]
     c = conn.cursor()
-    c.execute('SELECT DISTINCT BY FROM Message')
+    exe = "SELECT DISTINCT {BY} FROM {MT} " \
+          "ORDER BY {BY}".format(
+        MT=Message_table,
+        BY=By_field
+    )
+    c.execute(exe)
     conn.commit()
     data = c.fetchall()
     conn.close()
