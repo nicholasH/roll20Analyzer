@@ -209,9 +209,8 @@ def cleanActiveTimeUpdateUser(time,user):
         if act[2] is "timed":
             data = act[3]
 
-            if data[0] is "":
+            if data[0] == "":
                 data[0] = time
-                act[2] = data[0]
 
             timeToStop = ""
             if data[2] == "m":
