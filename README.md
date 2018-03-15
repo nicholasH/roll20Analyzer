@@ -20,40 +20,38 @@ pip install -r requirements.txt
 python main.py
 ```
 
--Or you can go to to where you saved the master branch folder and click on main.py. If this does not work, right click the file, select open with. If you want to simply run the script, find python.exe and select it
-
-
-# Limitation of the roll20Analyzer
-
-As of now this program can only counts rolls for Roll 20's default dice roller. Meaning that if a player is rolling from a imported character sheet that roll is not counted in the results. 
+-Or you can go to to where you saved the master branch folder and click on main.py. If this does not work, right click the file, select open with. If you want to simply run the script, find python.exe and select it 
 
 # Sample Results 
 ```
-{'Vorastrix:'} 1
-Total Number of Rolls 19
-Crit success: 3, Nat20: 1, Crit fail: 3, Nat1: 0
-Counter({'d6': 10, 'd20': 9})
-highest roll 32
-Top 5 Formual[('rolling 1d20+8', 2), ('rolling 5d6', 2), ('rolling 1d20', 1), ('rolling 1d20 +3', 1), ('rolling 1d20+13', 1)]
-points 32
+{'Eric:'} 1
+Total Number of Rolls: 31
+Crit success: 4, Nat20: 2, Crit fail: 2, Nat1: 0
+dice counter['d6( tot: 14, avg:4.071) ', 'd20( tot: 11, avg:14.455) ', 'd8( tot: 6, avg:3.833) ']
+highest roll 46
+Top 5 Formual[('rolling 10d6', 10), ('rolling 3d8 +4', 6), ('rolling 1d20 +7', 5), ('rolling 4d6', 4), ('rolling 1d20 +3', 4)]
+points 52
 
 {'Saeros Amastacia:'} 1
-Total Number of Rolls 4
-Crit success: 0, Nat20: 0, Crit fail: 0, Nat1: 0
-Counter({'d20': 4})
-highest roll 22
-Top 5 Formual[('rolling 1d20 + -1', 1), ('rolling 1d20 + 1', 1), ('rolling 2d20kh1+5', 1)]
-points 0
+Total Number of Rolls: 41
+Crit success: 3, Nat20: 1, Crit fail: 6, Nat1: 2
+dice counter['d20( tot: 26, avg:11.192) ', 'd8( tot: 2, avg:1.5) ', 'd10( tot: 2, avg:7.5) ', 'd6( tot: 1, avg:5.0) ', 'd4( tot: 10, avg:2.3) ']
+highest roll 43
+Top 5 Formual[('rolling 10d4 + 20', 10), ('rolling 1d20 + 5', 8), ('rolling 1d20 + 7', 7), ('rolling 1d20 + 2', 6), ('rolling 1d20+10', 2)]
+points 28
 
-{'Bubbles Voronda:'} 1
-Total Number of Rolls 10
-Crit success: 1, Nat20: 0, Crit fail: 1, Nat1: 1
-Counter({'d20': 9, 'd10': 1})
-highest roll 15
-Top 5 Formual[('rolling 1d20 +3', 4), ('rolling d20 +9', 3), ('rolling 1d20+4', 1), ('rolling 1d20 + 2', 1), ('rolling 1d10 +5', 1)]
-points 10
+Character Sheets: 
 
-[({'Saeros Amastacia:'}, 0), ({'Bubbles Voronda:'}, 10), ({'Vorastrix:'}, 72)]
+{'Virlym:'} 1
+Total Number of Rolls 67
+Crit success: 7, Nat20: 2, Crit fail: 10, Nat1: 1
+dice counterg['d4( tot: 12, avg:2.333) ', 'd20( tot: 27, avg:12.0) ', 'd6( tot: 20, avg:3.05) ', 'd8( tot: 8, avg:4.125) ']
+highest roll 32
+Top 5 Formual[('Rolling 5d6 ', 20), ('Rolling 1d20cs>20 + 5[DEX] + 4[PROF] + 1[MAGIC] ', 13), ('Rolling 1d4 ', 5), ('Rolling 1d4 + 5[DEX] + 1[MAGIC] ', 5), ('Rolling 1d20+10 ', 5)]
+points 70
+
+
+[({'Saeros Amastacia:'}, 28), ({'Eric:'}, 62), ({'Virlym:'}, 90)]
 ```
 
 # Scoring 
@@ -101,3 +99,7 @@ any player a can end any tag, having a self modifier does not stop another playe
 ```
 em ^end -endall (This will end all current active tags)
 ```
+
+# Setting 
+user name can be saved and auto completed on login screen for roll20. 
+
