@@ -58,3 +58,8 @@ Scoring:
     player also get bounce points if they have most of something
     The player who get the most Nat20, CritSus, nat1, and critfails get 10 points
     The player with the highest roll also gets 10 points
+
+Setting:
+    Remembering user name:
+        Type in your roll20 user name and press apply.
+        Your user name should autocomplete when get new data from roll20

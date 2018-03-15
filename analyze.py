@@ -31,16 +31,16 @@ def getPath():
 
 def analyze(offline):
     start = datetime.now()
-    print("start-",start)
+    #print("start-",start)
     if not offline:
         chatParser.addScrapParseToDB()
 
     analyzeDB(DBhandler.getMessagesRolls())
     end = datetime.now()
-    print("End-",end)
+    #print("End-",end)
 
-    c = end - start
-    print("delta-",c.seconds)
+    #c = end - start
+    #print("delta-",c.seconds)
 
     return returnStats()
 

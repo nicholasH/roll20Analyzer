@@ -260,9 +260,9 @@ def addToDb(chatContent):
     for c in chatContent:
         if(not cancel):
             current = x
-            test = c.attrs.get("data-messageid")
-            print(test)
-            print(activeTags)
+            #test = c.attrs.get("data-messageid")
+            #print(test)
+            #print(activeTags)
             s = c["class"]
             if "rollresult" in s:
                 addRollresult(c)
