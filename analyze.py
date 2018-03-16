@@ -177,7 +177,7 @@ def returnStats():
         s = s + "dice counter" + str(getAvg(values["diceRolls"],values["diceAvgs"])) + "\n"
 
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
-        s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
+        s = s + "Top 5 Formula" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
 
@@ -195,7 +195,7 @@ def returnStats():
 
 
         s = s + "highest roll " + str(values["highestRoll"]) + "\n"
-        s = s + "Top 5 Formual" + str(values["topFormual"].most_common(5)) + "\n"
+        s = s + "Top 5 Formula" + str(values["topFormual"].most_common(5)) + "\n"
         s = s + "points " + str(values["points"])
         s = s + ('\n\n')
 
