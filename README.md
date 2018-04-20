@@ -1,6 +1,8 @@
 # roll20Analyzer
 A python program to analyze a roll 20 chat log.
 
+
+![alt text](https://github.com/nicholasH/roll20Analyzer/blob/master/images/example.png)
 # Prerequisites
 - must have python 3 installed.
 - must have Pip installed.
